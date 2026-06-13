@@ -23,7 +23,7 @@ export default async function Layout({
       .filter(Boolean)
       .join("; ");
 
-    const res = await fetch(`${envConfig.NEXT_PUBLIC_APP_URL}/auth/me`, {
+    const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/me`, {
       headers: {
         Cookie: cookieHeader,
       },

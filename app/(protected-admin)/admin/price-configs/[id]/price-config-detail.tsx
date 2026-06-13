@@ -79,7 +79,7 @@ export default function PriceConfigDetail() {
   useEffect(() => {
     const fetchPriceConfig = async () => {
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_APP_URL}/price-config/${id}`,
+        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/${id}`,
       );
       if (!res.ok) {
         throw new Error("Lỗi!");
@@ -104,7 +104,7 @@ export default function PriceConfigDetail() {
   const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_APP_URL}/price-config/create`,
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/create`,
       {
         method: "POST",
         credentials: "include",
@@ -125,7 +125,7 @@ export default function PriceConfigDetail() {
   const handleSubmitEdit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_APP_URL}/price-config/update`,
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/update`,
       {
         method: "PATCH",
         credentials: "include",
@@ -145,7 +145,7 @@ export default function PriceConfigDetail() {
 
   const handleRemove = async (id: number) => {
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_APP_URL}/price-config/delete/${id}`,
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/delete/${id}`,
       {
         method: "DELETE",
         credentials: "include",

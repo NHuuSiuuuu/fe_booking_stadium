@@ -12,7 +12,7 @@ export default async function page({ params }: Props) {
 
   // Load sân
   const stadiumRes = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/stadium/${slug}`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/${slug}`,
     {
       cache: "no-store",
     },
@@ -27,7 +27,7 @@ export default async function page({ params }: Props) {
   // Load cấu hình giá sân
   let priceConfig = [];
   const priceConfigRes = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/price-config/${stadium.id}`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/${stadium.id}`,
     {
       cache: "no-store",
     },

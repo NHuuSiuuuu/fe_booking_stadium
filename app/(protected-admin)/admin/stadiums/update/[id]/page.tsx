@@ -23,7 +23,7 @@ export default async function page({ params }: Props) {
 
   // Load sân
   const stadiumRes = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/stadium/detail/${id}`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/detail/${id}`,
     {
       headers: {
         Cookie: cookieHeader,

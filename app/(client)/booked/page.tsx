@@ -20,7 +20,7 @@ export default async function page() {
       .filter(Boolean)
       .join("; ");
     const bookedRes = await fetch(
-      `${envConfig.NEXT_PUBLIC_APP_URL}/booking/my`,
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/booking/my`,
       {
         headers: {
           Cookie: cookieHeader,

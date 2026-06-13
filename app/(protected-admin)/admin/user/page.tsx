@@ -31,7 +31,7 @@ export default async function page({ searchParams }: Props) {
     .join("; ");
 
   // api/user?filter=isadmin:false
-  let url = `${envConfig.NEXT_PUBLIC_APP_URL}/user?page=${page}`;
+  let url = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/user?page=${page}`;
 
   if (keyword) {
     url += `&keyword=${keyword}`;

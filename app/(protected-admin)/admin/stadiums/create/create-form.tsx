@@ -53,7 +53,7 @@ export default function CreateForm() {
   });
 
   useEffect(() => {
-    fetch(`${envConfig.NEXT_PUBLIC_APP_URL}/districts`)
+    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/districts`)
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);
@@ -115,7 +115,7 @@ export default function CreateForm() {
       });
 
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_APP_URL}/stadium/create`,
+        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/create`,
         {
           method: "POST",
           credentials: "include",

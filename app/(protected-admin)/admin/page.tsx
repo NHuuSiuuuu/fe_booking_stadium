@@ -15,7 +15,7 @@ export default async function page() {
     .join("; ");
 
   const resStatisticsOverview = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/statistics/overview`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/overview`,
     {
       headers: {
         Cookie: cookieHeader,
@@ -28,7 +28,7 @@ export default async function page() {
   }
 
   const resBookingByMonth = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/statistics/bookings-by-month`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/bookings-by-month`,
     {
       headers: {
         Cookie: cookieHeader,
@@ -41,7 +41,7 @@ export default async function page() {
   }
 
   const resTopStadiums = await fetch(
-    `${envConfig.NEXT_PUBLIC_APP_URL}/statistics/top-stadiums`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/top-stadiums`,
     {
       headers: {
         Cookie: cookieHeader,

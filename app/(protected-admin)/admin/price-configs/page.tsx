@@ -28,7 +28,7 @@ export default async function page({ searchParams }: Props) {
     .join("; "); //"access_token=abc123; refresh_token=xyz999"
 
   // gọi backend
-  let url = `${envConfig.NEXT_PUBLIC_APP_URL}/stadiums?page=${page}`;
+  let url = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?page=${page}`;
   if (keyword) {
     url += `&keyword=${keyword}`;
   }

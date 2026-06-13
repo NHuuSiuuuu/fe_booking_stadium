@@ -29,7 +29,7 @@ export default async function RootLayout({
       .join("; "); //"access_token=abc123; refresh_token=xyz999"
 
     // gọi backend
-    const res = await fetch(`${envConfig.NEXT_PUBLIC_APP_URL}/auth/me`, {
+    const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/me`, {
       headers: {
         Cookie: cookieHeader,
       },

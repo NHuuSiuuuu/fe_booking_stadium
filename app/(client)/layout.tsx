@@ -10,9 +10,10 @@ export default async function RootLayout({
 }) {
   let user = null;
 
+  // lấy cookie từ request hiện tại
+  const cookieStore = await cookies();
+
   try {
-    // lấy cookie từ request hiện tại
-    const cookieStore = await cookies();
 
     // lấy access_token và refresh_token
     const accessToken = cookieStore.get("access_token")?.value;

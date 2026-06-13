@@ -31,6 +31,7 @@ const UpdateStadiumBody = z.object({
   address: z.string(),
   lng: z.string(),
   lat: z.string(),
+  type: z.any(),
   description: z.string(),
   featured: z.enum(["0", "1"]),
   status: z.enum(["0", "1"]),
@@ -62,6 +63,7 @@ export default function UpdateForm({ initialStadium }: Props) {
       address: initialStadium.address || "",
       lng: "",
       lat: "",
+      type: initialStadium.type,
       description: initialStadium.description || "",
       featured: initialStadium.featured ? "1" : "0",
       status: initialStadium.status ? "1" : "0",
@@ -119,6 +121,7 @@ export default function UpdateForm({ initialStadium }: Props) {
       formData.append("address", data.address);
       formData.append("lng", data.lng);
       formData.append("lat", data.lat);
+      formData.append("type", data.type);
       formData.append("description", data.description);
       formData.append("featured", data.featured);
       formData.append("status", data.status);
@@ -139,7 +142,7 @@ export default function UpdateForm({ initialStadium }: Props) {
       );
 
       if (!res.ok) {
-        console.log(res)
+        console.log(res);
         throw new Error("Lỗi tạo sản phẩm");
       }
       reset();
@@ -221,7 +224,7 @@ export default function UpdateForm({ initialStadium }: Props) {
             </div>
 
             {/* Tọa độ */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div>
                 <label className="block mb-3 text-sm font-medium text-gray-700">
                   lng
@@ -258,6 +261,20 @@ export default function UpdateForm({ initialStadium }: Props) {
                   {errors.lng && (
                     <span className="text-red-500">{errors.lng.message}</span>
                   )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-3 text-sm font-medium text-gray-700">
+                  type
+                </label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      {...register("type")}
+                      className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

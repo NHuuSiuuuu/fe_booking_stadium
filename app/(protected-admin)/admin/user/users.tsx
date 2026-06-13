@@ -53,7 +53,7 @@ export default function Users({ initialUsers }: Props) {
 
   const [filterStatus, setFilterStatus] = useState("");
   const [sort, setSort] = useState("");
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<any>(1);
   const users = initialUsers.result;
   const totalPage = initialUsers.totalPage;
   const totalUsers = initialUsers.total;

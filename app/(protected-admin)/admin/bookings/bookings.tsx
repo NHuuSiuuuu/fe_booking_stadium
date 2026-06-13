@@ -74,7 +74,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
 
   const [filterStatus, setFilterStatus] = useState("");
   const [sort, setSort] = useState("");
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<any>(1);
   const orders = initialPriceConfig.result;
   const totalPage = initialPriceConfig.totalPage;
 

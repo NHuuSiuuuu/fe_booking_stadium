@@ -380,7 +380,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Thanh toán */}
                     <span
-                      className={` px-2.5 py-1 rounded-full text-xs font-medium ${order.paymentMethod === "cod" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"} `}
+                      className={` px-2.5 py-1 rounded-full text-xs font-medium ${order.payment_method === "cash" ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"} `}
                     >
                       {order.payment_method === "cash"
                         ? "Tiền mặt"

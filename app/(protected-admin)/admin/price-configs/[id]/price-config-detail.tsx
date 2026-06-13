@@ -61,7 +61,8 @@ export default function PriceConfigDetail() {
   const id = params.id;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedPiceConfig, setSelectedPriceConfig] = useState(null);
+  const [selectedPiceConfig, setSelectedPriceConfig] =
+    useState<PriceConfig | null>(null);
   const [data, setData] = useState<PriceConfig[]>([]);
   console.log("selectedPiceConfig", selectedPiceConfig);
   const [formData, setFormData] = useState({
@@ -211,12 +212,8 @@ export default function PriceConfigDetail() {
                       <div className="flex items-center gap-3 text-gray-400">
                         <button
                           onClick={() => {
-                            (setSelectedPriceConfig((prev) => ({
-                              ...prev,
-                              id: item.id,
-                            })),
-                              setSelectedPriceConfig(item),
-                              setIsEditModalOpen(true));
+                            setSelectedPriceConfig(item);
+                            setIsEditModalOpen(true);
                           }}
                           className="transition-colors hover:text-red-500"
                         >
@@ -416,10 +413,14 @@ export default function PriceConfigDetail() {
                   value={selectedPiceConfig?.day_of_week}
                   id="day_of_week"
                   onChange={(e) =>
-                    setSelectedPriceConfig((prev) => ({
-                      ...prev,
-                      day_of_week: e.target.value,
-                    }))
+                    setSelectedPriceConfig((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            day_of_week: Number(e.target.value),
+                          }
+                        : null,
+                    )
                   }
                   max={8}
                   min={0}
@@ -466,10 +467,14 @@ export default function PriceConfigDetail() {
                       id="start_time"
                       value={selectedPiceConfig?.start_time}
                       onChange={(e) =>
-                        setSelectedPriceConfig((prev) => ({
-                          ...prev,
-                          start_time: e.target.value,
-                        }))
+                        setSelectedPriceConfig((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                start_time: e.target.value,
+                              }
+                            : null,
+                        )
                       }
                       className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none "
                     />
@@ -483,10 +488,14 @@ export default function PriceConfigDetail() {
                       value={selectedPiceConfig?.end_time}
                       required
                       onChange={(e) =>
-                        setSelectedPriceConfig((prev) => ({
-                          ...prev,
-                          end_time: e.target.value,
-                        }))
+                        setSelectedPriceConfig((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                end_time: e.target.value,
+                              }
+                            : null,
+                        )
                       }
                       className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none"
                     />
@@ -501,10 +510,14 @@ export default function PriceConfigDetail() {
                       value={selectedPiceConfig?.price}
                       required
                       onChange={(e) =>
-                        setSelectedPriceConfig((prev) => ({
-                          ...prev,
-                          price: e.target.value,
-                        }))
+                        setSelectedPriceConfig((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                price: Number(e.target.value),
+                              }
+                            : null,
+                        )
                       }
                       className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
                     />

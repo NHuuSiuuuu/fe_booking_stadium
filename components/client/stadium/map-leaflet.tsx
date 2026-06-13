@@ -83,7 +83,7 @@ export default function MapLeaflet() {
     return null;
   }
 
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Lưu bị trí user

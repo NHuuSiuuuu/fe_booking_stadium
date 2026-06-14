@@ -101,18 +101,15 @@ export default function StadiumAdmin() {
 
   const handleRemoveStadium = async (id: number) => {
     try {
-      const res = await fetch(
-        `/api/stadium/delete/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`/api/stadium/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (!res.ok) {
         throw new Error("Xóa thất bại");
       }
-      toast.success("Xóa thành công");
+      toast.success("Xóa thành công", { position: "top-right" });
 
       setData((prev) =>
         prev

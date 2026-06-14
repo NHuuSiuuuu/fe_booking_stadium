@@ -82,9 +82,9 @@ export default function RegisterForm() {
       if (!result.ok) {
         throw payload;
       }
-      toast.success(payload?.message);
+      toast.success(payload?.message, { position: "top-right" });
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message, { position: "top-right" });
     } finally {
       setIsPending(false);
     }
@@ -93,37 +93,23 @@ export default function RegisterForm() {
   return (
     <div className="flex min-h-screen bg-[#f5f5f5]">
       {/* ── Left panel ── */}
-      <div className="hidden lg:flex flex-col justify-between w-[42%] shrink-0 bg-black px-12 py-14">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 no-underline">
-          <div className="flex items-center justify-center w-10 h-10 border-2 border-white">
-            <span className="text-xs font-black tracking-widest text-white uppercase">
-              SB
-            </span>
-          </div>
-          <span className="text-sm font-black tracking-widest text-white uppercase">
-            SânBóngHN
-          </span>
-        </Link>
-
-        {/* Middle */}
+      <div
+        className={`hidden lg:flex flex-col justify-between w-[42%] shrink-0  px-12 py-14`}
+        style={{
+          backgroundImage: "url('/hero.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <div>
-          <p className="mb-4 text-5xl font-black leading-none tracking-tight text-white uppercase">
-            NHANH
+          <p className="mb-4 text-5xl font-black leading-15 tracking-tight text-white uppercase">
+            Đặt sân bóng
             <br />
-            <span className="text-gray-500">NHẤT</span>
+            <span className="text-gray-500">Tại</span>
             <br />
             HÀ NỘI.
           </p>
-          <p className="mt-6 text-xs tracking-widest text-gray-500 uppercase">
-            Xem lịch trống · Đặt sân online · Bản đồ GIS trực quan
-          </p>
         </div>
-
-        {/* Bottom */}
-        <p className="text-gray-600 text-[11px] uppercase tracking-widest">
-          © 2026 SânBóngHN
-        </p>
       </div>
 
       {/* ── Right form panel ── */}

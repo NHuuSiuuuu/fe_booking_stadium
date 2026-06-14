@@ -46,7 +46,7 @@ export default function ForgotPasswordForm() {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.message || "Lỗi");
-      toast.success("Đã gửi mã OTP");
+      toast.success("Đã gửi mã OTP", { position: "top-right" });
       setStep(2);
       setCountdown(60);
     } catch (error) {
@@ -71,7 +71,7 @@ export default function ForgotPasswordForm() {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.message || "Lỗi");
-      toast.success("Đổi mật khẩu thành công");
+      toast.success("Đổi mật khẩu thành công", { position: "top-right" });
 
       setFormData({ email: "", otp: "", newPassword: "" });
       router.push("/login");

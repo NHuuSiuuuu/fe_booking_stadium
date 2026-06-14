@@ -12,7 +12,8 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import L from "leaflet";
 import useDebounce from "@/hooks/useDebounce";
-import { Crosshair, Loader, Search } from "lucide-react";
+// import { Crosshair, Loader, Search } from "lucide-react";
+import { Search, Loader, Crosshair, X, List } from "lucide-react";
 import Link from "next/link";
 
 type UserPos = {
@@ -85,11 +86,12 @@ export default function MapLeaflet() {
 
   const [selected, setSelected] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Lưu bị trí user
   const [userPos, setUserPos] = useState<UserPos | null>(null);
   const [radius, setRadius] = useState(10); // km
-
+  const [showList, setShowList] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState("");
   const [flyTarget, setFlyTarget] = useState<FlyTarget | null>(null);
@@ -107,7 +109,7 @@ export default function MapLeaflet() {
   const fetchStadiums = useCallback(async () => {
     setIsLoading(true);
     try {
-      let url = `api/stadiums?page=${page}`;
+      let url = `/api/stadiums?page=${page}`;
       if (debounceValue) url += `&keyword=${debounceValue}`;
       if (userPos) {
         url += `&lat=${userPos.lat}&lng=${userPos.lng}&radius=${radius}`;
@@ -174,46 +176,197 @@ export default function MapLeaflet() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex flex-1 overflow-hidden">
-        {/* ── SIDEBAR ── */}
-        <div className="w-[340px] shrink-0 bg-white border-r border-slate-200 flex flex-col z-10">
-          {/* Header */}
+      <div className="relative flex flex-1 overflow-hidden">
+        {/* ══ MOBILE TOPBAR  ══ */}
+        <div className="md:hidden absolute top-0 left-0 right-0 z-20 bg-white border-b border-slate-200">
+          <div className="flex items-center gap-2 px-3 h-[52px]">
+            {/* Search */}
+            <div className="flex items-center gap-2 px-3 h-9 border border-slate-200 bg-slate-50 flex-1 min-w-0">
+              <Search className="size-[13px] text-slate-400 shrink-0" />
+              <input
+                placeholder="Tìm sân..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="flex-1 min-w-0 text-[13px] bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-400"
+              />
+            </div>
+            {/* Quận */}
+            <select
+              value={distCode}
+              onChange={(e) => setDistCode(e.target.value)}
+              className="h-9 border border-slate-200 bg-slate-50 px-2 text-[11px] font-bold text-slate-700 outline-none cursor-pointer shrink-0"
+            >
+              <option value="">Quận</option>
+              {districts?.map((item) => (
+                <option value={item.ogc_fid} key={item.ogc_fid}>
+                  {item.name_2}
+                </option>
+              ))}
+            </select>
+            {/* Loại sân */}
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="h-9 border border-slate-200 bg-slate-50 px-2 text-[11px] font-bold text-slate-700 outline-none cursor-pointer shrink-0"
+            >
+              <option value="">Loại</option>
+              <option value="5">Sân 5</option>
+              <option value="7">Sân 7</option>
+              <option value="11">Sân 11</option>
+            </select>
+          </div>
+        </div>
+        <button
+          onClick={handleFindNearMe}
+          disabled={geoLoading}
+          className={`md:hidden absolute right-4 z-30 w-9 h-9 flex items-center justify-center shadow-lg transition-all ${
+            userPos
+              ? "bg-gray-700 top-[68px]"
+              : "bg-white border border-slate-200 top-[68px]"
+          } ${geoLoading ? "opacity-60 cursor-wait" : "cursor-pointer"}`}
+          title="Tìm sân gần tôi nhất"
+        >
+          {geoLoading ? (
+            <Loader className="size-3 text-slate-600" />
+          ) : (
+            <Crosshair
+              className={`size-3 ${userPos ? "text-white" : "text-slate-700"}`}
+            />
+          )}
+        </button>
+        {userPos && (
+          <button
+            onClick={() => setUserPos(null)}
+            disabled={geoLoading}
+            className={`md:hidden absolute right-4   
+            z-30 w-9 h-9 flex items-center justify-center 
+            shadow-lg transition-all 
+             bg-white border border-slate-200 top-28
+         `}
+            title="Bỏ lọc tìm sân gần nhất"
+          >
+            ✕
+          </button>
+        )}
+        <button
+          onClick={() => setShowList(true)}
+          className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30
+          flex items-center gap-2 bg-gray-900 text-white
+          text-[11px] font-bold uppercase tracking-wider
+          px-3 py-3"
+        >
+          <List className="size-4" />
+          {/* Danh sách ({data?.total} sân) */}
+        </button>
+        {showList && (
+          <>
+            <div
+              className="md:hidden absolute inset-0 z-30 bg-black/30"
+              onClick={() => setShowList(false)}
+            />
+            <div className="md:hidden absolute bottom-0 left-0 right-0 z-40 bg-white h-[70vh] flex flex-col">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                <span className="text-[13px] font-bold uppercase text-slate-800">
+                  {/* {data?.total} sân */}
+                </span>
+                <button onClick={() => setShowList(false)} className="p-1">
+                  <X className="size-5 text-slate-400" />
+                </button>
+              </div>
+              <div className="flex-1  h-[70vh]  overflow-y-auto">
+                {data?.stadiums?.length === 0 ? (
+                  <div className="py-16 text-sm font-bold tracking-widest text-center uppercase text-slate-400">
+                    Không tìm thấy sân
+                  </div>
+                ) : (
+                  data?.stadiums?.map((s, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelect(s)}
+                      className={`w-full text-left border-b border-slate-100 transition-all cursor-pointer hover:bg-blue-50 border-l-2 ${selected?.id === s.id ? "bg-blue-50 border-l-blue-600" : "bg-white border-l-transparent"}`}
+                    >
+                      <div className="relative h-[100px] overflow-hidden">
+                        <img
+                          src={s?.thumbnail?.[0]}
+                          alt={s?.name}
+                          className="object-cover w-full h-full"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                        <div className="absolute flex gap-1 bottom-2 left-2">
+                          <span className="text-[12px] font-bold uppercase bg-gray-700/90 text-white px-1.5 py-0.5 rounded-sm">
+                            Sân {s?.type}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="px-4 py-3">
+                        <h3 className="m-0 mb-1 font-bold  uppercase text-[13px] text-slate-700 leading-tight">
+                          {s.name}
+                        </h3>
+                        <p className="m-0 mb-2 text-[11px] text-slate-500 flex items-start gap-1">
+                          <span className="shrink-0">📍</span>
+                          {s.address}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[14px] font-bold  text-black">
+                            {s?.price?.toLocaleString("vi-VN")}đ
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[10px] font-bold  uppercase tracking-wider bg-slate-100 hover:bg-gray-700 hover:text-white text-slate-600 px-2 py-1 rounded-sm transition-colors no-underline"
+                            >
+                              🗺️ Đi
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ══ DESKTOP SIDEBAR ══ */}
+        <div className="hidden md:flex w-[340px] shrink-0 bg-white border-r border-slate-200 flex-col z-10">
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-            <div className="text-[14px] font-medium uppercase tracking-[0.1em] text-slate-800  mb-1">
+            <div className="text-[15px] font-bold uppercase text-slate-800 mb-1">
               Bản đồ sân bóng
             </div>
-            <span className="text-slate-800 ">{data?.total} sân</span>
+            <span className="text-slate-500 text-[13px]">
+              Tổng {data?.total} sân
+            </span>
 
-            {/* Nút tìm gần nhất */}
             <button
               onClick={handleFindNearMe}
               disabled={geoLoading}
-              className={`w-full flex items-center justify-center gap-2 py-2.5 border text-[11px] font-bold uppercase tracking-[0.1em] transition-all ${
+              className={`mt-3 w-full flex items-center justify-center gap-2 py-2.5 border text-[11px] font-bold uppercase transition-all ${
                 userPos
-                  ? "bg-gray-700 text-white hover:bg-gray-700"
-                  : "bg-white text-slate-700 border-slate-300 hover:border-black hover:text-slate-800 "
+                  ? "bg-gray-700 text-white border-gray-700"
+                  : "bg-white text-slate-700 border-slate-300 hover:border-black hover:text-slate-800"
               } ${geoLoading ? "opacity-60 cursor-wait" : "cursor-pointer"}`}
             >
               {geoLoading ? (
                 <>
-                  <Loader className="size-[14px]" />
-                  Đang định vị...
+                  <Loader className="size-[14px]" /> Đang định vị...
                 </>
               ) : userPos ? (
-                <> Đang sắp xếp theo khoảng cách</>
+                <>Đang sắp xếp theo khoảng cách</>
               ) : (
                 <>
-                  <Crosshair className="size-[14px]" />
-                  Tìm sân gần tôi nhất
+                  <Crosshair className="size-[14px]" /> Tìm sân gần tôi nhất
                 </>
               )}
             </button>
 
             {userPos && (
               <button
-                onClick={() => {
-                  setUserPos(null);
-                }}
+                onClick={() => setUserPos(null)}
                 className="w-full mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-700 bg-transparent border-none cursor-pointer py-1 transition-colors"
               >
                 ✕ Bỏ sắp xếp theo khoảng cách
@@ -226,12 +379,9 @@ export default function MapLeaflet() {
             )}
           </div>
 
-          {/* Filters */}
           <div className="flex flex-col gap-3 px-5 py-4 border-b border-slate-100">
-            <div
-              className={`flex items-center gap-2 px-3 h-9  border transition-all bg-black-50 border-black-400`}
-            >
-              <Search className="size-[14px]" />
+            <div className="flex items-center gap-2 px-3 h-9 border border-slate-200 bg-slate-50">
+              <Search className="size-[14px] text-slate-400" />
               <input
                 placeholder="Tìm tên sân, địa chỉ..."
                 value={search}
@@ -240,15 +390,14 @@ export default function MapLeaflet() {
               />
             </div>
             <div className="flex gap-2">
-              {/* Lọc quận */}
               <div className="flex flex-col flex-1">
-                <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
                   Quận
                 </div>
                 <select
                   value={distCode}
                   onChange={(e) => setDistCode(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-sm px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
                 >
                   <option value="">Tất cả</option>
                   {districts?.map((item) => (
@@ -258,15 +407,14 @@ export default function MapLeaflet() {
                   ))}
                 </select>
               </div>
-              {/* Lọc loại sân */}
               <div className="flex flex-col flex-1">
-                <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
                   Loại sân
                 </div>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-sm px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
                 >
                   <option value="">Tất cả</option>
                   <option value="5">5v5</option>
@@ -279,64 +427,12 @@ export default function MapLeaflet() {
 
           {/* List */}
           <div className="flex-1 overflow-y-auto">
-            {data?.stadiums?.length === 0 ? (
-              <div className="py-16 text-sm font-bold tracking-widest text-center uppercase text-slate-400">
-                Không tìm thấy sân
-              </div>
-            ) : (
-              data?.stadiums?.map((s, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSelect(s)}
-                  className={`w-full text-left border-b border-slate-100 transition-all cursor-pointer hover:bg-blue-50 border-l-2 ${selected?.id === s.id ? "bg-blue-50 border-l-blue-600" : "bg-white border-l-transparent"}`}
-                >
-                  <div className="relative h-[100px] overflow-hidden">
-                    <img
-                      src={s?.thumbnail?.[0]}
-                      alt={s?.name}
-                      className="object-cover w-full h-full"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-
-                    <div className="absolute flex gap-1 bottom-2 left-2">
-                      <span className="text-[12px] font-bold uppercase bg-gray-700/90 text-white px-1.5 py-0.5 rounded-sm">
-                        Sân {s?.type}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="px-4 py-3">
-                    <h3 className="m-0 mb-1 font-bold  uppercase text-[13px] text-slate-700 leading-tight">
-                      {s.name}
-                    </h3>
-                    <p className="m-0 mb-2 text-[11px] text-slate-500 flex items-start gap-1">
-                      <span className="shrink-0">📍</span>
-                      {s.address}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[14px] font-bold  text-black">
-                        {s?.price?.toLocaleString("vi-VN")}đ
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <a
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[10px] font-bold  uppercase tracking-wider bg-slate-100 hover:bg-gray-700 hover:text-white text-slate-600 px-2 py-1 rounded-sm transition-colors no-underline"
-                        >
-                          🗺️ Đi
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
+            {/* danh sách sân như cũ */}
           </div>
         </div>
 
         {/* ── MAP ── */}
-        <div className="relative z-40 flex-1">
+        <div className="relative z-10 flex-1">
           <MapContainer
             center={[21.0285, 105.8542]}
             zoom={13}

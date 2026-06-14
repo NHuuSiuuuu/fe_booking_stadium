@@ -121,17 +121,17 @@ export default function CheckoutForm() {
   console.log("form data", formData);
   const handleConfirm = async () => {
     if (!data?.user) {
-      toast.error("Vui lòng đăng nhập để đặt sân");
+      toast.error("Vui lòng đăng nhập để đặt sân", { position: "top-right" });
       router.push("/login");
       return;
     }
 
     if (!stadium) {
-      toast.error("Không tìm thấy sân");
+      toast.error("Không tìm thấy sân", { position: "top-right" });
       return;
     }
     if (!dateObj) {
-      toast.error("Ngày đặt sân không hợp lệ");
+      toast.error("Ngày đặt sân không hợp lệ", { position: "top-right" });
       return;
     }
 
@@ -164,12 +164,12 @@ export default function CheckoutForm() {
         return;
       }
 
-      toast.success("Đặt sân thành công");
+      toast.success("Đặt sân thành công", { position: "top-right" });
       router.push(`/booking/success/${result.booking.id}`);
       console.log("result", result);
       console.log("res", res);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message, { position: "top-right" });
     } finally {
       setISubmitting(false);
     }

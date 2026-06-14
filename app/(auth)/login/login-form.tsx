@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const LoginBody = z
   .object({
@@ -19,10 +20,11 @@ type LoginBodyType = z.TypeOf<typeof LoginBody>;
 
 export default function LoginForm() {
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
+
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -34,25 +36,27 @@ export default function LoginForm() {
 
   async function onSubmit(values: LoginBodyType) {
     try {
+      setIsPending(true);
       const result = await fetch(`api/login`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(async (res) => {
-        const payload = await res.json();
-
-        if (!res.ok) {
-          throw payload;
-        }
-        toast.success("Đăng nhập thành công");
-
-        router.replace("/");
-        return payload;
       });
+      const payload = await result.json();
+
+      if (!result.ok) {
+        throw payload;
+      }
+      toast.success("Đăng nhập thành công", { position: "top-right" });
+
+      router.replace("/");
+      return payload;
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -60,22 +64,25 @@ export default function LoginForm() {
     <div className="flex min-h-screen bg-[#f5f5f5]">
       {/* ── Left panel ── */}
       <div
-        className={`hidden lg:flex flex-col justify-between w-[42%] shrink-0 invert  px-12 py-14`}
+        className={`hidden lg:flex flex-col justify-between w-[42%] shrink-0  px-12 py-14`}
         style={{
           backgroundImage: "url('/hero.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {/* Middle quote */}
         <div>
-          <p className="mt-6 text-xs tracking-widest text-gray-500 uppercase">
-            Xem lịch trống · Đặt sân online · Bản đồ GIS trực quan
+          <p className="mb-4 text-5xl font-black leading-15 tracking-tight text-white uppercase">
+            Đặt sân bóng
+            <br />
+            <span className="text-gray-500">Tại</span>
+            <br />
+            HÀ NỘI.
           </p>
         </div>
       </div>
 
-      {/* ── Right form panel ── */}
+      {/* ── Right  */}
       <div className="flex-1 flex flex-col justify-center px-10 py-12 max-w-[480px] mx-auto w-full">
         {/* Mobile logo */}
         <Link
@@ -145,16 +152,16 @@ export default function LoginForm() {
 
           {/* Submit */}
           <button
-            // disabled={isPending}
+            disabled={isPending}
             className="flex items-center justify-center w-full gap-2 py-4 mt-2 text-xs font-black tracking-widest text-white uppercase transition-colors bg-black hover:bg-gray-900 disabled:opacity-50"
           >
-            {/* {isPending ? (
+            {isPending ? (
               "Đang đăng nhập..."
             ) : (
-                )} */}
-            <>
-              Đăng nhập <ArrowRight size={14} />
-            </>
+              <>
+                Đăng nhập <ArrowRight size={14} />
+              </>
+            )}
           </button>
         </form>
 

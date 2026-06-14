@@ -78,9 +78,7 @@ export default function PriceConfigDetail() {
   });
   useEffect(() => {
     const fetchPriceConfig = async () => {
-      const res = await fetch(
-        `/api/price-config/${id}`,
-      );
+      const res = await fetch(`/api/price-config/${id}`);
       if (!res.ok) {
         throw new Error("Lỗi!");
       }
@@ -90,7 +88,7 @@ export default function PriceConfigDetail() {
     };
     fetchPriceConfig();
   }, []);
-console.log("`/api/price-config/${id}`",`/api/price-config/${id}`)
+  console.log("`/api/price-config/${id}`", `/api/price-config/${id}`);
   //   Lọc ra thứ
   const days = [...new Set(data.map((item) => item.day_of_week))];
   // console.log("days", days);
@@ -103,61 +101,54 @@ console.log("`/api/price-config/${id}`",`/api/price-config/${id}`)
 
   const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
-    const res = await fetch(
-      `/api/price-config/create`,
-      {
-        method: "POST",
-        credentials: "include",
+    const res = await fetch(`/api/price-config/create`, {
+      method: "POST",
+      credentials: "include",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(formData),
+    });
     if (!res.ok) {
       throw new Error("llooix");
     }
-    toast.success("Thêm cấu hình sân thành công!");
+    toast.success("Thêm cấu hình sân thành công!", { position: "top-right" });
   };
   // console.log("se", selectedPiceConfig);
 
   const handleSubmitEdit = async (e: React.ChangeEvent) => {
     e.preventDefault();
-    const res = await fetch(
-      `/api/price-config/update`,
-      {
-        method: "PATCH",
-        credentials: "include",
+    const res = await fetch(`/api/price-config/update`, {
+      method: "PATCH",
+      credentials: "include",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedPiceConfig),
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(selectedPiceConfig),
+    });
     if (!res.ok) {
       throw new Error("llooix");
     }
     setIsEditModalOpen(false);
-    toast.success("Cập nhật cấu hình sân thành công!");
+    toast.success("Cập nhật cấu hình sân thành công!", {
+      position: "top-right",
+    });
   };
 
   const handleRemove = async (id: number) => {
-    const res = await fetch(
-      `/api/price-config/delete/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const res = await fetch(`/api/price-config/delete/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
     if (!res.ok) {
       throw new Error("Lỗi");
     }
-    toast.success("Xóa cấu hình sân thành công!");
+    toast.success("Xóa cấu hình sân thành công!", { position: "top-right" });
   };
   return (
     <div>

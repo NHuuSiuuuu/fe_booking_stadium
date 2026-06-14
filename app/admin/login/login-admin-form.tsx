@@ -49,7 +49,7 @@ export default function LoginAdminForm() {
         if (!res.ok) {
           throw payload;
         }
-        toast.success("Đăng nhập thành công");
+        toast.success("Đăng nhập thành công", { position: "top-right" });
 
         router.replace("/admin");
         return payload;

@@ -2,6 +2,7 @@
 import { cookies } from "next/headers";
 import envConfig from "@/config";
 import Header from "@/components/client/layout/header";
+import Footer from "@/components/client/layout/footer";
 
 export default async function RootLayout({
   children,
@@ -50,6 +51,7 @@ export default async function RootLayout({
     <>
       <Header initialUser={user} />
       {children}
+      <Footer/>
     </>
   );
 }

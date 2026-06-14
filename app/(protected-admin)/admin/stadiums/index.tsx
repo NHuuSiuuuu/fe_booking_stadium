@@ -76,7 +76,7 @@ export default function StadiumAdmin() {
 
   useEffect(() => {
     setIsLoading(true);
-    let url = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?page=${page || 1}`;
+    let url = `/api/stadiums?page=${page || 1}`;
     if (debounceValue) url += `&keyword=${debounceValue}`;
     if (distCode) url += `&filter=dist:${distCode}`;
     if (sort) url += `&sort=${sort}`;
@@ -93,7 +93,7 @@ export default function StadiumAdmin() {
   const totalPage = data?.totalPage || 0;
 
   useEffect(() => {
-    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/districts`)
+    fetch(`/api/districts`)
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);
@@ -102,7 +102,7 @@ export default function StadiumAdmin() {
   const handleRemoveStadium = async (id: number) => {
     try {
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/delete/${id}`,
+        `/api/stadium/delete/${id}`,
         {
           method: "DELETE",
           credentials: "include",

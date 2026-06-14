@@ -64,7 +64,7 @@ export default function PriceConfigDetail() {
   const [selectedPiceConfig, setSelectedPriceConfig] =
     useState<PriceConfig | null>(null);
   const [data, setData] = useState<PriceConfig[]>([]);
-  console.log("selectedPiceConfig", selectedPiceConfig);
+  // console.log("selectedPiceConfig", selectedPiceConfig);
   const [formData, setFormData] = useState({
     stadium_id: id,
     day_of_week: "",
@@ -79,7 +79,7 @@ export default function PriceConfigDetail() {
   useEffect(() => {
     const fetchPriceConfig = async () => {
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/${id}`,
+        `/api/price-config/${id}`,
       );
       if (!res.ok) {
         throw new Error("Lỗi!");
@@ -90,7 +90,7 @@ export default function PriceConfigDetail() {
     };
     fetchPriceConfig();
   }, []);
-
+console.log("`/api/price-config/${id}`",`/api/price-config/${id}`)
   //   Lọc ra thứ
   const days = [...new Set(data.map((item) => item.day_of_week))];
   // console.log("days", days);
@@ -104,7 +104,7 @@ export default function PriceConfigDetail() {
   const handleSubmit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/create`,
+      `/api/price-config/create`,
       {
         method: "POST",
         credentials: "include",
@@ -120,12 +120,12 @@ export default function PriceConfigDetail() {
     }
     toast.success("Thêm cấu hình sân thành công!");
   };
-  console.log("se", selectedPiceConfig);
+  // console.log("se", selectedPiceConfig);
 
   const handleSubmitEdit = async (e: React.ChangeEvent) => {
     e.preventDefault();
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/update`,
+      `/api/price-config/update`,
       {
         method: "PATCH",
         credentials: "include",
@@ -145,7 +145,7 @@ export default function PriceConfigDetail() {
 
   const handleRemove = async (id: number) => {
     const res = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/delete/${id}`,
+      `/api/price-config/delete/${id}`,
       {
         method: "DELETE",
         credentials: "include",

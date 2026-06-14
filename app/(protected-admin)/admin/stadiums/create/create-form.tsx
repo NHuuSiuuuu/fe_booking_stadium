@@ -53,7 +53,7 @@ export default function CreateForm() {
   });
 
   useEffect(() => {
-    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/districts`)
+    fetch(`/api/districts`)
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);
@@ -114,14 +114,11 @@ export default function CreateForm() {
         formData.append("thumbnail", file);
       });
 
-      const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/create`,
-        {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        },
-      );
+      const res = await fetch(`/api/stadium/create`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
       if (!res.ok) {
         throw new Error("Lỗi tạo sản phẩm");

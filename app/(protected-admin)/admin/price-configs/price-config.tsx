@@ -76,7 +76,7 @@ export default function PriceConfig({ initialPriceConfig }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 md:text-3xl">
-              Quản lý sân bóng
+              Cấu hình giá - giờ sân
             </h1>
             <p className="mt-1 text-sm text-slate-500">
               Tổng số sân bóng:{" "}
@@ -85,13 +85,6 @@ export default function PriceConfig({ initialPriceConfig }: Props) {
               </span>
             </p>
           </div>
-
-          <Link href="/admin/stadiums/create">
-            <button className="inline-flex items-center gap-2 h-11 px-6 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 shadow-sm hover:shadow-md">
-              <Plus className="w-5 h-5" />
-              <span>Thêm sân bóng</span>
-            </button>
-          </Link>
         </div>
       </div>
 

@@ -72,7 +72,7 @@ export default function UpdateForm({ initialStadium }: Props) {
   });
 
   useEffect(() => {
-    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/districts`)
+    fetch(`/api/districts`)
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);

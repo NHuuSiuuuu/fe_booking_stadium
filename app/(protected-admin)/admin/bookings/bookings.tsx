@@ -117,7 +117,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
 
     try {
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/booking/update-status`,
+        `/api/booking/update-status`,
         {
           method: "POST",
           credentials: "include",

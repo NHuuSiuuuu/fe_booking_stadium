@@ -2,7 +2,7 @@ import BookingProcess from "@/components/client/home/booking-process";
 import DistrictPriceTable from "@/components/client/home/district-price-table";
 import NearByStadiums from "@/components/client/home/near-by-stadiums";
 import Overview from "@/components/client/home/overview";
-import Weather from "@/components/client/home/Weather";
+import Weather from "@/components/client/home/weather";
 import ListStadium from "@/components/client/stadium/list-stadium";
 import envConfig from "@/config";
 

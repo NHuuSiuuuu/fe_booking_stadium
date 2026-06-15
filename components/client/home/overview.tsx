@@ -10,7 +10,7 @@ export default function Overview() {
     threshold: 0.3, // hiện 30% section thì kích hoạt
   });
   return (
-    <section ref={ref} className="max-w-[1200px] mx-auto px-4 py-12 sm:px-6">
+    <section ref={ref} className="max-w-[1200px] mx-auto px-4 py-10 sm:px-6">
       <p className="text-[13px] font-bold uppercase text-slate-900 mb-1">
         Thống kê
       </p>

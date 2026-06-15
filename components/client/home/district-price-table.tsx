@@ -24,15 +24,13 @@ export default function DistrictPriceTable() {
   const displayData = show ? data : data.slice(0, 6);
 
   return (
-    <section className="max-w-[1200px] mx-auto px-4 py-12 sm:px-6">
-      <p className="text-[13px] font-bold uppercase text-slate-900 mb-1">
+    <section className="max-w-[1200px] mx-auto px-4 py-10 sm:px-6">
+      <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
         Tham khảo
       </p>
-
-      <h2 className="text-2xl font-bold text-slate-900 mb-1">
+      <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
         Bảng Giá Trung Bình Theo Quận
-      </h2>
-
+      </p>
       <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
         Cập nhật tháng 06/2026
       </p>

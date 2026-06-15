@@ -31,7 +31,7 @@ const steps = [
 
 export default function BookingProcess() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 py-12 sm:px-6">
+    <section className="max-w-[1200px] mx-auto px-4 py-10 sm:px-6">
       <p className="text-[13px] font-bold uppercase text-slate-900 mb-1">
         Hướng dẫn
       </p>

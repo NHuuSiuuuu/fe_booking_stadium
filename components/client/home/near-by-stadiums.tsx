@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ImageOff, MapPin } from "lucide-react";
 import Image from "next/image";
 
-export default function NearByStadiums({ initialData }:any) {
+export default function NearByStadiums({ initialData }: any) {
   console.log("initialData", initialData);
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
@@ -18,7 +18,7 @@ export default function NearByStadiums({ initialData }:any) {
         Trong bán kính 10 km · Hà Nội
       </p>
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {initialData?.stadiums?.map((s) => (
+        {initialData?.stadiums?.map((s: any) => (
           <Link key={s?.id} href={`/stadiums/${s?.slug}`}>
             <div className="overflow-hidden bg-white border border-slate-200 hover:border-slate-500 transition-all duration-200">
               <div className="flex flex-col  md:flex-row">

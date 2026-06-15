@@ -250,7 +250,7 @@ export default function MapLeaflet() {
         )}
         <button
           onClick={() => setShowList(true)}
-          className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30
+          className="md:hidden absolute bottom-16 left-1/2 -translate-x-1/2 z-30
           flex items-center gap-2 bg-gray-900 text-white
           text-[11px] font-bold uppercase tracking-wider
           px-3 py-3"

@@ -133,7 +133,7 @@ export default function UpdateForm({ initialStadium }: Props) {
       });
 
       const res = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/update/${initialStadium.id}`,
+        `/api/stadium/update/${initialStadium.id}`,
         {
           method: "PATCH",
           credentials: "include",

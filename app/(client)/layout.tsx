@@ -1,4 +1,3 @@
-// import Header from "@/components/layout/header";
 import { cookies } from "next/headers";
 import envConfig from "@/config";
 import Header from "@/components/client/layout/header";
@@ -15,7 +14,6 @@ export default async function RootLayout({
   const cookieStore = await cookies();
 
   try {
-
     // lấy access_token và refresh_token
     const accessToken = cookieStore.get("access_token")?.value;
 
@@ -26,7 +24,7 @@ export default async function RootLayout({
       accessToken ? `access_token=${accessToken}` : "",
       refreshToken ? `refresh_token=${refreshToken}` : "",
     ]
-      .filter(Boolean) // xóa thằng nào rỗng 
+      .filter(Boolean) // xóa thằng nào rỗng
       .join("; "); //"access_token=abc123; refresh_token=xyz999"
 
     // gọi backend
@@ -51,7 +49,8 @@ export default async function RootLayout({
     <>
       <Header initialUser={user} />
       {children}
-      <Footer/>
+
+      <Footer />
     </>
   );
 }

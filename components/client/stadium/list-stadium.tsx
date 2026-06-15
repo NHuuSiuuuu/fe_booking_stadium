@@ -124,6 +124,8 @@ export default function ListStadium({ initialData }: ListStadiumsProp) {
       />
 
       <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
+        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]"> Gợi ý</p>
+        <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">Sân nổi bật</p>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {isLoading ? (
             Array.from({ length: 6 }, (_, i) => <StadiumCardSkeleton key={i} />)

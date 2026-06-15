@@ -1,7 +1,6 @@
 "use client";
 
 import Pagination from "@/components/admin/layouts/pagination";
-import envConfig from "@/config";
 import useDebounce from "@/hooks/useDebounce";
 import {
   Image,
@@ -15,7 +14,6 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Trash2Icon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,11 +22,9 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 type Stadium = {
   id: number;
   slug: string;

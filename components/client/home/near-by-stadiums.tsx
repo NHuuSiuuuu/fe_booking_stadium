@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ImageOff, MapPin } from "lucide-react";
 import Image from "next/image";
 
-export default function NearByStadiums({ initialData }) {
+export default function NearByStadiums({ initialData }:any) {
   console.log("initialData", initialData);
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">

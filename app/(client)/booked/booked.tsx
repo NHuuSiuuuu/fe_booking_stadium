@@ -25,17 +25,17 @@ const STATUS_MAP: Record<
 > = {
   pending: {
     label: "Chờ xác nhận",
-    icon: <Hourglass size={11} />,
+    icon: <Hourglass size={16} />,
     cls: "bg-yellow-400 text-black",
   },
   confirmed: {
     label: "Đã xác nhận",
-    icon: <CheckCircle2 size={11} />,
+    icon: <CheckCircle2 size={16} />,
     cls: "bg-black text-white",
   },
   cancelled: {
     label: "Đã huỷ",
-    icon: <XCircle size={11} />,
+    icon: <XCircle size={16} />,
     cls: "bg-red-600 text-white",
   },
 };
@@ -76,7 +76,7 @@ export default function Booked({ data }: Props) {
             <h1 className="text-3xl font-bold tracking-tight text-black uppercase">
               Sân đã đặt
             </h1>
-            <p className="mt-1 text-xs tracking-widest text-gray-400 uppercase">
+            <p className="mt-1 text-xs tracking-widest text-gray-900 uppercase">
               {data?.length ?? 0} đơn hàng
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function Booked({ data }: Props) {
         {data?.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 py-20 bg-white border border-gray-200">
             <Inbox size={40} className="text-gray-300" />
-            <p className="text-xs tracking-widest text-gray-400 uppercase">
+            <p className="text-xs tracking-widest text-gray-900 uppercase">
               Bạn chưa có đơn đặt sân nào
             </p>
             <Link
@@ -134,13 +134,13 @@ export default function Booked({ data }: Props) {
                         </span>
                       </div>
 
-                      <p className="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wider">
+                      <p className="flex items-center gap-1.5 text-xs text-gray-900 uppercase tracking-wider">
                         <MapPin size={11} />
                         {booking.address}
                       </p>
 
                       <div className="flex items-center gap-4 pt-1">
-                        <p className="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wider">
+                        <p className="flex items-center gap-1.5 text-xs text-gray-900 uppercase tracking-wider">
                           <Calendar size={11} />
                           {
                             new Date(booking.booking_date)
@@ -154,7 +154,7 @@ export default function Booked({ data }: Props) {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-xs text-gray-400 uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-900 uppercase tracking-wider">
                         <CreditCard size={11} />
                         {booking.payment_method}
                       </div>
@@ -163,7 +163,7 @@ export default function Booked({ data }: Props) {
                     {/* Price + action */}
                     <div className="flex flex-col items-end justify-between gap-4 shrink-0">
                       <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-0.5">
+                        <p className="text-[10px] uppercase tracking-widest text-gray-900 mb-0.5">
                           Tổng tiền
                         </p>
                         <p className="text-xl font-medium text-black">

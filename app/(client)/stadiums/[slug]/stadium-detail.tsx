@@ -1,8 +1,8 @@
 "use client";
 
+import envConfig from "@/config";
 import {
   AlarmClock,
-  ArrowRight,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -10,8 +10,11 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import { io } from "socket.io-client";
+
 type Stadium = {
   id: number;
   name: string;
@@ -50,8 +53,6 @@ export default function StadiumDetail({
   initialStadium,
   initialPriceConfig,
 }: Props) {
-  const { slug } = useParams();
-  // console.log('slug',slug)
   const router = useRouter();
 
   const [activeImg, setActiveImg] = useState(0);
@@ -64,23 +65,62 @@ export default function StadiumDetail({
 
   const stadium = initialStadium;
   const priceConfig = initialPriceConfig;
+  const [bookedSlots, setBookedSlots] = useState<{
+    booked: number[];
+    holding: number[];
+  }>({
+    booked: [],
+    holding: [],
+  });
 
-  const [bookedSlots, setBookedSlots] = useState<number[]>([]);
+  // SLot mà mình giữ (khi ấn vào khung giờ)
+  const [myHeldSlotId, setMyHeldSlotId] = useState<number | null>(null);
+
+  // holdSlots chỉ chứa slot của người khác
+  const [holdSlots, setHoldSlots] = useState<number[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [socketId, setSocketId] = useState<any>(null);
+  // -------------------------------------------------------
+  useEffect(() => {
+    const socket = io(`${envConfig.NEXT_PUBLIC_SOCKET_URL}`);
 
+    socket.on("connect", () => {
+      setSocketId(socket.id);
+      socket.emit("join-stadium", stadium.id);
+
+      socket.on("sold-held", (data) => {
+        // console.log("Khóa các slot", data);
+        setHoldSlots((prev) => [...prev, Number(data.price_config_id)]);
+      });
+
+      socket.on("sold-released", (data) => {
+        // console.log("Mở khóa cho slot:", data);
+        setHoldSlots((prev) => prev.filter((id) => id != data.price_config_id));
+      });
+    });
+
+    // Khi người dùng rời trang
+    return () => {
+      // console.log("cleanup");
+
+      socket.emit("leave-stadium", stadium.id);
+      socket.off("slot-held");
+      socket.off("sold-released");
+      socket.disconnect();
+    };
+  }, [stadium.id]);
 
   // Fetch slot đã được đặt
   useEffect(() => {
     if (!stadium?.id) return;
-    if (!selectedDate || !stadium?.id) return;
-
+    if (!stadium?.id || !selectedDate) return;
     const dateStr = selectedDate.toISOString().split("T")[0]; // "2026-04-05"
 
     fetch(`/api/booking/booked-slots?stadium_id=${stadium.id}&date=${dateStr}`)
       .then((r) => r.json())
-      .then((data) => setBookedSlots(data.result ?? []))
+      .then((data) => setBookedSlots(data ?? []))
       .catch(console.error);
-  }, [selectedDate, stadium?.id]);
+  }, [selectedDate, stadium?.id, socketId]);
 
   useEffect(() => {
     fetch(`/api/auth/me`, { credentials: "include" })
@@ -89,8 +129,22 @@ export default function StadiumDetail({
       .catch(console.error);
   }, []);
 
-  console.log("stadium", stadium);
-  // console.log("user", user);
+  useEffect(() => {
+    if (!stadium?.id) return;
+    if (!selectedDate || !stadium?.id || !selectedSlot?.id || !socketId) return;
+
+    const dateStr = selectedDate.toISOString().split("T")[0]; // "2026-04-05"
+    fetch(
+      `/api/booking/hold-slot?stadium_id=${stadium.id}&date=${dateStr}&price_config_id=${selectedSlot?.id}&socket_id=${socketId}`,
+      { credentials: "include" },
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      // .then((data) => console.log("Giữ chỗ thành công:", data))
+      .catch(console.error);
+  }, [selectedSlot?.id, socketId, selectedDate, stadium?.id]);
+
+  // console.log("currentMonth", currentMonth);
+  // console.log("priceConfig", priceConfig);
 
   // Lấy danh sách các ngày trong tuần kh bị trùng lặp
   // .map((item) => item.day_of_week) → [1, 1, 1, 6, 6]
@@ -135,8 +189,10 @@ export default function StadiumDetail({
   const slotsOfDay = priceConfig?.filter(
     (item) => item.day_of_week === selectedDate?.getDay(),
   );
+  // console.log("selectedSlot", selectedSlot);
   // console.log("stadium", stadium);
   // console.log("priceConfig", priceConfig);
+  // console.log("selectedDate?.getDay()", selectedDate?.getDay());
 
   const handleBooking = () => {
     if (!selectedDate || !selectedSlot) return;
@@ -154,7 +210,14 @@ export default function StadiumDetail({
     router.push("/checkout");
   };
 
+  const handleSelectSlot = (slot: PriceConfig) => {
+    if (myHeldSlotId) {
+      setHoldSlots((prev) => prev.filter((id) => id !== myHeldSlotId));
+    }
 
+    setMyHeldSlotId(slot.id);
+    setSelectedSlot(slot);
+  };
   if (!stadium) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -164,17 +227,20 @@ export default function StadiumDetail({
       </div>
     );
   }
+  // console.log("bookedSlots dmmmm", selectedSlot?.id);
+  // console.log("holdSlots", holdSlots);
+  // console.log("myHeldSlotId", myHeldSlotId);
 
+  // console.log("socketId", socketId);
   return (
-    // <div>hehe</div>
     <div className="min-h-screen bg-slate-50">
       {/* Breadcrumb */}
       <div className="border-b border-gray-100">
-        <div className="flex items-center max-w-6xl gap-2 px-4 py-3 mx-auto text-xs font-bold tracking-widest text-gray-400 uppercase sm:px-6">
-          <Link href="" className="transition-colors hover:text-black">
+        <div className="flex items-center max-w-6xl gap-2 px-4 py-3 mx-auto text-sm font-bold  text-gray-500 uppercase sm:px-6">
+          <Link href="/" className="transition-colors hover:text-black">
             Trang chủ
           </Link>
-          <ArrowRight className="text-gray-300 size-2.5" />
+          <ChevronRight className="text-gray-500  size-4" />
 
           <span className="text-black">{stadium?.name}</span>
         </div>
@@ -374,6 +440,7 @@ export default function StadiumDetail({
                       onClick={() => {
                         setSelectedDate(date);
                         setSelectedSlot(null);
+                        setMyHeldSlotId(null); // reset
                       }}
                       className={`aspect-square text-xs font-bold transition-all
                     ${isSelected ? "bg-black text-white" : isToday(date) ? "bg-red-500 text-white" : "hover:bg-gray-100 text-gray-700"}`}
@@ -398,31 +465,43 @@ export default function StadiumDetail({
                   ) : (
                     <div>
                       {slotsOfDay?.map((slot) => {
-                        const isBooked = bookedSlots?.includes(slot.id);
+                        // Kiểm tra slot đã được đặt chưa
+                        const isBooked = bookedSlots?.booked?.includes(slot.id);
+
+                        // Kiểm tra người khsc đang tạmm giữ không
+                        const isHeldByOther =
+                          (bookedSlots?.holding?.includes(slot.id) &&
+                            myHeldSlotId !== slot.id) ||
+                          (holdSlots?.includes(slot.id) &&
+                            myHeldSlotId !== slot.id);
+
+                        const isLocked = isBooked || isHeldByOther;
                         return (
                           <button
                             key={slot.id}
-                            onClick={() => !isBooked && setSelectedSlot(slot)}
+                            disabled={isLocked}
+                            onClick={() => !isLocked && handleSelectSlot(slot)}
                             className={`w-full flex justify-between items-center px-4 py-3 border-2 transition
-                          ${
-                            isBooked
-                              ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                              : selectedSlot?.id === slot.id
-                                ? "border-black bg-black text-white"
-                                : "border-gray-200 hover:border-black"
-                          }`}
+                       ${
+                         isLocked
+                           ? "border-gray-100 text-gray-300 cursor-not-allowed bg-gray-50"
+                           : selectedSlot?.id === slot.id
+                             ? "border-black bg-black text-white"
+                             : "border-gray-200 hover:border-black"
+                       }`}
                           >
                             <span className="text-sm">
                               {slot.start_time} - {slot.end_time}
                             </span>
+
                             <span
-                              className={`text-sm font-bold ${isBooked ? "text-gray-300" : "text-red-500"}`}
+                              className={`text-sm font-bold ${isBooked ? "text-gray-300" : "text-orange-400"}`}
                             >
                               {isBooked
                                 ? "Đã đặt"
-                                : `${new Intl.NumberFormat("vi-VN").format(
-                                    slot.price,
-                                  )}`}
+                                : isHeldByOther
+                                  ? "Đang xem" // ← thay "Đã đặt" bằng "Đang xem"
+                                  : `${new Intl.NumberFormat("vi-VN").format(slot.price)}`}
                             </span>
                           </button>
                         );

@@ -11,11 +11,6 @@ type Stadium = {
   type: string;
   price: number;
   thumbnail: string[];
-  start_time: string;
-  end_time: string;
-  featured: boolean;
-  description: string;
-  district_id: number;
 };
 export default function FavoritePage() {
   const [favorites, setFavorites] = useState<Stadium[]>([]);
@@ -59,7 +54,7 @@ export default function FavoritePage() {
         )}
 
         {/* List */}
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:mt-5 lg:grid-cols-3">
           {favorites.map((s) => (
             <div key={s.id} className="bg-white border">
               <div className="relative">
@@ -72,7 +67,7 @@ export default function FavoritePage() {
                   onClick={() => removeFavorite(s.id)}
                   className="absolute top-2 left-2"
                 >
-                  <Heart className="text-red-500 fill-red-500" />
+                  <Heart className="text-red-500 animate-pulse duration-0 fill-red-500" />
                 </button>
               </div>
 
@@ -83,11 +78,12 @@ export default function FavoritePage() {
                 </p>
 
                 <div className="flex justify-between mt-3">
-                  <span>{Number(s.price).toLocaleString()}đ</span>
-
-                  <Link href={`/stadium/${s.id}`}>
-                    <button className="px-2 py-1 text-white bg-black">
-                      Đặt →
+                  <Link href={`/stadium/${s.slug}`}>
+                    <button
+                      className="text-white  bg-gray-900 hover:bg-gray-700  px-4
+                 py-2  text-[11px] font-semibold  uppercase tracking-wider transition-colors"
+                    >
+                      Xem Ngay
                     </button>
                   </Link>
                 </div>

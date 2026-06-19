@@ -73,6 +73,18 @@ export default function Header({ initialUser }: Props) {
               Trang chủ
             </Link>
 
+            {/* Link Danh sách sân*/}
+            <Link
+              href="/stadiums"
+              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
+                pathname === "/stadiums"
+                  ? "text-gray-900 border-gray-900"
+                  : "text-gray-500 border-transparent hover:text-gray-900"
+              }`}
+            >
+              Danh sách
+            </Link>
+
             {/* Link Bản đồ */}
             <Link
               href="/map"

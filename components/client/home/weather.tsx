@@ -60,8 +60,8 @@ export default function Weather({ initialData }: WeatherProp) {
   );
 
   return (
-    <div className="bg-[#1b2c45] px-4 md:px-13 py-1 md:py-4">
-      <div className="flex items-center justify-between gap-2">
+    <div className="bg-[#1b2c45]  px-4 md:px-13 py-1 md:py-4">
+      <div className="flex max-w-[1200px] mx-auto items-center justify-between gap-2">
         {/* LEFT */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <WeatherIcon

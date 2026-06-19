@@ -15,7 +15,8 @@ import useDebounce from "@/hooks/useDebounce";
 // import { Crosshair, Loader, Search } from "lucide-react";
 import { Search, Loader, Crosshair, X, List } from "lucide-react";
 import Link from "next/link";
-
+import { renderToString } from "react-dom/server";
+import { FaArrowUp, FaMap, FaMapMarkerAlt } from "react-icons/fa";
 type UserPos = {
   lat: number;
   lng: number;
@@ -53,23 +54,13 @@ type StadiumsResponse = {
 
 export default function MapLeaflet() {
   // ── Custom  marker
-  function makeIcon(color = "#2563eb", size = 36) {
-    const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 10}" viewBox="0 0 36 46">
-      <filter id="s" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/>
-      </filter>
-      <circle cx="18" cy="18" r="16" fill="${color}" filter="url(#s)"/>
-      <circle cx="18" cy="18" r="10" fill="white" opacity="0.25"/>
-      <text x="18" y="23" text-anchor="middle" font-size="13" font-family="Arial" fill="white">⚽</text>
-      <polygon points="18,46 12,32 24,32" fill="${color}"/>
-    </svg>`;
+  function makeIcon(color = "#16a34a", size = 32) {
     return L.divIcon({
-      html: svg,
+      html: renderToString(<FaMapMarkerAlt size={size} color={color} />),
       className: "",
-      iconSize: [size, size + 10],
-      iconAnchor: [size / 2, size + 10],
-      popupAnchor: [0, -(size + 6)],
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size * 1.4],
+      popupAnchor: [0, -(size * 1.4)],
     });
   }
 
@@ -249,96 +240,97 @@ export default function MapLeaflet() {
           </button>
         )}
         <button
-          onClick={() => setShowList(true)}
-          className="md:hidden absolute bottom-16 left-1/2 -translate-x-1/2 z-30
-          flex items-center gap-2 bg-gray-900 text-white
-          text-[11px] font-bold uppercase tracking-wider
-          px-3 py-3"
+          onClick={() => setShowList(!showList)}
+          className={`md:hidden fixed bottom-10 right-4 w-9 h-9  z-40
+          flex items-center gap-2 bg-gray-900 text-white transition-transform duration-400
+      
+          px-3 py-3 ${showList ? "-translate-y-[60vh]" : "translate-y-0"}`}
         >
-          <List className="size-4" />
+          <FaArrowUp className="size-4" />
+
           {/* Danh sách ({data?.total} sân) */}
         </button>
-        {showList && (
-          <>
-            <div
-              className="md:hidden absolute inset-0 z-30 bg-black/30"
-              onClick={() => setShowList(false)}
-            />
-            <div className="md:hidden absolute bottom-0 left-0 right-0 z-40 bg-white h-[70vh] flex flex-col">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                <span className="text-[13px] font-bold uppercase text-slate-800">
-                  {/* {data?.total} sân */}
-                </span>
-                <button onClick={() => setShowList(false)} className="p-1">
-                  <X className="size-5 text-slate-400" />
-                </button>
-              </div>
-              <div className="flex-1  h-[70vh]  overflow-y-auto">
-                {data?.stadiums?.length === 0 ? (
-                  <div className="py-16 text-sm font-bold tracking-widest text-center uppercase text-slate-400">
-                    Không tìm thấy sân
-                  </div>
-                ) : (
-                  data?.stadiums?.map((s, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelect(s)}
-                      className={`w-full text-left border-b border-slate-100 transition-all cursor-pointer hover:bg-blue-50 border-l-2 ${selected?.id === s.id ? "bg-blue-50 border-l-blue-600" : "bg-white border-l-transparent"}`}
-                    >
-                      <div className="relative h-[100px] overflow-hidden">
-                        <img
-                          src={s?.thumbnail?.[0]}
-                          alt={s?.name}
-                          className="object-cover w-full h-full"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-
-                        <div className="absolute flex gap-1 bottom-2 left-2">
-                          <span className="text-[12px] font-bold uppercase bg-gray-700/90 text-white px-1.5 py-0.5 rounded-sm">
-                            Sân {s?.type}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="px-4 py-3">
-                        <h3 className="m-0 mb-1 font-bold  uppercase text-[13px] text-slate-700 leading-tight">
-                          {s.name}
-                        </h3>
-                        <p className="m-0 mb-2 text-[11px] text-slate-500 flex items-start gap-1">
-                          <span className="shrink-0">📍</span>
-                          {s.address}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[14px] font-bold  text-black">
-                            {s?.price?.toLocaleString("vi-VN")}đ
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-[10px] font-bold  uppercase tracking-wider bg-slate-100 hover:bg-gray-700 hover:text-white text-slate-600 px-2 py-1 rounded-sm transition-colors no-underline"
-                            >
-                              🗺️ Đi
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
+        <div>
+          <div
+            className={`md:hidden absolute transition-opacity   inset-0 z-30 bg-black/30
+              ${showList ? "opacity-100" : "opacity-0 pointer-events-none"}
+              `}
+            onClick={() => setShowList(false)}
+          />
+          <div
+            className={`md:hidden absolute bottom-0 duration-400 transition-transform h-[70vh] left-0 right-0 z-40 bg-white 
+            ${showList ? "translate-y-0" : "translate-y-full"}  flex flex-col`}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <span className="text-[13px] font-bold uppercase text-slate-800">
+                {/* {data?.total} sân */}
+                20 Sân
+              </span>
             </div>
-          </>
-        )}
+            <div className="flex-1  h-[70vh]  overflow-y-auto">
+              {data?.stadiums?.length === 0 ? (
+                <div className="py-16 text-sm font-bold tracking-widest text-center uppercase text-slate-400">
+                  Không tìm thấy sân
+                </div>
+              ) : (
+                data?.stadiums?.map((s, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSelect(s)}
+                    className={`w-full text-left border-b border-slate-100 transition-all cursor-pointer hover:bg-blue-50 border-l-2 ${selected?.id === s.id ? "bg-blue-50 border-l-blue-600" : "bg-white border-l-transparent"}`}
+                  >
+                    <div className="relative h-[100px] overflow-hidden">
+                      <img
+                        src={s?.thumbnail?.[0]}
+                        alt={s?.name}
+                        className="object-cover w-full h-full"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
+                      <div className="absolute flex gap-1 bottom-2 left-2">
+                        <span className="text-[12px] font-bold uppercase bg-gray-700/90 text-white px-1.5 py-0.5 rounded-sm">
+                          Sân {s?.type}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3">
+                      <h3 className="m-0 mb-1 font-bold  uppercase text-[13px] text-slate-700 leading-tight">
+                        {s.name}
+                      </h3>
+                      <p className="m-0 mb-2 text-[11px] text-slate-500 flex items-start gap-1">
+                        <span className="shrink-0">📍</span>
+                        {s.address}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[14px] font-bold  text-black">
+                          {s?.price?.toLocaleString("vi-VN")}đ
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="  inline-flex items-center gap-1.5  bg-slate-900  hover:bg-slate-700  text-white px-3 py-1.5 text-[11px] font-bold uppercase  transition-colors "
+                          >
+                            <FaMap /> Đi
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
         {/* ══ DESKTOP SIDEBAR ══ */}
         <div className="hidden md:flex w-[340px] shrink-0 bg-white border-r border-slate-200 flex-col z-10">
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
             <div className="text-[15px] font-bold uppercase text-slate-800 mb-1">
               Bản đồ sân bóng
             </div>
-            <span className="text-slate-500 text-[13px]">
+            <span className="text-slate-500 font-bold text-[14px]">
               Tổng {data?.total} sân
             </span>
 
@@ -353,13 +345,15 @@ export default function MapLeaflet() {
             >
               {geoLoading ? (
                 <>
-                  <Loader className="size-[14px]" /> Đang định vị...
+                  <Loader className="size-[14px] animate-spin" /> Đang định
+                  vị...
                 </>
               ) : userPos ? (
-                <>Đang sắp xếp theo khoảng cách</>
+                <>Sắp xếp theo khoảng cách</>
               ) : (
                 <>
-                  <Crosshair className="size-[14px]" /> Tìm sân gần tôi nhất
+                  <Crosshair className="size-[14px] animate-pulse" /> Tìm sân
+                  gần tôi nhất
                 </>
               )}
             </button>
@@ -391,13 +385,13 @@ export default function MapLeaflet() {
             </div>
             <div className="flex gap-2">
               <div className="flex flex-col flex-1">
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
+                <div className="text-xs font-bold uppercase tracking-[0.14em] text-slate-700 mb-1">
                   Quận
                 </div>
                 <select
                   value={distCode}
                   onChange={(e) => setDistCode(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-400 outline-none cursor-pointer"
                 >
                   <option value="">Tất cả</option>
                   {districts?.map((item) => (
@@ -408,13 +402,13 @@ export default function MapLeaflet() {
                 </select>
               </div>
               <div className="flex flex-col flex-1">
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-1">
+                <div className="text-xs font-bold uppercase tracking-[0.14em] text-slate-700 mb-1">
                   Loại sân
                 </div>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-400 outline-none cursor-pointer"
                 >
                   <option value="">Tất cả</option>
                   <option value="5">5v5</option>
@@ -427,10 +421,64 @@ export default function MapLeaflet() {
 
           {/* List */}
           <div className="flex-1 overflow-y-auto">
-            {/* danh sách sân như cũ */}
+            {data?.stadiums?.length === 0 ? (
+              <div className="py-16 text-sm font-bold tracking-widest text-center uppercase text-slate-400">
+                Không tìm thấy sân
+              </div>
+            ) : (
+              data?.stadiums?.map((s, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSelect(s)}
+                  className={`w-full text-left border-b border-slate-100 transition-all cursor-pointer hover:bg-blue-50 border-l-2 ${selected?.id === s.id ? "bg-blue-50 border-l-blue-600" : "bg-white border-l-transparent"}`}
+                >
+                  <div className="relative h-[100px] overflow-hidden">
+                    <img
+                      src={s?.thumbnail?.[0]}
+                      alt={s?.name}
+                      className="object-cover w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+                    <div className="absolute flex gap-1 bottom-2 left-2">
+                      <span
+                        className="text-[12px] font-bold uppercase
+                       bg-gray-700/90 text-white px-1.5 py-0.5 "
+                      >
+                        Sân {s?.type}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="px-4 py-3">
+                    <h3 className="m-0 mb-1 font-bold  uppercase text-[13px] text-slate-700 leading-tight">
+                      {s.name}
+                    </h3>
+                    <p className="m-0 mb-2 text-[11px] text-slate-500 flex items-start gap-1">
+                      <span className="shrink-0">📍</span>
+                      {s.address}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-bold  text-black">
+                        {s?.price?.toLocaleString("vi-VN")}đ
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="  inline-flex items-center gap-1.5  bg-slate-900  hover:bg-slate-700  text-white px-3 py-1.5 text-[11px] font-bold uppercase  transition-colors "
+                        >
+                          <FaMap /> Đi
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
-
         {/* ── MAP ── */}
         <div className="relative z-10 flex-1">
           <MapContainer
@@ -458,9 +506,7 @@ export default function MapLeaflet() {
               <>
                 <Marker position={[userPos.lat, userPos.lng]} icon={userIcon}>
                   <Popup>
-                    <p className="m-0 font-bold text-[13px]">
-                      📍 Vị trí của bạn
-                    </p>
+                    <p className="m-0 font-bold text-[13px]">Vị trí của bạn</p>
                   </Popup>
                 </Marker>
                 <Circle
@@ -627,7 +673,7 @@ export default function MapLeaflet() {
                             border: "1px solid #e2e8f0",
                           }}
                         >
-                          🗺️ Dẫn đường
+                          <FaMap /> Dẫn đường
                         </Link>
                         <Link
                           href={`/stadium/${s?.slug}`}

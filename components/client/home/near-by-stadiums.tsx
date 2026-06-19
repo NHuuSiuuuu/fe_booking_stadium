@@ -56,8 +56,9 @@ export default function NearByStadiums({ initialData }: any) {
                         Giá / giờ
                       </div>
 
-                      <div className="text-sm text-xl font-bold text-black">
-                        {Number(s.price).toLocaleString("vi-VN")}đ
+                      <div className="text-sm md:text-lg font-bold text-black">
+                        Từ {Number(s?.min_price).toLocaleString("vi-VN")}đ -
+                        {Number(s?.max_price).toLocaleString("vi-VN")}đ
                       </div>
                     </div>
                   </div>

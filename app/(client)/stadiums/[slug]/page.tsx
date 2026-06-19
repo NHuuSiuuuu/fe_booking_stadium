@@ -1,4 +1,5 @@
 import StadiumDetail from "@/app/(client)/stadiums/[slug]/stadium-detail";
+import Weather from "@/components/client/home/weather";
 import envConfig from "@/config";
 
 type Props = {
@@ -14,7 +15,9 @@ export default async function page({ params }: Props) {
   const stadiumRes = await fetch(
     `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadium/${slug}`,
     {
-      cache: "no-store",
+      next: {
+        revalidate: 60,
+      },
     },
   );
   if (!stadiumRes.ok) {
@@ -37,13 +40,14 @@ export default async function page({ params }: Props) {
   }
 
   priceConfig = await priceConfigRes.json();
-  console.log("priceConfig", priceConfig);
+  // console.log("priceConfig", priceConfig);
   return (
     <div>
       <StadiumDetail
         initialStadium={stadium}
         initialPriceConfig={priceConfig}
       />
+      {/* <Weather/> */}
     </div>
   );
 }

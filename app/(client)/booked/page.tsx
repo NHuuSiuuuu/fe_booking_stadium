@@ -25,7 +25,9 @@ export default async function page() {
         headers: {
           Cookie: cookieHeader,
         },
-        cache: "no-store",
+        next: {
+          revalidate: 60,
+        },
       },
     );
     if (bookedRes.ok) {

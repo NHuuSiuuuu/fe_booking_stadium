@@ -23,7 +23,11 @@ export default function Hero({
   const [districts, setDistricts] = useState<District[]>([]);
 
   useEffect(() => {
-    fetch(`api/districts`)
+    fetch(`api/districts`, {
+      next: {
+        revalidate: 60,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);
@@ -64,7 +68,7 @@ export default function Hero({
         {/* Search bar */}
         {/* <div className="flex items-stretch w-full bg-white/30 p-2 gap-2 overflow-hidden"> */}
         <div className="flex flex-col sm:flex-row  w-full bg-white/30 p-2 gap-2">
-           {/* Row 1 trên mobile: Quận + Loại sân */}
+          {/* Row 1 trên mobile: Quận + Loại sân */}
           <div className="flex flex-row gap-2 sm:contents">
             {/* Lọc quận */}
             <div className="flex flex-col justify-center bg-white flex-1 px-3 md:px-4 py-2">

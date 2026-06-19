@@ -11,9 +11,11 @@ export default async function Page() {
   const LNG = 105.8542;
 
   const res = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?page=1`,
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`,
     {
-      cache: "no-store",
+      next: {
+        revalidate: 60,
+      },
     },
   );
 
@@ -32,19 +34,24 @@ export default async function Page() {
   );
   url.searchParams.set("timezone", "Asia/Bangkok");
 
-  const resWeather = await fetch(url.toString());
+  const resWeather = await fetch(url.toString(), {
+    next: {
+      revalidate: 60,
+    },
+  });
   if (!resWeather.ok) throw new Error();
   const json = await resWeather.json();
   const c = json.current;
-  // console.log("c",c)
+
+  // console.log("dag", data);
   return (
     <>
       <ListStadium initialData={data} />
       <Weather initialData={c} />
-      <NearByStadiums initialData={data}/>
-      <DistrictPriceTable/>
-      <Overview/>
-      <BookingProcess/>
+      <NearByStadiums initialData={data} />
+      <DistrictPriceTable />
+      <Overview />
+      <BookingProcess />
     </>
   );
 }

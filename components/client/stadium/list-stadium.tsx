@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Signpost } from "lucide-react";
 import Hero from "@/components/client/layout/hero";
 import Image from "next/image";
@@ -18,6 +18,8 @@ type Stadium = {
   featured: boolean;
   description: string;
   district_id: number;
+  min_price: number;
+  max_price: number;
 };
 
 type StadiumsResponse = {
@@ -175,13 +177,13 @@ export default function ListStadium({ initialData }: ListStadiumsProp) {
                           <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-0.5">
                             Giá / giờ
                           </div>
-                          <div className="text-[15px] font-semibold  text-black">
-                            {Number(s?.price).toLocaleString("vi-VN")}đ
+                          <div className="text-sm md:text-lg font-bold  text-black">
+                            {Number(s?.min_price).toLocaleString("vi-VN")}đ - {Number(s?.max_price).toLocaleString("vi-VN")}đ
                           </div>
                         </div>
                         <button
                           className="text-white bg-gray-900 hover:bg-gray-700  px-4
-                 py-2  text-[11px] font-semibold italic uppercase tracking-wider transition-colors"
+                          py-2  text-[11px] font-semibold italic uppercase tracking-wider transition-colors"
                         >
                           Đặt sân →
                         </button>
@@ -212,7 +214,6 @@ export default function ListStadium({ initialData }: ListStadiumsProp) {
             Không tìm thấy sân phù hợp
           </p>
         )}
-        {/* <Pagination page={page} totalPage={totalPage} setPage={setPage} /> */}
       </div>
     </div>
   );

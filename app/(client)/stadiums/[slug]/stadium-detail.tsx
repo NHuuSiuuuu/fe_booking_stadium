@@ -67,7 +67,7 @@ export default function StadiumDetail({
       </div>
 
       {/*  */}
-      <div className="max-w-[1200px] mx-auto px-8 py-10">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-10">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Cột trái */}
           <div className="flex-1 space-y-8">

@@ -226,7 +226,7 @@ export default function BookingSidebar({
 
   // console.log("socketId", socketId);
   return (
-    <div className="max-w-[1200px] mx-auto px-8 py-10">
+    // <div className="max-w-[1200px] mx-auto px-8 py-10">
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Cột phải */}
         <div className="w-full lg:w-[340px] space-y-4">
@@ -390,7 +390,7 @@ export default function BookingSidebar({
           )}
         </div>
       </div>
-    </div>
+    // </div>
     
   );
 }

@@ -69,7 +69,7 @@ type Props = {
 export default function Booked({ data }: Props) {
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="max-w-[1200px]  px-6 py-10 mx-auto">
+      <div className="max-w-[1200px]  px-4 md:px-8 py-10 mx-auto">
         {/* Header */}
         <div className="flex items-end justify-between mb-8">
           <div>

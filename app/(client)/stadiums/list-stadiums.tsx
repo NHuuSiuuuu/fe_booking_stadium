@@ -30,10 +30,48 @@ type StadiumsResponse = {
   total: any;
 };
 
-type ListStadiumsProp = {
-  initialData: StadiumsResponse;
-};
-export default function ListStadiums({ initialData }: ListStadiumsProp) {
+export function StadiumFiltersSkeleton() {
+  return (
+    <div className="  md:shadow-sm md:p-5 mb-2">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-4">
+        {/* Tìm kiếm */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm font-bold uppercase tracking-[0.12em] text-slate-700">
+            Tìm kiếm
+          </label>
+          <div className="w-full h-10 border border-slate-200 bg-slate-50 rounded animate-pulse" />
+        </div>
+
+        {/* Trạng thái */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Trạng thái
+          </label>
+          <div className="w-full h-10 border border-slate-200 bg-slate-50 rounded animate-pulse" />
+        </div>
+
+        {/* Sắp xếp */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Sắp xếp
+          </label>
+          <div className="w-full h-10 border border-slate-200 bg-slate-50 rounded animate-pulse" />
+        </div>
+
+        {/* Reset */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Xóa bộ lọc
+          </label>
+          <div className="w-full h-10 border border-slate-200 bg-slate-50 rounded animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export function StadiumFilters() {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,8 +84,7 @@ export default function ListStadiums({ initialData }: ListStadiumsProp) {
   const [filterFeatured, setFilterFeatured] = useState("");
   const [sort, setSort] = useState("");
   const [dist, setDist] = useState("");
-  const [page, setPage] = useState<any>(1);
-  const [favorites, setFavorites] = useState<Stadium[]>([]);
+  const [page, setPage] = useState(searchParams.get("page"));
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -78,25 +115,123 @@ export default function ListStadiums({ initialData }: ListStadiumsProp) {
       params.delete("page");
     }
 
-    if (sort) {
-      params.set("sort", sort);
-    } else {
-      params.delete("sort");
-    }
     if (dist) {
       params.set("dist", dist);
     } else {
       params.delete("dist");
     }
 
-    if (page) {
-      params.set("page", page);
-    } else {
-      params.delete("page");
-    }
-
     router.push(`${pathName}?${params.toString()}`);
   }, [debounceValue, filterFeatured, page, filterStatus, sort, pathName, dist]);
+
+  return (
+    <div className="  md:shadow-sm md:p-5 mb-2">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-4">
+        {/* Tìm kiếm */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm font-bold uppercase tracking-[0.12em] text-slate-700">
+            Tìm kiếm
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-700" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tên sân, địa chỉ..."
+              className="w-full h-10 pl-9 pr-4 border border-slate-200 bg-slate-50
+               text-[13px] text-slate-800 placeholder:text-slate-700
+               focus:outline-none focus:border-slate-400 focus:bg-white
+               transition-all "
+            />
+          </div>
+        </div>
+
+        {/* Trạng thái */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Trạng thái
+          </label>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="h-10 px-3 border border-slate-200 bg-slate-50
+             text-[13px] text-slate-700
+             focus:outline-none focus:border-slate-400 focus:bg-white
+             transition-all cursor-pointer"
+          >
+            <option value="">Tất cả</option>
+            <option value="status:true">Hoạt động</option>
+            <option value="status:false">Dừng hoạt động</option>
+            <option value="featured:true">Nổi bật</option>
+            <option value="featured:false">Không nổi bật</option>
+          </select>
+        </div>
+
+        {/* Sắp xếp */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Sắp xếp
+          </label>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="h-10 px-3 border border-slate-200 bg-slate-50
+             text-[13px] text-slate-700
+             focus:outline-none focus:border-slate-400 focus:bg-white
+             transition-all cursor-pointer"
+          >
+            <option value="">Mặc định</option>
+            <option value="name:asc">Tên: A → Z</option>
+            <option value="name:desc">Tên: Z → A</option>
+            <option value="district_id:asc">Giá: Tăng dần</option>
+            <option value="district_id:desc">Giá: Giảm dần</option>
+          </select>
+        </div>
+
+        {/* Reset */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
+            Xóa bộ lọc
+          </label>
+          <button
+            onClick={() => {
+              setFilterStatus("");
+              setFilterFeatured("");
+              setSort("");
+              setDist("");
+              setSearch("");
+            }}
+            className="h-10 flex items-center justify-center gap-2
+             border border-slate-200 bg-slate-50
+             text-[12px] font-semibold text-slate-500
+             hover:border-slate-400 hover:text-slate-800 hover:bg-white
+             transition-all cursor-pointer"
+          >
+            <RefreshCw className="size-5.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type Props = {
+  initialData: StadiumsResponse;
+  currentPage: number;
+};
+export function ListStadiums({ initialData, currentPage }: Props) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [favorites, setFavorites] = useState<Stadium[]>([]);
+
+  const setPage = (p: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (p > 1) params.set("page", String(p));
+    else params.delete("page");
+    router.push(`${pathname}?${params.toString()}`);
+  };
   const handleFavorite = (s: Stadium) => {
     const exist = favorites.find((item) => item.id === s.id);
     // console.log(exist);
@@ -112,99 +247,10 @@ export default function ListStadiums({ initialData }: ListStadiumsProp) {
     localStorage.setItem("favorite", JSON.stringify(newFavorites));
   };
   const totalPage = initialData?.totalPage || 0;
-  // console.log("totalPage", totalPage);
-
+  console.log("totalPage", totalPage);
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-[1200px] mx-auto px-4 pt-3 md:py-8 sm:px-6">
-        <div className="  md:shadow-sm md:p-5 mb-2">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-4">
-            {/* Tìm kiếm */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] md:text-sm font-bold uppercase tracking-[0.12em] text-slate-700">
-                Tìm kiếm
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-700" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Tên sân, địa chỉ..."
-                  className="w-full h-10 pl-9 pr-4 border border-slate-200 bg-slate-50
-                     text-[13px] text-slate-800 placeholder:text-slate-700
-                     focus:outline-none focus:border-slate-400 focus:bg-white
-                     transition-all "
-                />
-              </div>
-            </div>
-
-            {/* Trạng thái */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
-                Trạng thái
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="h-10 px-3 border border-slate-200 bg-slate-50
-                   text-[13px] text-slate-700
-                   focus:outline-none focus:border-slate-400 focus:bg-white
-                   transition-all cursor-pointer"
-              >
-                <option value="">Tất cả</option>
-                <option value="status:true">Hoạt động</option>
-                <option value="status:false">Dừng hoạt động</option>
-                <option value="featured:true">Nổi bật</option>
-                <option value="featured:false">Không nổi bật</option>
-              </select>
-            </div>
-
-            {/* Sắp xếp */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
-                Sắp xếp
-              </label>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="h-10 px-3 border border-slate-200 bg-slate-50
-                   text-[13px] text-slate-700
-                   focus:outline-none focus:border-slate-400 focus:bg-white
-                   transition-all cursor-pointer"
-              >
-                <option value="">Mặc định</option>
-                <option value="name:asc">Tên: A → Z</option>
-                <option value="name:desc">Tên: Z → A</option>
-                <option value="district_id:asc">Giá: Tăng dần</option>
-                <option value="district_id:desc">Giá: Giảm dần</option>
-              </select>
-            </div>
-
-            {/* Reset */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] md:text-sm  font-bold uppercase tracking-[0.12em] text-slate-700">
-                Xóa bộ lọc
-              </label>
-              <button
-                onClick={() => {
-                  setFilterStatus("");
-                  setFilterFeatured("");
-                  setSort("");
-                  setDist("");
-                  setSearch("");
-                }}
-                className="h-10 flex items-center justify-center gap-2
-                   border border-slate-200 bg-slate-50
-                   text-[12px] font-semibold text-slate-500
-                   hover:border-slate-400 hover:text-slate-800 hover:bg-white
-                   transition-all cursor-pointer"
-              >
-                <RefreshCw className="size-5.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
           Khám Phá
         </p>
@@ -294,7 +340,11 @@ export default function ListStadiums({ initialData }: ListStadiumsProp) {
             Không tìm thấy sân phù hợp
           </p>
         )}
-        <Pagination page={page} totalPage={totalPage} setPage={setPage} />
+        <Pagination
+          page={currentPage}
+          totalPage={totalPage}
+          setPage={setPage}
+        />
       </div>
     </div>
   );

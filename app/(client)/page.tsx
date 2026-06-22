@@ -2,28 +2,64 @@ import BookingProcess from "@/components/client/home/booking-process";
 import DistrictPriceTable from "@/components/client/home/district-price-table";
 import NearByStadiums from "@/components/client/home/near-by-stadiums";
 import Overview from "@/components/client/home/overview";
-import Weather from "@/components/client/home/weather";
+import Weather from "@/components/client/home/weather/weather";
+import WeatherSkeleton from "@/components/client/home/weather/weather-skeleton";
 import ListStadium from "@/components/client/stadium/list-stadium";
+import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skeleton";
 import envConfig from "@/config";
+import { Suspense } from "react";
 
 export default async function Page() {
-  const LAT = 21.0285;
-  const LNG = 105.8542;
+  return (
+    <>
+      <Suspense fallback={<ListStadiumSkeleton count={6} />}>
+        <ListStadiumServer />
+      </Suspense>
 
-  const res = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`,
-    {
+      <Suspense fallback={<WeatherSkeleton />}>
+        <WeatherServer />
+      </Suspense>
+{/* 
+      <Suspense fallback={<ListStadiumSkeleton count={6} />}>
+        <NearByStadiumsServer />
+      </Suspense> */}
+
+      <DistrictPriceTable />
+      <Overview />
+      <BookingProcess />
+    </>
+  );
+}
+
+async function ListStadiumServer() {
+  const [stadiumRes, districtsRes] = await Promise.all([
+    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`, {
       next: {
         revalidate: 60,
       },
-    },
-  );
+    }),
+    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/districts`, {
+      next: {
+        revalidate: 60,
+      },
+    }),
+  ]);
 
-  if (!res.ok) {
-    throw new Error("Lỗi fetch sân");
+  if (!stadiumRes.ok || !districtsRes.ok) {
+    throw new Error("Lỗi fetch danh sách sân");
   }
 
-  const data = await res.json();
+  const [data, districts] = await Promise.all([
+    stadiumRes.json(),
+    districtsRes.json(),
+  ]);
+
+  return <ListStadium initialData={data} districts={districts?.districts ?? []} />;
+}
+
+async function WeatherServer() {
+  const LAT = 21.0285;
+  const LNG = 105.8542;
 
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", String(LAT));
@@ -34,24 +70,33 @@ export default async function Page() {
   );
   url.searchParams.set("timezone", "Asia/Bangkok");
 
-  const resWeather = await fetch(url.toString(), {
+  const weatherRes = await fetch(url.toString(), {
+    next: {
+      revalidate: 1800,
+    },
+  });
+
+  if (!weatherRes.ok) {
+    throw new Error("Lỗi fetch thời tiết");
+  }
+
+  const weather = await weatherRes.json();
+
+  return <Weather initialData={weather.current} />;
+}
+
+async function NearByStadiumsServer() {
+  const stadiumRes = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`, {
     next: {
       revalidate: 60,
     },
   });
-  if (!resWeather.ok) throw new Error();
-  const json = await resWeather.json();
-  const c = json.current;
 
-  // console.log("dag", data);
-  return (
-    <>
-      <ListStadium initialData={data} />
-      <Weather initialData={c} />
-      <NearByStadiums initialData={data} />
-      <DistrictPriceTable />
-      <Overview />
-      <BookingProcess />
-    </>
-  );
+  if (!stadiumRes.ok) {
+    throw new Error("Lỗi fetch sân gần bạn");
+  }
+
+  const data = await stadiumRes.json();
+
+  return <NearByStadiums initialData={data} />;
 }

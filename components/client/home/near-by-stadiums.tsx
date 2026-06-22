@@ -5,7 +5,7 @@ import { ImageOff, MapPin } from "lucide-react";
 import Image from "next/image";
 
 export default function NearByStadiums({ initialData }: any) {
-  console.log("initialData", initialData);
+  // console.log("initialData", initialData);
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
       <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">

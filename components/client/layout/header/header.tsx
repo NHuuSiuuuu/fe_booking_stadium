@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 
 type AuthUser = {
   id: number;

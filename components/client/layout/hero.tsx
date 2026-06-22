@@ -1,13 +1,12 @@
-"use client";
-
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type District = {
   ogc_fid: number;
   name_2: string;
 };
 type HeroProps = {
+  districts: District[];
   distCode: string;
   setDistCode: (val: string) => void;
   type: string;
@@ -15,36 +14,34 @@ type HeroProps = {
 };
 
 export default function Hero({
+  districts,
   distCode,
   setDistCode,
   type,
   setType,
 }: HeroProps) {
-  const [districts, setDistricts] = useState<District[]>([]);
-
-  useEffect(() => {
-    fetch(`api/districts`, {
-      next: {
-        revalidate: 60,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setDistricts(data.districts ?? []))
-      .catch(console.error);
-  }, []);
-
   return (
     <div className="relative min-h-[500px] md:min-h-[700px] flex flex-col justify-end overflow-hidden">
-      <video
-        className="h-full w-full absolute inset-0 object-cover"
-        playsInline //Không fullscreen trên điện thoại
-        autoPlay
-        muted
-        loop
-      >
-        <source src="/videos/banner.mp4" type="video/mp4" />
-      </video>
+      <div className="absolute inset-0">
+        <Image
+          src="/banner.png"
+          fill
+          priority
+          alt=""
+          className="object-cover"
+        />
 
+        <video
+          autoPlay
+          muted
+          loop
+          preload="metadata" // tải 1 phần dữ liệu của video chứ kh tải hết vd như chỉ tải thời lượng kíhc cỡ chứ kh tải
+          playsInline //Không fullscreen trên điện thoại
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/videos/banner.mp4" type="video/mp4" />
+        </video>
+      </div>
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-black/10" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
@@ -81,7 +78,7 @@ export default function Hero({
                 className="bg-transparent border-none outline-none text-[13px] md:text-[14px] text-slate-800 cursor-pointer"
               >
                 <option value="">Tất cả</option>
-                {districts?.map((item) => (
+                {districts.map((item) => (
                   <option value={item.ogc_fid} key={item.ogc_fid}>
                     {item.name_2}
                   </option>

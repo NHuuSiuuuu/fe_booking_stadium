@@ -1,5 +1,4 @@
 import Booked from "@/app/(client)/booked/booked";
-import Booking from "@/app/(client)/booked/booked";
 import envConfig from "@/config";
 import { cookies } from "next/headers";
 

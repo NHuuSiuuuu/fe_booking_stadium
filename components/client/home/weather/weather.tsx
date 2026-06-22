@@ -50,7 +50,7 @@ function getPlayCondition(temp: number, rain: number) {
 }
 
 export default function Weather({ initialData }: WeatherProp) {
-  console.log("initialData", initialData);
+  // console.log("Weather", initialData);
   const { Icon: WeatherIcon, color: iconColor } = getWeatherInfo(
     initialData.weather_code,
   );

@@ -1,36 +1,146 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏟️ Stadium Booking Platform
 
-## Getting Started
+Một ứng dụng web hiện đại giúp người dùng tìm kiếm, xem thông tin và đặt sân thể thao trực tuyến một cách nhanh chóng và tiện lợi. Dự án tích hợp các tính năng đặt sân theo thời gian thực, quản lý admin và trải nghiệm người dùng thân thiện trên cả web và mobile.
 
-First, run the development server:
+## ✨ Tính Năng Chính
+
+- Tìm kiếm và xem danh sách sân thể thao theo khu vực, loại sân và từ khóa
+- Chọn ngày, khung giờ và thực hiện đặt sân trực tuyến
+- Tích hợp giữ slot theo thời gian thực để tránh trùng booking
+- Hỗ trợ xem sân trên bản đồ và định vị gần khu vực người dùng
+- Quản lý booking, sân và thống kê thông qua giao diện admin
+- Hỗ trợ đăng nhập, đăng ký, xem lịch sử đặt sân và thao tác tài khoản
+
+## 🛍️ Khách Hàng
+
+- Dễ dàng tìm kiếm sân phù hợp với nhu cầu
+- Xem thông tin chi tiết sân, giá và khung giờ hoạt động
+- Đặt sân nhanh chóng chỉ với vài thao tác
+- Theo dõi lịch sử booking và trạng thái đặt chỗ
+
+## 👨‍💼 Quản Trị Viên
+
+- Quản lý danh sách sân và thông tin chi tiết sân
+- Cập nhật cấu hình giá và khung giờ hoạt động
+- Quản lý booking, trạng thái đơn đặt sân và người dùng
+- Theo dõi thống kê booking, doanh thu và sân được sử dụng nhiều nhất
+
+## 🛠️ Công Nghệ Sử Dụng
+
+### Core
+
+- Next.js
+- React
+- TypeScript
+- Node.js / Express
+
+### UI/UX
+
+- Tailwind CSS
+- Shadcn UI
+- Lucide Icons
+
+### State & Data
+
+- React Hook Form
+- Zod
+- REST API
+- Socket.IO
+
+### Utilities
+
+- Leaflet / React Leaflet
+- Recharts
+- next-themes
+- Sonner
+
+### Development Tools
+
+- ESLint
+- TypeScript
+- PostCSS
+- Vercel-ready deployment
+
+## 📁 Cấu Trúc Thư Mục
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+app/               # Các route và page theo Next.js App Router
+components/       # UI components dùng chung
+hooks/            # Custom hooks
+lib/              # Tiện ích và helpers
+public/           # Static assets
+schemaValidations/ # Schema validation bằng Zod
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Bắt Đầu
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Yêu Cầu
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18+
+- npm, pnpm hoặc yarn
 
-## Learn More
+### Cài Đặt
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Tạo file `.env.local` và cấu hình các biến môi trường sau:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+NEXT_PUBLIC_API_ENDPOINT=
+NEXT_PUBLIC_URL=
+NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_SOCKET_URL=
+```
 
-## Deploy on Vercel
+## 📜 Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev      # Chạy development server
+npm run build    # Build production
+npm run start    # Chạy production build
+npm run lint     # Chạy ESLint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔐 Xác Thực
+
+- Hệ thống xác thực người dùng và admin thông qua backend API
+- Sử dụng cookie-based authentication để duy trì phiên đăng nhập
+
+## 🎨 Styling
+
+- Tailwind CSS được dùng để xây dựng giao diện hiện đại và responsive
+- Shadcn UI cung cấp các component chuẩn và dễ mở rộng
+
+## 📦 Deployment
+
+Dự án có thể được deploy lên Vercel hoặc bất kỳ nền tảng hosting hỗ trợ Next.js nào.
+
+## 🤝 Đóng Góp
+
+1. Fork repository
+2. Tạo branch mới cho tính năng hoặc sửa lỗi
+3. Commit thay đổi
+4. Mở Pull Request
+
+## 📝 License
+
+Dự án này đang được phát triển cho mục đích học tập và demo.
+
+## 👨‍💻 Tác Giả
+
+- GitHub: [NHuuSiuuuu](https://github.com/NHuuSiuuuu)
+- Repository: [Stadium Booking Platform ](https://github.com/NHuuSiuuuu/fe_booking_stadium)
+
+## 🐛 Báo Lỗi
+
+Nếu bạn tìm thấy lỗi, vui lòng tạo issue trên GitHub repository.
+
+## 📞 Liên Hệ
+
+Để biết thêm thông tin, vui lòng liên hệ qua GitHub issues hoặc email.
+
+---
+
+Built with ❤️ using Next.js + TypeScript

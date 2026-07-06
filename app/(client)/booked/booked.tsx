@@ -10,8 +10,8 @@ import {
   CheckCircle2,
   XCircle,
   Inbox,
-  Link,
 } from "lucide-react";
+import Link from "next/link";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled";
 
@@ -174,10 +174,11 @@ export default function Booked({ data }: Props) {
                         </p>
                       </div>
                       <Link
-                        to={`/booking-detail/${booking.id}`}
+                        href={`/booking/detail/${booking.id}`}
                         className="inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                      // className="text-red-500"
                       >
-                        <FileText size={12} />
+                        
                         Chi tiết →
                       </Link>
                     </div>

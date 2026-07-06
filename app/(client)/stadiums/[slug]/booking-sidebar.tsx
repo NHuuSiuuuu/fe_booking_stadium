@@ -230,7 +230,7 @@ export default function BookingSidebar({
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Cột phải */}
         <div className="w-full lg:w-[340px] space-y-4">
-          <div className="p-4 border-2 border-gray-100">
+          <div className="p-4 border-1 ">
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={() =>

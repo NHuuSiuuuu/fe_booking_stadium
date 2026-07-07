@@ -51,7 +51,7 @@ export default function Sidebar({ collapsed }: any) {
           <p className="text-sm font-bold text-white leading-tight">
             Sân Bóng Hà Nội
           </p>
-          <p className="text-xs text-gray-400">Admin Panel</p>
+          <p className="text-xs text-[#1b1b1b]">Admin Panel</p>
         </div>
       </div>
 

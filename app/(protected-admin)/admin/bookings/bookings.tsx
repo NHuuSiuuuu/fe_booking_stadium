@@ -116,17 +116,14 @@ export default function Bookings({ initialPriceConfig }: Props) {
     const newStatus = e.target.value as BookingStatus;
 
     try {
-      const res = await fetch(
-        `/api/booking/update-status`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id, newStatus }),
+      const res = await fetch(`/api/booking/update-status`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ id, newStatus }),
+      });
 
       if (!res.ok) {
         throw new Error("Cập nhật trạng thái thất bại");
@@ -246,7 +243,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
                 >
                   <div className="flex items-center gap-1 cursor-pointer group hover:text-gray-700">
                     Mã đơn
-                    <ArrowDownUp className="text-xs text-gray-400 group-hover:text-gray-600" />
+                    <ArrowDownUp className="text-xs text-[#1b1b1b] group-hover:text-gray-600" />
                   </div>
                 </th>
                 <th
@@ -462,7 +459,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
                             status !== order?.status &&
                             !allowedTransitions[order.status]?.includes(status)
                           }
-                          className="disabled:text-gray-400"
+                          className="disabled:text-[#1b1b1b]"
                         >
                           {statusLabel[status]}
                         </option>
@@ -478,7 +475,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
         {/* Empty State */}
         {(!orders || orders?.length === 0) && (
           <div className="py-12 text-center">
-            <div className="mb-3 text-gray-400">
+            <div className="mb-3 text-[#1b1b1b]">
               {/* <FontAwesomeIcon icon={faPackage} className="w-12 h-12" /> */}
             </div>
             <h3 className="mb-1 text-sm font-medium text-gray-900">

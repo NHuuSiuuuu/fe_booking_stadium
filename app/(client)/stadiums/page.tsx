@@ -16,13 +16,15 @@ export default function page({ searchParams }: any) {
           <StadiumFilters />
         </Suspense>
 
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Khám Phá
-        </p>
-        <p className="text-[20px] font-bold mb-[2px] text-[#0f172a]">Sân Mới</p>
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Những sân vừa được cập nhật gần đây
-        </p>
+      <div className="px-4">
+          <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
+            Khám Phá
+          </p>
+          <p className="text-[20px] font-bold mb-[2px] text-[#0f172a]">Sân Mới</p>
+          <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
+            Những sân vừa được cập nhật gần đây
+          </p>
+      </div>
         <Suspense fallback={<ListStadiumSkeleton count={6} />}>
           <ListStadiumsServer searchParams={searchParams} />
         </Suspense>
@@ -62,7 +64,7 @@ async function ListStadiumsServer({ searchParams }: any) {
 
   const res = await fetch(url, {
     next: {
-      revalidate: 60,
+      revalidate: 300,
     },
   });
 
@@ -72,5 +74,5 @@ async function ListStadiumsServer({ searchParams }: any) {
 
   const data = await res.json();
 
-  return <ListStadiums initialData={data} currentPage={Number(page)} />;
+  return<> <ListStadiums initialData={data} currentPage={Number(page)} /></>;
 }

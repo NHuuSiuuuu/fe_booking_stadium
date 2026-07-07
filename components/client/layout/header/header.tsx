@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, User, X } from "lucide-react";
-import {  useState } from "react";
+import { useState } from "react";
 
 type AuthUser = {
   id: number;
@@ -41,84 +41,72 @@ export default function Header({ initialUser }: Props) {
   return (
     <>
       {/* ==================== THANH NAVBAR CHÍNH ==================== */}
-      <nav className="sticky top-0 z-50 bg-[#f1f5f8] border-b border-gray-200">
+      <nav className="sticky top-0 z-50 bg-[#001A2D]">
         <div className="flex items-center justify-between px-4 md:px-10 ">
           {/* ---------- LOGO BÊN TRÁI ---------- */}
           <Link href="/" className="flex items-center gap-2 py-2">
             <Image
-              src="/logo.png"
+              src="/logoo.png"
               alt="logo"
               width={60}
               height={60}
-              className="w-[22px] h-auto md:w-[60px] object-cover"
+              className="w-[22px] h-auto md:w-[60px]  object-cover"
               style={{ height: "auto" }}
             />
-            <span className="text-gray-900 text-[12px] md:text-[13px] font-black tracking-[0.08em]">
-              SânBóng<span className="text-gray-900">HN</span>
-            </span>
           </Link>
 
           {/* ---------- NAV LINKS (CHỈ HIỆN TRÊN DESKTOP) ---------- */}
           {/* Ẩn trên mobile (hidden), hiện từ md trở lên (md:flex) */}
           <div className="items-center hidden md:flex">
             {/* Link Trang chủ */}
+
             <Link
               href="/"
-              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
-                pathname === "/"
-                  ? "text-gray-900 border-gray-900"
-                  : "text-gray-500 border-transparent hover:text-gray-900"
-              }`}
+              className={`flex items-center text-white px-[14px] h-[52px] text-[12px] md:text-[16px] font-semibold uppercase  transition-colors  `}
             >
-              Trang chủ
+              <p className="relative after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-0  after:bg-white after:transition-all after:duration-300 hover:after:w-full">
+                Trang chủ
+              </p>
             </Link>
 
             {/* Link Danh sách sân*/}
             <Link
               href="/stadiums"
-              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
-                pathname === "/stadiums"
-                  ? "text-gray-900 border-gray-900"
-                  : "text-gray-500 border-transparent hover:text-gray-900"
-              }`}
+              className={`flex items-center text-white px-[14px] h-[52px] text-[12px] md:text-[16px] font-semibold uppercase  transition-colors  `}
             >
-              Danh sách
+              <p className="relative after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-0  after:bg-white after:transition-all after:duration-300 hover:after:w-full">
+                Danh sách
+              </p>
             </Link>
 
             {/* Link Bản đồ */}
             <Link
               href="/map"
-              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
-                pathname === "/map"
-                  ? "text-gray-900 border-gray-900"
-                  : "text-gray-500 border-transparent hover:text-gray-900"
-              }`}
+              className={`flex items-center text-white px-[14px] h-[52px] text-[12px] md:text-[16px] font-semibold uppercase  transition-colors  `}
             >
-              Bản đồ
+              <p className="relative after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-0  after:bg-white after:transition-all after:duration-300 hover:after:w-full">
+                Bản đồ
+              </p>
             </Link>
 
             {/* Link Đã đặt */}
             <Link
               href="/booked"
-              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
-                pathname === "/booked"
-                  ? "text-gray-900 border-gray-900"
-                  : "text-gray-500 border-transparent hover:text-gray-900"
-              }`}
+              className={`flex items-center text-white px-[14px] h-[52px] text-[12px] md:text-[16px] font-semibold uppercase  transition-colors  `}
             >
-              Đã đặt
+              <p className="relative after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-0  after:bg-white after:transition-all after:duration-300 hover:after:w-full">
+                Đã đặt
+              </p>
             </Link>
 
             {/* Link Yêu thích */}
             <Link
               href="/favorite"
-              className={`flex items-center px-[14px] h-[52px] text-[12px] md:text-[16px] font-bold uppercase  transition-colors  ${
-                pathname === "/favorite"
-                  ? "text-gray-900 border-gray-900"
-                  : "text-gray-500 border-transparent hover:text-gray-900"
-              }`}
+              className={`flex items-center text-white px-[14px] h-[52px] text-[12px] md:text-[16px] font-semibold uppercase  transition-colors `}
             >
-              Yêu thích
+              <p className="relative after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-0  after:bg-white after:transition-all after:duration-300 hover:after:w-full">
+                Yêu thích
+              </p>
             </Link>
           </div>
 
@@ -130,7 +118,7 @@ export default function Header({ initialUser }: Props) {
               <>
                 <Link
                   href="/me"
-                  className="text-gray-700 text-[14px] font-semibold hover:text-gray-900 transition-colors"
+                  className="text-[14px] font-semibold text-white "
                 >
                   Xin chào, {user.fullname}
                 </Link>
@@ -147,15 +135,15 @@ export default function Header({ initialUser }: Props) {
                 {/* Chưa đăng nhập thì hiện nút Đăng nhập + Đăng ký */}
                 <Link
                   href="/login"
-                  className="text-[12px] font-semibold uppercase tracking-[0.1em] 
-                  text-gray-700 hover:text-gray-900 transition-colors"
+                  className="text-[12px] font-semibold uppercase  
+                  text-white "
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/register"
-                  className="text-[12px] font-semibold uppercase tracking-[0.1em]
-                   text-white bg-gray-900 hover:bg-gray-700 px-4 py-1.5 
+                  className="text-[12px] font-semibold uppercase 
+                   text-[#1b1b1b]  bg-white hover:bg-gray-200 px-4 py-1.5 
                    transition-colors"
                 >
                   Đăng ký
@@ -174,20 +162,13 @@ export default function Header({ initialUser }: Props) {
                 <User className="w-5 h-5" />
               </Link>
             ) : (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="text-red-700"
-                aria-label="Đăng xuất"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
+              <></>
             )}
 
             {/* Nút hamburger để mở menu mobile */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1 text-gray-700"
+              className="p-1 text-white"
             >
               {isMenuOpen ? (
                 /* Icon X (đóng) */
@@ -207,9 +188,9 @@ export default function Header({ initialUser }: Props) {
           <div className="flex flex-col py-2">
             {/* Hiển thị tên user nếu đã đăng nhập */}
             {user && (
-              <div className="px-4 py-3 border-b border-gray-100">
-                <p className="font-semibold text-gray-900">{user.fullname}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+              <div className="px-4 py-3 border-b ">
+                <p className="font-semibold text-[#1b1b1b]">{user.fullname}</p>
+                <p className="text-xs text-[#1b1b1b]">{user.email}</p>
               </div>
             )}
 
@@ -217,11 +198,7 @@ export default function Header({ initialUser }: Props) {
             <Link
               href="/"
               onClick={() => setIsMenuOpen(false)}
-              className={`px-4 py-3 text-sm font-medium ${
-                pathname === "/"
-                  ? "text-gray-900 bg-gray-50"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-4 text-[#1b1b1b] py-3 text-sm font-medium border-b`}
             >
               Trang chủ
             </Link>
@@ -230,11 +207,7 @@ export default function Header({ initialUser }: Props) {
             <Link
               href="/map"
               onClick={() => setIsMenuOpen(false)}
-              className={`px-4 py-3 text-sm font-medium ${
-                pathname === "/map"
-                  ? "text-gray-900 bg-gray-50"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-4 text-[#1b1b1b] py-3 text-sm font-medium border-b `}
             >
               Bản đồ
             </Link>
@@ -243,11 +216,7 @@ export default function Header({ initialUser }: Props) {
             <Link
               href="/booked"
               onClick={() => setIsMenuOpen(false)}
-              className={`px-4 py-3 text-sm font-medium ${
-                pathname === "/map"
-                  ? "text-gray-900 bg-gray-50"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-4 text-[#1b1b1b] py-3 text-sm font-medium border-b `}
             >
               Đã đặt
             </Link>
@@ -256,22 +225,18 @@ export default function Header({ initialUser }: Props) {
             <Link
               href="/favorite"
               onClick={() => setIsMenuOpen(false)}
-              className={`px-4 py-3 text-sm font-medium ${
-                pathname === "/favorite"
-                  ? "text-gray-900 bg-gray-50"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-4 text-[#1b1b1b] py-3 text-sm font-medium border-b `}
             >
               Yêu thích
             </Link>
 
             {/* Nếu chưa đăng nhập, hiển thị 2 nút đăng nhập/đăng ký ở mobile */}
             {!user && (
-              <div className="px-4 pt-3 pb-2 mt-2 border-t border-gray-100">
+              <div className="px-4 pt-3 pb-2 mt-2 border-t ">
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className="block w-full py-2 mb-2 text-sm font-semibold text-center text-gray-900 border border-gray-300 rounded-sm"
+                  className="block w-full py-2 mb-2 text-sm font-semibold text-center text-white border border-gray-300 rounded-sm"
                 >
                   Đăng nhập
                 </Link>
@@ -289,7 +254,7 @@ export default function Header({ initialUser }: Props) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-4 py-3 mt-2 text-sm font-semibold text-left text-red-600 border-t border-gray-100"
+                className="px-4 py-2  text-sm font-semibold text-left text-[#f30000] "
               >
                 Đăng xuất
               </button>

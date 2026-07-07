@@ -6,23 +6,24 @@ import Weather from "@/components/client/home/weather/weather";
 import WeatherSkeleton from "@/components/client/home/weather/weather-skeleton";
 import ListStadium from "@/components/client/stadium/list-stadium";
 import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skeleton";
+import StadiumHomeSkeleton from "@/components/client/stadium/stadium-home-skeleton";
 import envConfig from "@/config";
 import { Suspense } from "react";
 
 export default async function Page() {
   return (
     <>
-      <Suspense fallback={<ListStadiumSkeleton count={6} />}>
+      <Suspense fallback={<StadiumHomeSkeleton count={6} />}>
         <ListStadiumServer />
       </Suspense>
 
       <Suspense fallback={<WeatherSkeleton />}>
         <WeatherServer />
       </Suspense>
-{/* 
+
       <Suspense fallback={<ListStadiumSkeleton count={6} />}>
         <NearByStadiumsServer />
-      </Suspense> */}
+      </Suspense>
 
       <DistrictPriceTable />
       <Overview />

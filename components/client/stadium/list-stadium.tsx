@@ -130,13 +130,13 @@ export default function ListStadium({
         </p>
 
         {isLoading ? (
-          <ListStadiumSkeleton count={3}/>
+          <ListStadiumSkeleton count={3} />
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {data?.stadiums?.map((s) => (
               <Link key={s?.id} href={`/stadiums/${s?.slug}`}>
                 <div className="overflow-hidden transition-all duration-200 bg-white border rounded border-slate-200 hover:border-slate-500 ">
-                  <div className="relative h-[200px]">
+                  <div className="relative h-[200px] group overflow-hidden">
                     {s?.thumbnail?.[0] && (
                       <Image
                         src={s?.thumbnail?.[0]}
@@ -144,15 +144,33 @@ export default function ListStadium({
                         sizes="(max-width: 768px) 100vw,
                           (max-width: 1200px) 50vw,
                           33vw"
-                        className=" object-cover block"
+                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                         alt={s?.name}
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <div
-                      className={`absolute top-2.5 right-2.5 px-2.5 py-1  text-white text-[10px] font-bold uppercase bg-slate-500`}
+                      className={`absolute top-2.5 left-2.5 px-2.5 py-1  text-white text-[10px] font-bold uppercase bg-slate-500`}
                     >
                       Sân {s.type}
+                    </div>
+                    <div
+                      className={`absolute top-2.5 right-2.5 px-2.5 py-1 `}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleFavorite(s);
+                        }}
+                      >
+                        <Heart
+                          className={
+                            favorites.find((item) => item.id === s.id)
+                              ? "text-red-500 fill-red-500"
+                              : "text-[#ffff]"
+                          }
+                        />
+                      </button>
                     </div>
                   </div>
                   <div className="px-4 pt-4 pb-3.5">
@@ -179,20 +197,6 @@ export default function ListStadium({
                           py-2  text-[11px] font-semibold italic uppercase tracking-wider transition-colors"
                       >
                         Đặt sân →
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleFavorite(s);
-                        }}
-                      >
-                        <Heart
-                          className={
-                            favorites.find((item) => item.id === s.id)
-                              ? "text-red-500 fill-red-500"
-                              : "text-gray-400"
-                          }
-                        />
                       </button>
                     </div>
                   </div>

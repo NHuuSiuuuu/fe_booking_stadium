@@ -193,7 +193,7 @@ export default function Users({ initialUsers }: Props) {
                 >
                   <div className="flex items-center gap-1 cursor-pointer group hover:text-gray-700">
                     ID
-                    <ArrowDownUp className="text-xs text-gray-400 group-hover:text-gray-600" />
+                    <ArrowDownUp className="text-xs text-[#1b1b1b] group-hover:text-gray-600" />
                   </div>
                 </th>
                 <th

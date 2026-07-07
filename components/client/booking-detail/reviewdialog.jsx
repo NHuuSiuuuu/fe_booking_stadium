@@ -4,7 +4,7 @@ export default function ReviewDialog({
   reviewOpen,
   setReviewOpen,
   setRating,
-  setComment,  
+  setComment,
   comment,
   rating,
   setIsEditing,
@@ -68,7 +68,7 @@ export default function ReviewDialog({
                 {rating === 5 && "Tuyệt vời"}
               </span>
             </div>
-            <label className="block mb-2 text-sm  text-gray-400 uppercase">
+            <label className="block mb-2 text-sm  text-[#1b1b1b] uppercase">
               Nhận xét
             </label>
             <textarea

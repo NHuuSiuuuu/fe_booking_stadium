@@ -96,10 +96,10 @@ export default function BookingDetail({
         {/* Page title row */}
         <div className="flex items-start justify-between mb-8 ">
           <div>
-            <h1 className="text-3xl font-medium tracking-tight text-black uppercase">
+            <h1 className="text-3xl font-medium tracking-tight text-[#1b1b1b]  uppercase">
               Chi tiết đơn đặt
             </h1>
-            <p className="mt-1 text-sm  text-gray-400 uppercase">Mã đơn: #</p>
+            <p className="mt-1 text-sm  text-[#1b1b1b] uppercase">Mã đơn: #</p>
           </div>
           <span
             className={`inline-flex items-center gap-1.5 text-[10px] font-medium uppercase  px-3 py-1.5 ${status.cls}`}
@@ -124,7 +124,7 @@ export default function BookingDetail({
               </div>
               <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <Hash size={12} />
                     Mã đơn
                   </div>
@@ -136,7 +136,7 @@ export default function BookingDetail({
                 <div className="border-t border-gray-200 border-dashed" />
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <Calendar size={12} />
                     Ngày đặt
                   </div>
@@ -151,7 +151,7 @@ export default function BookingDetail({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <Clock size={12} />
                     Khung giờ
                   </div>
@@ -161,7 +161,7 @@ export default function BookingDetail({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <CreditCard size={12} />
                     Thanh toán
                   </div>
@@ -181,7 +181,7 @@ export default function BookingDetail({
               </div>
               <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <User size={12} />
                     Họ và tên
                   </div>
@@ -191,7 +191,7 @@ export default function BookingDetail({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <Mail size={12} />
                     Email
                   </div>
@@ -199,7 +199,7 @@ export default function BookingDetail({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase">
+                  <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase">
                     <Phone size={12} />
                     Số điện thoại
                   </div>
@@ -208,7 +208,7 @@ export default function BookingDetail({
 
                 {booking?.note && (
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-2 text-sm  text-gray-400 uppercase shrink-0">
+                    <div className="flex items-center gap-2 text-sm  text-[#1b1b1b] uppercase shrink-0">
                       Ghi chú
                     </div>
                     <span className="text-sm text-right text-gray-600">
@@ -254,7 +254,7 @@ export default function BookingDetail({
                     </button>
                     <button
                       onClick={() => setConfirmDeleteOpen(true)}
-                      className="text-xs font-medium uppercase  text-red-600 underline underline-offset-2"
+                      className="text-xs font-medium uppercase  text-[#f30000] underline underline-offset-2"
                     >
                       Xóa
                     </button>

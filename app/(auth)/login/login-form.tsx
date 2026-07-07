@@ -97,13 +97,13 @@ export default function LoginForm() {
           </span>
         </Link>
 
-        <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3">
+        <p className="text-[11px] uppercase tracking-widest text-[#1b1b1b] mb-3">
           Tài khoản
         </p>
         <h1 className="mb-1 text-3xl font-black tracking-tight text-black uppercase">
           Đăng nhập
         </h1>
-        <p className="mb-10 text-xs tracking-widest text-gray-400 uppercase">
+        <p className="mb-10 text-xs tracking-widest text-[#1b1b1b] uppercase">
           Chào mừng trở lại
         </p>
 
@@ -117,7 +117,7 @@ export default function LoginForm() {
               type="email"
               placeholder="Nhập email"
               {...register("email")}
-              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
             />
             {errors.email && (
               <span className="text-red-500">{errors.email.message}</span>
@@ -133,7 +133,7 @@ export default function LoginForm() {
               type="password"
               placeholder="Nhập mật khẩu"
               {...register("password")}
-              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
             />
             {errors.password && (
               <span className="text-red-500">{errors.password.message}</span>
@@ -144,7 +144,7 @@ export default function LoginForm() {
           <div className="flex justify-end -mt-1">
             <Link
               href="/forgot-password"
-              className="text-[11px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors no-underline"
+              className="text-[11px] uppercase tracking-widest text-[#1b1b1b] hover:text-black transition-colors no-underline"
             >
               Quên mật khẩu?
             </Link>
@@ -168,14 +168,14 @@ export default function LoginForm() {
         {/* Divider */}
         <div className="flex items-center gap-3 my-8">
           <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-[11px] uppercase tracking-widest text-gray-400">
+          <span className="text-[11px] uppercase tracking-widest text-[#1b1b1b]">
             hoặc
           </span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
         {/* Register */}
-        <p className="text-xs tracking-widest text-gray-400 uppercase">
+        <p className="text-xs tracking-widest text-[#1b1b1b] uppercase">
           Chưa có tài khoản?{" "}
           <Link
             href="/register"

@@ -34,7 +34,7 @@ export default function NearByStadiums({ initialData }: any) {
                     />
                   ) : (
                     <div className="flex justify-center items-center">
-                      <ImageOff className="w-full h-[36px] md:h-full text-gray-400" />
+                      <ImageOff className="w-full h-[36px] md:h-full text-[#1b1b1b]" />
                     </div>
                   )}
                 </div>

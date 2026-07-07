@@ -1,11 +1,7 @@
 "use client";
 
 import envConfig from "@/config";
-import {
-  AlarmClock,
-  Calendar,
-  CircleDollarSign,
-} from "lucide-react";
+import { AlarmClock, Calendar, CircleDollarSign } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -146,7 +142,6 @@ export default function BookingSidebar({
   // new Set(...) → {1, 6} — loại trùng
   //  [...new Set(...)] → [1, 6]
 
-
   // Today
   const today = new Date();
   const isToday = (date: Date) => {
@@ -227,111 +222,107 @@ export default function BookingSidebar({
   // console.log("socketId", socketId);
   return (
     // <div className="max-w-[1200px] mx-auto px-8 py-10">
-      <div className="flex flex-col gap-8 lg:flex-row">
-        {/* Cột phải */}
-        <div className="w-full lg:w-[340px] space-y-4">
-          <div className="p-4 border-1 ">
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() =>
-                  setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() - 1,
-                    ),
-                  )
-                }
-                className="text-xs  font-bold uppercase tracking-wider border-2 border-gray-900 px-3 py-1.5 hover:bg-black hover:text-white transition"
-              >
-                ←
-              </button>
+    <div className="flex flex-col gap-8 lg:flex-row">
+      {/* Cột phải */}
+      <div className="w-full lg:w-[340px] space-y-4">
+        <div className="p-4 border-1 ">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() =>
+                setCurrentMonth(
+                  new Date(
+                    currentMonth.getFullYear(),
+                    currentMonth.getMonth() - 1,
+                  ),
+                )
+              }
+              className="text-xs  font-bold uppercase tracking-wider border-2 border-gray-900 px-3 py-1.5 hover:bg-black hover:text-white transition"
+            >
+              ←
+            </button>
 
-              <span className="text-xs font-black tracking-widest uppercase">
-                Tháng {currentMonth.getMonth() + 1} /{" "}
-                {currentMonth.getFullYear()}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() + 1,
-                    ),
-                  )
-                }
-                className="text-xs font-bold uppercase tracking-wider border-2 border-gray-900 px-3 py-1.5 hover:bg-black hover:text-white transition"
-              >
-                →
-              </button>
-            </div>
+            <span className="text-xs font-black tracking-widest uppercase">
+              Tháng {currentMonth.getMonth() + 1} / {currentMonth.getFullYear()}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentMonth(
+                  new Date(
+                    currentMonth.getFullYear(),
+                    currentMonth.getMonth() + 1,
+                  ),
+                )
+              }
+              className="text-xs font-bold uppercase tracking-wider border-2 border-gray-900 px-3 py-1.5 hover:bg-black hover:text-white transition"
+            >
+              →
+            </button>
+          </div>
 
-            {/* Lịch */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((day, i) => (
-                <div
-                  key={i}
-                  className="text-center text-[11px] font-bold  py-2"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-0.5">
-              {days.map((date, index) => {
-                if (!date) return <div key={index} className="aspect-square" />;
-                const isSelected =
-                  selectedDate &&
-                  date.getDate() === selectedDate.getDate() &&
-                  date.getMonth() === selectedDate.getMonth() &&
-                  date.getFullYear() === selectedDate.getFullYear();
-                return (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSelectedDate(date);
-                      setSelectedSlot(null);
-                      setMyHeldSlotId(null); // reset
-                    }}
-                    className={`aspect-square text-xs font-bold transition-all
+          {/* Lịch */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((day, i) => (
+              <div key={i} className="text-center text-[11px] font-bold  py-2">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-0.5">
+            {days.map((date, index) => {
+              if (!date) return <div key={index} className="aspect-square" />;
+              const isSelected =
+                selectedDate &&
+                date.getDate() === selectedDate.getDate() &&
+                date.getMonth() === selectedDate.getMonth() &&
+                date.getFullYear() === selectedDate.getFullYear();
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setSelectedDate(date);
+                    setSelectedSlot(null);
+                    setMyHeldSlotId(null); // reset
+                  }}
+                  className={`aspect-square text-xs font-bold transition-all
                     ${isSelected ? "bg-black text-white" : isToday(date) ? "bg-red-500 text-white" : "hover:bg-gray-100 text-gray-700"}`}
-                  >
-                    {date.getDate()}
-                  </button>
-                );
-              })}
-            </div>
+                >
+                  {date.getDate()}
+                </button>
+              );
+            })}
+          </div>
 
-            {selectedDate && (
-              <div className="mt-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
-                  Khung giờ - {DAY_MAP[selectedDate.getDay()]}{" "}
-                  {selectedDate.getDate()}/{selectedDate.getMonth() + 1}
+          {selectedDate && (
+            <div className="mt-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#1b1b1b] mb-3">
+                Khung giờ - {DAY_MAP[selectedDate.getDay()]}{" "}
+                {selectedDate.getDate()}/{selectedDate.getMonth() + 1}
+              </p>
+
+              {slotsOfDay.length === 0 ? (
+                <p className="py-4 text-sm text-center text-[#1b1b1b]">
+                  Không có khung giờ nào
                 </p>
+              ) : (
+                <div>
+                  {slotsOfDay?.map((slot) => {
+                    // Kiểm tra slot đã được đặt chưa
+                    const isBooked = bookedSlots?.booked?.includes(slot.id);
 
-                {slotsOfDay.length === 0 ? (
-                  <p className="py-4 text-sm text-center text-gray-400">
-                    Không có khung giờ nào
-                  </p>
-                ) : (
-                  <div>
-                    {slotsOfDay?.map((slot) => {
-                      // Kiểm tra slot đã được đặt chưa
-                      const isBooked = bookedSlots?.booked?.includes(slot.id);
+                    // Kiểm tra người khsc đang tạmm giữ không
+                    const isHeldByOther =
+                      (bookedSlots?.holding?.includes(slot.id) &&
+                        myHeldSlotId !== slot.id) ||
+                      (holdSlots?.includes(slot.id) &&
+                        myHeldSlotId !== slot.id);
 
-                      // Kiểm tra người khsc đang tạmm giữ không
-                      const isHeldByOther =
-                        (bookedSlots?.holding?.includes(slot.id) &&
-                          myHeldSlotId !== slot.id) ||
-                        (holdSlots?.includes(slot.id) &&
-                          myHeldSlotId !== slot.id);
-
-                      const isLocked = isBooked || isHeldByOther;
-                      return (
-                        <button
-                          key={slot.id}
-                          disabled={isLocked}
-                          onClick={() => !isLocked && handleSelectSlot(slot)}
-                          className={`w-full flex justify-between items-center px-4 py-3 border-2 transition
+                    const isLocked = isBooked || isHeldByOther;
+                    return (
+                      <button
+                        key={slot.id}
+                        disabled={isLocked}
+                        onClick={() => !isLocked && handleSelectSlot(slot)}
+                        className={`w-full flex justify-between items-center px-4 py-3 border-2 transition
                        ${
                          isLocked
                            ? "border-gray-100 text-gray-300 cursor-not-allowed bg-gray-50"
@@ -339,58 +330,57 @@ export default function BookingSidebar({
                              ? "border-black bg-black text-white"
                              : "border-gray-200 hover:border-black"
                        }`}
-                        >
-                          <span className="text-sm">
-                            {slot.start_time} - {slot.end_time}
-                          </span>
+                      >
+                        <span className="text-sm">
+                          {slot.start_time} - {slot.end_time}
+                        </span>
 
-                          <span
-                            className={`text-sm font-bold ${isBooked ? "text-gray-300" : "text-orange-400"}`}
-                          >
-                            {isBooked
-                              ? "Đã đặt"
-                              : isHeldByOther
-                                ? "Đang xem" // ← thay "Đã đặt" bằng "Đang xem"
-                                : `${new Intl.NumberFormat("vi-VN").format(slot.price)}`}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          {selectedDate && selectedSlot && (
-            <div className="p-4 border-2 border-black">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
-                Xác nhận đặt sân
-              </p>
-              <div className="mb-4 text-sm font-medium text-gray-700 ">
-                <p className="flex items-center gap-1.5">
-                  <Calendar className="size-4" />
-                  {selectedDate.toLocaleDateString("vi-VN")}
-                </p>
-                <p className="flex items-center gap-1.5">
-                  <AlarmClock className="size-4" />
-                  {selectedSlot.start_time} — {selectedSlot.end_time}
-                </p>
-                <p className="flex items-center gap-1.5">
-                  <CircleDollarSign className="size-4" />
-                  {new Intl.NumberFormat("vi-VN").format(selectedSlot.price)}đ
-                </p>
-              </div>
-              <button
-                onClick={handleBooking}
-                className="w-full py-3.5 bg-black text-white text-sm font-black uppercase tracking-widest hover:bg-gray-900 transition"
-              >
-                Đặt sân ngay →
-              </button>
+                        <span
+                          className={`text-sm font-bold ${isBooked ? "text-gray-300" : "text-orange-400"}`}
+                        >
+                          {isBooked
+                            ? "Đã đặt"
+                            : isHeldByOther
+                              ? "Đang xem" // ← thay "Đã đặt" bằng "Đang xem"
+                              : `${new Intl.NumberFormat("vi-VN").format(slot.price)}`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
+        {selectedDate && selectedSlot && (
+          <div className="p-4 border-2 border-black">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#1b1b1b] mb-3">
+              Xác nhận đặt sân
+            </p>
+            <div className="mb-4 text-sm font-medium text-gray-700 ">
+              <p className="flex items-center gap-1.5">
+                <Calendar className="size-4" />
+                {selectedDate.toLocaleDateString("vi-VN")}
+              </p>
+              <p className="flex items-center gap-1.5">
+                <AlarmClock className="size-4" />
+                {selectedSlot.start_time} — {selectedSlot.end_time}
+              </p>
+              <p className="flex items-center gap-1.5">
+                <CircleDollarSign className="size-4" />
+                {new Intl.NumberFormat("vi-VN").format(selectedSlot.price)}đ
+              </p>
+            </div>
+            <button
+              onClick={handleBooking}
+              className="w-full py-3.5 bg-black text-white text-sm font-black uppercase tracking-widest hover:bg-gray-900 transition"
+            >
+              Đặt sân ngay →
+            </button>
+          </div>
+        )}
       </div>
+    </div>
     // </div>
-    
   );
 }

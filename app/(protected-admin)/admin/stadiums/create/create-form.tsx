@@ -310,7 +310,7 @@ export default function CreateForm() {
                     <button
                       type="button"
                       onClick={() => removeUtility(index)}
-                      className="text-gray-500 transition-colors hover:text-red-600"
+                      className="text-gray-500 transition-colors hover:text-[#f30000]"
                     >
                       <X className="size-4" />
                     </button>
@@ -387,7 +387,7 @@ export default function CreateForm() {
                     type="radio"
                     {...register("status")}
                     value="0"
-                    className="w-5 h-5 text-red-600 focus:ring-red-500"
+                    className="w-5 h-5 text-[#f30000] focus:ring-red-500"
                   />
                   <div className="ml-3">
                     <span className="font-medium text-gray-800">Ẩn</span>
@@ -427,7 +427,7 @@ export default function CreateForm() {
                     <p className="mt-1 text-sm text-gray-500">
                       Kéo thả hoặc chọn file
                     </p>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-[#1b1b1b]">
                       PNG, JPG, GIF tối đa 10MB
                     </p>
                   </label>

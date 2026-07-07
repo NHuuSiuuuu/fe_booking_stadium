@@ -179,7 +179,7 @@ export default function CheckoutForm() {
   if (!data || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-sm font-bold uppercase tracking-widest text-gray-400 animate-pulse">
+        <p className="text-sm font-bold uppercase tracking-widest text-[#1b1b1b] animate-pulse">
           Đang tải...
         </p>
       </div>
@@ -268,7 +268,7 @@ export default function CheckoutForm() {
                       value={formData.fullName}
                       onChange={handleOnChange}
                       placeholder="Nhập họ và tên"
-                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-gray-400"
+                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-[#1b1b1b]"
                     />
                   </div>
 
@@ -282,7 +282,7 @@ export default function CheckoutForm() {
                       value={formData.email}
                       onChange={handleOnChange}
                       placeholder="Nhập email"
-                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-gray-400"
+                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-[#1b1b1b]"
                     />
                   </div>
 
@@ -296,7 +296,7 @@ export default function CheckoutForm() {
                       value={formData.phone}
                       onChange={handleOnChange}
                       placeholder="Nhập số điện thoại"
-                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-gray-400"
+                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 placeholder:text-[#1b1b1b]"
                     />
                   </div>
 
@@ -310,13 +310,13 @@ export default function CheckoutForm() {
                       onChange={handleOnChange}
                       placeholder="Ghi chú thêm (không bắt buộc)"
                       rows={3}
-                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 resize-none placeholder:text-gray-400"
+                      className="border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black transition-colors bg-gray-50 resize-none placeholder:text-[#1b1b1b]"
                     />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <p className="text-xs text-gray-400 mb-2">Chưa đăng nhập</p>
+                  <p className="text-xs text-[#1b1b1b] mb-2">Chưa đăng nhập</p>
                   <Link
                     href="/login"
                     className="text-[11px] font-black uppercase tracking-widest text-black border-b border-black hover:text-gray-600 transition-colors"
@@ -419,7 +419,7 @@ export default function CheckoutForm() {
                     <p className="text-sm font-bold tracking-tight text-black uppercase">
                       {stadium.name}
                     </p>
-                    <p className="text-[11px] text-gray-400 uppercase tracking-widest mt-0.5">
+                    <p className="text-[11px] text-[#1b1b1b] uppercase tracking-widest mt-0.5">
                       Sân {stadium.type}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
@@ -440,7 +440,7 @@ export default function CheckoutForm() {
                     // value={coupon}
                     // onChange={(e) => setCoupon(e.target.value)}
                     placeholder="Nhập mã giảm giá"
-                    className="flex-1 px-3 py-2 text-xs tracking-widest uppercase transition-colors border border-r-0 border-gray-300 outline-none focus:border-black placeholder:normal-case placeholder:tracking-normal placeholder:text-gray-400 bg-gray-50"
+                    className="flex-1 px-3 py-2 text-xs tracking-widest uppercase transition-colors border border-r-0 border-gray-300 outline-none focus:border-black placeholder:normal-case placeholder:tracking-normal placeholder:text-[#1b1b1b] bg-gray-50"
                   />
                   <button className="px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors bg-black hover:bg-gray-800 whitespace-nowrap">
                     Áp dụng
@@ -494,12 +494,12 @@ export default function CheckoutForm() {
                 </button>
 
                 {!data.user && (
-                  <p className="text-center text-[10px] text-gray-400 uppercase tracking-widest mt-3">
+                  <p className="text-center text-[10px] text-[#1b1b1b] uppercase tracking-widest mt-3">
                     Cần đăng nhập để đặt sân
                   </p>
                 )}
 
-                <p className="mt-3 text-[10px] text-center text-gray-400 uppercase tracking-widest">
+                <p className="mt-3 text-[10px] text-center text-[#1b1b1b] uppercase tracking-widest">
                   Đồng ý với{" "}
                   <span className="underline transition-colors cursor-pointer hover:text-black">
                     điều khoản dịch vụ

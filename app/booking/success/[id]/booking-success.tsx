@@ -53,7 +53,7 @@ export default function BookingSuccess() {
   if (isLoading || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-sm font-bold uppercase tracking-widest text-gray-400 animate-pulse">
+        <p className="text-sm font-bold uppercase tracking-widest text-[#1b1b1b] animate-pulse">
           Đang tải...
         </p>
       </div>
@@ -72,7 +72,7 @@ export default function BookingSuccess() {
           <h1 className="text-3xl font-medium tracking-tight text-black uppercase">
             Đặt sân thành công!
           </h1>
-          <p className="mt-2 text-xs tracking-widest text-gray-400 uppercase">
+          <p className="mt-2 text-xs tracking-widest text-[#1b1b1b] uppercase">
             Đơn đặt sân của bạn đã được xác nhận
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function BookingSuccess() {
             {/* Booking details */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs tracking-widest text-gray-400 uppercase">
+                <div className="flex items-center gap-2 text-xs tracking-widest text-[#1b1b1b] uppercase">
                   <Calendar size={12} />
                   Ngày đặt
                 </div>
@@ -133,7 +133,7 @@ export default function BookingSuccess() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs tracking-widest text-gray-400 uppercase">
+                <div className="flex items-center gap-2 text-xs tracking-widest text-[#1b1b1b] uppercase">
                   <Clock size={12} />
                   Khung giờ
                 </div>
@@ -144,7 +144,7 @@ export default function BookingSuccess() {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs tracking-widest text-gray-400 uppercase">
+                <div className="flex items-center gap-2 text-xs tracking-widest text-[#1b1b1b] uppercase">
                   <CreditCard size={12} />
                   Thanh toán
                 </div>
@@ -159,7 +159,7 @@ export default function BookingSuccess() {
             {/* Totals */}
             <div className="space-y-2.5">
               <div className="flex justify-between">
-                <span className="text-xs tracking-widest text-gray-400 uppercase">
+                <span className="text-xs tracking-widest text-[#1b1b1b] uppercase">
                   Tạm tính
                 </span>
                 <span className="text-sm text-gray-700">
@@ -170,7 +170,7 @@ export default function BookingSuccess() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs tracking-widest text-gray-400 uppercase">
+                <span className="text-xs tracking-widest text-[#1b1b1b] uppercase">
                   Giảm giá
                 </span>
                 <span className="text-sm text-gray-700">
@@ -203,7 +203,7 @@ export default function BookingSuccess() {
 
         {/* Email notice */}
         <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white border border-gray-300">
-          <Mail size={14} className="text-gray-400 shrink-0" />
+          <Mail size={14} className="text-[#1b1b1b] shrink-0" />
           <p className="text-xs tracking-widest text-gray-500 uppercase">
             Email xác nhận đã được gửi đến địa chỉ email của bạn
           </p>

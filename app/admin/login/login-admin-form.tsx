@@ -78,7 +78,7 @@ export default function LoginAdminForm() {
           </span>
         </Link>
 
-        <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3">
+        <p className="text-[11px] uppercase tracking-widest text-[#1b1b1b] mb-3">
           Tài khoản
         </p>
         <h1 className="mb-1 text-3xl font-black tracking-tight text-black uppercase">
@@ -95,7 +95,7 @@ export default function LoginAdminForm() {
               type="email"
               placeholder="Nhập email"
               {...register("email")}
-              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
             />
             {errors.email && (
               <span className="text-red-500">{errors.email.message}</span>
@@ -111,7 +111,7 @@ export default function LoginAdminForm() {
               type="password"
               placeholder="Nhập mật khẩu"
               {...register("password")}
-              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+              className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
             />
             {errors.password && (
               <span className="text-red-500">{errors.password.message}</span>

@@ -11,13 +11,13 @@ export default function PaymentSummary({ booking }) {
       <div className="flex flex-col md:flex-row gap-5">
         <div className="w-full md:w-[50%] bg-white p-5 space-y-3">
           <div className="flex justify-between">
-            <span className="text-sm  text-gray-400 uppercase">Tạm tính</span>
+            <span className="text-sm  text-[#1b1b1b] uppercase">Tạm tính</span>
             <span className="text-sm text-gray-700">
               {new Intl.NumberFormat("vi-VN").format(booking?.total_price)}đ
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm  text-gray-400 uppercase">Giảm giá</span>
+            <span className="text-sm  text-[#1b1b1b] uppercase">Giảm giá</span>
             <span className="text-sm text-gray-700">
               -{new Intl.NumberFormat("vi-VN").format(0)}đ
             </span>

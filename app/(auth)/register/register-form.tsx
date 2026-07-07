@@ -129,13 +129,13 @@ export default function RegisterForm() {
           </span>
         </Link>
 
-        <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3">
+        <p className="text-[11px] uppercase tracking-widest text-[#1b1b1b] mb-3">
           Tài khoản
         </p>
         <h1 className="mb-1 text-3xl font-black tracking-tight text-black uppercase">
           Đăng ký
         </h1>
-        <p className="mb-10 text-xs tracking-widest text-gray-400 uppercase">
+        <p className="mb-10 text-xs tracking-widest text-[#1b1b1b] uppercase">
           Tạo tài khoản để đặt sân nhanh hơn
         </p>
 
@@ -152,7 +152,7 @@ export default function RegisterForm() {
                 type={type}
                 placeholder={placeholder}
                 {...register(key)}
-                className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+                className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
               />
               {errors[key] && (
                 <span className="text-red-500">{errors[key]?.message}</span>
@@ -179,13 +179,13 @@ export default function RegisterForm() {
         {/* Divider */}
         <div className="flex items-center gap-3 my-8">
           <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-[11px] uppercase tracking-widest text-gray-400">
+          <span className="text-[11px] uppercase tracking-widest text-[#1b1b1b]">
             hoặc
           </span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        <p className="text-xs tracking-widest text-gray-400 uppercase">
+        <p className="text-xs tracking-widest text-[#1b1b1b] uppercase">
           Đã có tài khoản?{" "}
           <Link
             href="/login"

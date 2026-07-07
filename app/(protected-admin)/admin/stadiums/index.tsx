@@ -379,7 +379,7 @@ export default function StadiumAdmin() {
                             />
                           ) : (
                             <div className="flex items-center justify-center w-12 h-12 bg-gray-200 rounded-lg">
-                              <Image className="w-6 h-6 text-gray-400" />
+                              <Image className="w-6 h-6 text-[#1b1b1b]" />
                             </div>
                           )}
                         </div>

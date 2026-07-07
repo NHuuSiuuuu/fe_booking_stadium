@@ -46,7 +46,7 @@ export default function StadiumDetail({
   if (!stadium) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-sm font-bold uppercase tracking-widest text-red-400">
+        <p className="text-sm font-bold uppercase text-red-400">
           Không tìm thấy sân
         </p>
       </div>
@@ -57,12 +57,12 @@ export default function StadiumDetail({
       {/* Breadcrumb */}
       <div className="border-b border-gray-100">
         <div className="flex items-center max-w-6xl gap-2 px-4 py-3 mx-auto text-sm font-bold  text-gray-500 uppercase sm:px-6">
-          <Link href="/" className="transition-colors hover:text-black">
+          <Link href="/" className="transition-colors hover:text-[#1b1b1b]">
             Trang chủ
           </Link>
           <ChevronRight className="text-gray-500  size-4" />
 
-          <span className="text-black">{stadium?.name}</span>
+          <span className="text-[#1b1b1b]">{stadium?.name}</span>
         </div>
       </div>
 
@@ -74,10 +74,10 @@ export default function StadiumDetail({
             <ImageGallery thumbnails={stadium.thumbnail} type={stadium.type} />
             {/* Thông tin sân */}
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-black uppercase sm:text-2xl">
+              <h1 className="text-2xl font-bold tracking-tight text-[#1b1b1b] uppercase sm:text-2xl">
                 {stadium?.name}
               </h1>
-              <p className="mt-1 text-xs font-bold tracking-widest text-gray-400 uppercase">
+              <p className="mt-1 text-xs font-bold text-[#1b1b1b] uppercase">
                 📍 {stadium?.address}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
@@ -86,7 +86,7 @@ export default function StadiumDetail({
             </div>
             {/* Tiện ích */}
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+              <p className="text-[13px] font-bold uppercase text-[#1b1b1b] mb-3">
                 Tiện ích
               </p>
               <div className="flex flex-wrap gap-2">
@@ -103,7 +103,7 @@ export default function StadiumDetail({
 
             {/* Bảng giá */}
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+              <p className="text-[13px] font-bold uppercase text-[#1b1b1b] mb-3">
                 Bảng giá
               </p>
               <div className="space-y-3">
@@ -113,7 +113,7 @@ export default function StadiumDetail({
                     className="overflow-hidden border-2 border-gray-100"
                   >
                     <div className="px-4 py-2 bg-black">
-                      <span className="text-[11px] font-black uppercase tracking-widest text-white">
+                      <span className="text-[11px] font-bold uppercase text-white">
                         {DAY_MAP[day]}
                       </span>
                     </div>
@@ -131,7 +131,7 @@ export default function StadiumDetail({
                                 {item?.start_time} — {item?.end_time}
                               </span>
                             </div>
-                            <span className="text-sm font-black text-red-600">
+                            <span className="text-sm font-bold text-[#f30000]">
                               {new Intl.NumberFormat("vi-VN").format(
                                 item?.price,
                               )}

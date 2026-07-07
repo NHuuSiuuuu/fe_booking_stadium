@@ -147,12 +147,12 @@ export default function ForgotPasswordForm() {
                 )}
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-6 h-6 flex items-center justify-center text-[10px] font-black ${active || done ? "bg-black text-white" : "border-2 border-gray-300 text-gray-400"}`}
+                    className={`w-6 h-6 flex items-center justify-center text-[10px] font-black ${active || done ? "bg-black text-white" : "border-2 border-gray-300 text-[#1b1b1b]"}`}
                   >
                     {current}
                   </div>
                   <span
-                    className={`text-[11px] uppercase tracking-widest font-bold ${active ? "text-black" : "text-gray-400"}`}
+                    className={`text-[11px] uppercase tracking-widest font-bold ${active ? "text-black" : "text-[#1b1b1b]"}`}
                   >
                     {label}
                   </span>
@@ -165,13 +165,13 @@ export default function ForgotPasswordForm() {
         {/* ── STEP 1 ── */}
         {step === 1 && (
           <>
-            <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3">
+            <p className="text-[11px] uppercase tracking-widest text-[#1b1b1b] mb-3">
               Bước 1
             </p>
             <h1 className="mb-1 text-3xl font-black tracking-tight text-black uppercase">
               Quên mật khẩu
             </h1>
-            <p className="mb-10 text-xs tracking-widest text-gray-400 uppercase">
+            <p className="mb-10 text-xs tracking-widest text-[#1b1b1b] uppercase">
               Nhập email để nhận mã OTP
             </p>
 
@@ -183,7 +183,7 @@ export default function ForgotPasswordForm() {
                 <input
                   type="email"
                   placeholder="Nhập email của bạn"
-                  className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+                  className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -207,13 +207,13 @@ export default function ForgotPasswordForm() {
 
             <div className="flex items-center gap-3 my-8">
               <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-[11px] uppercase tracking-widest text-gray-400">
+              <span className="text-[11px] uppercase tracking-widest text-[#1b1b1b]">
                 hoặc
               </span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
-            <p className="text-xs tracking-widest text-gray-400 uppercase">
+            <p className="text-xs tracking-widest text-[#1b1b1b] uppercase">
               Nhớ mật khẩu rồi?{" "}
               <Link
                 href="/login"
@@ -228,13 +228,13 @@ export default function ForgotPasswordForm() {
         {/* ── STEP 2 ── */}
         {step === 2 && (
           <>
-            <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3">
+            <p className="text-[11px] uppercase tracking-widest text-[#1b1b1b] mb-3">
               Bước 2
             </p>
             <h1 className="mb-1 text-3xl font-black tracking-tight text-black uppercase">
               Đặt lại mật khẩu
             </h1>
-            <p className="mb-10 text-xs tracking-widest text-gray-400 uppercase">
+            <p className="mb-10 text-xs tracking-widest text-[#1b1b1b] uppercase">
               Mã OTP đã gửi đến{" "}
               <span className="font-bold text-black">{formData?.email}</span>
             </p>
@@ -250,7 +250,7 @@ export default function ForgotPasswordForm() {
                 <input
                   type="text"
                   placeholder="Nhập mã OTP"
-                  className="px-4 py-3 text-sm tracking-widest text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+                  className="px-4 py-3 text-sm tracking-widest text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
                   value={formData.otp}
                   onChange={(e) =>
                     setFormData({ ...formData, otp: e.target.value })
@@ -264,7 +264,7 @@ export default function ForgotPasswordForm() {
                 <input
                   type="password"
                   placeholder="Nhập mật khẩu mới"
-                  className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-gray-400"
+                  className="px-4 py-3 text-sm text-black transition-colors bg-white border border-gray-300 outline-none focus:border-black placeholder:text-[#1b1b1b]"
                   value={formData.newPassword}
                   onChange={(e) =>
                     setFormData({ ...formData, newPassword: e.target.value })
@@ -288,7 +288,7 @@ export default function ForgotPasswordForm() {
 
             <div className="mt-6">
               {countdown > 0 ? (
-                <p className="text-xs tracking-widest text-gray-400 uppercase">
+                <p className="text-xs tracking-widest text-[#1b1b1b] uppercase">
                   Gửi lại mã sau{" "}
                   <span className="font-black text-black">{countdown}s</span>
                 </p>

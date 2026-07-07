@@ -67,19 +67,16 @@ export default async function page({ params }: Props) {
       },
     },
   );
-  // if (!reviewRes.ok) {
-  //   throw new Error("Lỗi fetch sân");
-  // }
+  if (!reviewRes.ok) {
+    throw new Error("Lỗi fetch sân");
+  }
 
   const reviewsResult = (await reviewRes.json()) ?? null;
   const statistics = reviewsResult.result.statistics;
   const avg_rating = reviewsResult.result.avg_rating;
   const total_reviews = reviewsResult.result.total_reviews;
   const reviews = reviewsResult.result.reviews;
-  // console.log("reviews", reviews);
-  // console.log("statistics", statistics);
 
-  // const stadium = stadiumData[0] ?? null;
 
   return (
     <>

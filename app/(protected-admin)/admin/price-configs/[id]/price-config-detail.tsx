@@ -200,7 +200,7 @@ export default function PriceConfigDetail() {
                           }).format(item?.price)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-gray-400">
+                      <div className="flex items-center gap-3 text-[#1b1b1b]">
                         <button
                           onClick={() => {
                             setSelectedPriceConfig(item);
@@ -211,7 +211,7 @@ export default function PriceConfigDetail() {
                           <SquareArrowOutDownRight />
                         </button>
                       </div>
-                      <div className="flex items-center gap-3 text-gray-400">
+                      <div className="flex items-center gap-3 text-[#1b1b1b]">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <button
@@ -304,7 +304,7 @@ export default function PriceConfigDetail() {
                         );
                         setFormData({ ...formData, slots: newSlots });
                       }}
-                      className="flex items-center gap-1 text-red-500 transition-colors hover:text-red-600"
+                      className="flex items-center gap-1 text-red-500 transition-colors hover:text-[#f30000]"
                     >
                       <Trash2 />
                       Xóa
@@ -440,7 +440,7 @@ export default function PriceConfigDetail() {
                         );
                         setFormData({ ...formData, slots: newSlots });
                       }}
-                      className="flex items-center gap-1 text-red-500 transition-colors hover:text-red-600"
+                      className="flex items-center gap-1 text-red-500 transition-colors hover:text-[#f30000]"
                     >
                       <Trash2 />
                       Xóa

@@ -36,7 +36,7 @@ export default function FavoritePage() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black uppercase">Sân yêu thích</h1>
-            <p className="text-xs text-gray-400 uppercase">
+            <p className="text-xs text-[#1b1b1b] uppercase">
               {favorites.length} sân
             </p>
           </div>
@@ -46,7 +46,7 @@ export default function FavoritePage() {
         {favorites.length === 0 && (
           <div className="flex flex-col items-center py-20 bg-white">
             <Inbox size={40} className="text-gray-300" />
-            <p className="text-gray-400">Chưa có sân yêu thích</p>
+            <p className="text-[#1b1b1b]">Chưa có sân yêu thích</p>
             <Link href="/" className="px-4 py-2 mt-4 text-white bg-black">
               Khám phá →
             </Link>

@@ -70,7 +70,6 @@ export function StadiumFiltersSkeleton() {
   );
 }
 
-
 export function StadiumFilters() {
   const pathName = usePathname();
   const searchParams = useSearchParams();
@@ -247,20 +246,9 @@ export function ListStadiums({ initialData, currentPage }: Props) {
     localStorage.setItem("favorite", JSON.stringify(newFavorites));
   };
   const totalPage = initialData?.totalPage || 0;
-  console.log("totalPage", totalPage);
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-[1200px] mx-auto px-4 pt-3 md:py-8 sm:px-6">
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Khám Phá
-        </p>
-        <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
-          Sân Mới
-        </p>
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Những sân vừa được cập nhật gần đây
-        </p>
-
+      <div className="max-w-[1200px] mx-auto px-4 pt-3 ">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:mt-5 lg:grid-cols-3">
           <>
             {initialData?.stadiums?.map((s) => (

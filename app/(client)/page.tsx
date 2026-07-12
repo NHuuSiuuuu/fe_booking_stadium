@@ -55,7 +55,9 @@ async function ListStadiumServer() {
     districtsRes.json(),
   ]);
 
-  return <ListStadium initialData={data} districts={districts?.districts ?? []} />;
+  return (
+    <ListStadium initialData={data} districts={districts?.districts ?? []} />
+  );
 }
 
 async function WeatherServer() {
@@ -78,7 +80,7 @@ async function WeatherServer() {
   });
 
   if (!weatherRes.ok) {
-    throw new Error("Lỗi fetch thời tiết");
+    console.log("Lỗi fetch thời tiết");
   }
 
   const weather = await weatherRes.json();
@@ -87,11 +89,14 @@ async function WeatherServer() {
 }
 
 async function NearByStadiumsServer() {
-  const stadiumRes = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`, {
-    next: {
-      revalidate: 60,
+  const stadiumRes = await fetch(
+    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=6`,
+    {
+      next: {
+        revalidate: 60,
+      },
     },
-  });
+  );
 
   if (!stadiumRes.ok) {
     throw new Error("Lỗi fetch sân gần bạn");

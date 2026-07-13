@@ -213,7 +213,7 @@ export default function CheckoutForm() {
           <div className="flex flex-col gap-5 lg:col-span-2">
             {/* Stadium info */}
             <div className="bg-white border border-gray-200">
-              <div className="px-5 py-3 bg-black">
+              <div className="px-5 py-3 bg-[#001A2D]">
                 <p className="text-xs font-bold tracking-widest text-white uppercase">
                   Thông tin đặt sân
                 </p>
@@ -222,14 +222,14 @@ export default function CheckoutForm() {
                 <img
                   src={stadium.thumbnail[0]}
                   alt={stadium.name}
-                  className="object-cover w-24 h-24 shrink-0 grayscale"
+                  className="object-cover w-24 md:w-40 md:h-40 h-24 shrink-0 "
                 />
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <h2 className="text-base font-bold tracking-tight text-black uppercase">
                       {stadium.name}
                     </h2>
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-2 py-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-[#001A2D] text-white px-2 py-0.5">
                       Sân {stadium.type}
                     </span>
                   </div>
@@ -251,7 +251,7 @@ export default function CheckoutForm() {
 
             {/* Person info */}
             <div className="bg-white border border-gray-200">
-              <div className="px-5 py-3 bg-black">
+              <div className="px-5 py-3 bg-[#001A2D]">
                 <p className="text-xs font-bold tracking-widest text-white uppercase">
                   Thông tin người đặt
                 </p>
@@ -329,14 +329,14 @@ export default function CheckoutForm() {
 
             {/* Payment method */}
             <div className="bg-white border border-gray-200">
-              <div className="px-5 py-3 bg-black">
+              <div className="px-5 py-3 bg-[#001A2D]">
                 <p className="text-xs font-bold tracking-widest text-white uppercase">
                   Phương thức thanh toán
                 </p>
               </div>
               <div className="flex flex-col gap-3 p-5">
                 <label
-                  className={`flex items-center gap-3 px-4 py-3.5 border-2 cursor-pointer transition-all ${paymentMethod === "cash" ? "border-black bg-black" : "border-gray-200 hover:border-gray-400"}`}
+                  className={`flex items-center gap-3 px-4 py-2.5 border-2 cursor-pointer transition-all ${paymentMethod === "cash" ? " bg-[#526370]" : "border-gray-200 hover:border-gray-400"}`}
                 >
                   <input
                     type="radio"
@@ -358,14 +358,14 @@ export default function CheckoutForm() {
                     }
                   />
                   <span
-                    className={`text-sm font-bold uppercase tracking-widest ${paymentMethod === "cash" ? "text-white" : "text-gray-700"}`}
+                    className={`text-xs font-bold uppercase tracking-widest ${paymentMethod === "cash" ? "text-white" : "text-gray-700"}`}
                   >
                     Thanh toán tại sân
                   </span>
                 </label>
 
                 <label
-                  className={`flex items-center gap-3 px-4 py-3.5 border-2 cursor-pointer transition-all ${paymentMethod === "online" ? "border-black bg-black" : "border-gray-200 hover:border-gray-400"}`}
+                  className={`flex items-center gap-3 px-4 py-2.5 border-2 cursor-pointer transition-all ${paymentMethod === "online" ? " bg-[#526370]" : "border-gray-200 hover:border-gray-400"}`}
                 >
                   <input
                     type="radio"
@@ -389,7 +389,7 @@ export default function CheckoutForm() {
                     }
                   />
                   <span
-                    className={`text-sm font-bold uppercase tracking-widest ${paymentMethod === "online" ? "text-white" : "text-gray-700"}`}
+                    className={`text-xs font-bold uppercase tracking-widest ${paymentMethod === "online" ? "text-white" : "text-gray-700"}`}
                   >
                     Thanh toán online
                   </span>
@@ -401,7 +401,7 @@ export default function CheckoutForm() {
           {/* RIGHT */}
           <div className="sticky lg:col-span-1 top-6">
             <div className="bg-white border border-gray-200">
-              <div className="px-5 py-3 bg-black">
+              <div className="px-5 py-3 bg-[#001A2D]">
                 <p className="text-xs font-bold tracking-widest text-white uppercase">
                   Tóm tắt đơn hàng
                 </p>
@@ -413,7 +413,7 @@ export default function CheckoutForm() {
                   <img
                     src={stadium.thumbnail[0]}
                     alt=""
-                    className="object-cover w-14 h-14 shrink-0 grayscale"
+                    className="object-cover w-14 h-14 shrink-0 "
                   />
                   <div>
                     <p className="text-sm font-bold tracking-tight text-black uppercase">
@@ -440,9 +440,9 @@ export default function CheckoutForm() {
                     // value={coupon}
                     // onChange={(e) => setCoupon(e.target.value)}
                     placeholder="Nhập mã giảm giá"
-                    className="flex-1 px-3 py-2 text-xs tracking-widest uppercase transition-colors border border-r-0 border-gray-300 outline-none focus:border-black placeholder:normal-case placeholder:tracking-normal placeholder:text-[#1b1b1b] bg-gray-50"
+                    className="flex-1 px-3 py-2 text-xs tracking-widest uppercase transition-colors border border-r-0 border-gray-300 outline-none focus:border-black placeholder:normal-case placeholder:tracking-normal placeholder:text-gray-500 bg-gray-50"
                   />
-                  <button className="px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors bg-black hover:bg-gray-800 whitespace-nowrap">
+                  <button className="px-4 py-2 text-xs font-bold tracking-widest text-white uppercase transition-colors bg-[#001A2D] hover:bg-gray-800 whitespace-nowrap">
                     Áp dụng
                   </button>
                 </div>
@@ -484,7 +484,7 @@ export default function CheckoutForm() {
                 <button
                   onClick={handleConfirm}
                   disabled={isSubmitting || !data.user}
-                  className="w-full py-4 bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-[#001A2D] text-white text-xs font-black uppercase tracking-widest hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting
                     ? "Đang xử lý..."

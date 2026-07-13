@@ -17,6 +17,8 @@ export default function ImageGallery({ thumbnails, type }: ImageGalleryProps) {
           className="object-cover w-full h-full"
           src={thumbnails?.[activeImg]}
           alt=""
+          loading="eager"
+          decoding="async"
         />
 
         <div className="absolute top-4 right-4 bg-black text-white text-[12px] font-black uppercase  px-3 py-1.5">
@@ -54,6 +56,8 @@ export default function ImageGallery({ thumbnails, type }: ImageGalleryProps) {
               alt=""
               onClick={() => setActiveImg(index)}
               className="object-cover w-full h-full"
+              loading="lazy"
+              decoding="async"
             />
           </button>
         ))}

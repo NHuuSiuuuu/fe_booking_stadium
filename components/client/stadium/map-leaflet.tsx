@@ -284,6 +284,8 @@ export default function MapLeaflet() {
                         src={s?.thumbnail?.[0]}
                         alt={s?.name}
                         className="object-cover w-full h-full"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
@@ -546,6 +548,8 @@ export default function MapLeaflet() {
                         <img
                           src={s?.thumbnail?.[0]}
                           alt={s?.name}
+                          loading="lazy"
+                          decoding="async"
                           style={{
                             width: "100%",
                             height: "100%",

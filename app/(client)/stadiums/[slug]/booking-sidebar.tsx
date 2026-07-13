@@ -73,6 +73,10 @@ export default function BookingSidebar({
   const [socketId, setSocketId] = useState<any>(null);
   // -------------------------------------------------------
   useEffect(() => {
+    if (!selectedDate || !stadium?.id) {
+      return;
+    }
+
     const socket = io(`${envConfig.NEXT_PUBLIC_SOCKET_URL}`);
 
     socket.on("connect", () => {
@@ -85,21 +89,18 @@ export default function BookingSidebar({
       });
 
       socket.on("sold-released", (data) => {
-        // console.log("Mở khóa cho slot:", data);
-        setHoldSlots((prev) => prev.filter((id) => id != data.price_config_id));
+        setHoldSlots((prev) => prev.filter((id) => id !== Number(data.price_config_id)));
       });
     });
 
-    // Khi người dùng rời trang
     return () => {
-      // console.log("cleanup");
-
       socket.emit("leave-stadium", stadium.id);
-      socket.off("slot-held");
+      socket.off("sold-held");
       socket.off("sold-released");
       socket.disconnect();
+      setSocketId(null);
     };
-  }, [stadium.id]);
+  }, [selectedDate, stadium.id]);
 
   // Fetch slot đã được đặt
   useEffect(() => {
@@ -112,13 +113,6 @@ export default function BookingSidebar({
       .then((data) => setBookedSlots(data ?? []))
       .catch(console.error);
   }, [selectedDate, stadium?.id, socketId]);
-
-  useEffect(() => {
-    fetch(`/api/auth/me`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => data && setUser(data.user))
-      .catch(console.error);
-  }, []);
 
   useEffect(() => {
     if (!stadium?.id) return;
@@ -182,8 +176,23 @@ export default function BookingSidebar({
   // console.log("priceConfig", priceConfig);
   // console.log("selectedDate?.getDay()", selectedDate?.getDay());
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!selectedDate || !selectedSlot) return;
+
+    let currentUser = user;
+    if (!currentUser) {
+      try {
+        const res = await fetch(`/api/auth/me`, { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          currentUser = data.user;
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     // Next.js không truyền state qua navigate như react-router
     // → lưu vào sessionStorage rồi đọc ở trang checkout
     sessionStorage.setItem(
@@ -192,7 +201,7 @@ export default function BookingSidebar({
         slug: stadium?.slug,
         slot: selectedSlot,
         date: selectedDate.toISOString(),
-        user,
+        user: currentUser,
       }),
     );
     router.push("/checkout");

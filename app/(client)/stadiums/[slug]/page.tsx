@@ -44,39 +44,40 @@ export default async function page({ params }: Props) {
   const stadiumData = await stadiumRes.json();
   const stadium = stadiumData[0] ?? null;
 
-  // Load cấu hình giá sân
-  let priceConfig = [];
-  const priceConfigRes = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/${stadium.id}`,
-    {
-      cache: "no-store",
-    },
-  );
-  if (!priceConfigRes.ok) {
-    throw new Error("Lỗi fetch sân");
+  if (!stadium?.id) {
+    throw new Error("Không tìm thấy sân");
   }
 
-  priceConfig = await priceConfigRes.json();
-
-  // Load đánh giá sân
-  const reviewRes = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/reviews/stadium/${stadium.id}`,
-    {
+  // Load cấu hình giá và đánh giá sân đồng thời sau khi đã có stadium.id
+  const [priceConfigRes, reviewRes] = await Promise.all([
+    fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/price-config/${stadium.id}`, {
       next: {
         revalidate: 60,
       },
-    },
-  );
-  if (!reviewRes.ok) {
-    throw new Error("Lỗi fetch sân");
+    }),
+    fetch(
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/reviews/stadium/${stadium.id}`,
+      {
+        next: {
+          revalidate: 60,
+        },
+      },
+    ),
+  ]);
+
+  if (!priceConfigRes.ok || !reviewRes.ok) {
+    throw new Error("Lỗi fetch dữ liệu sân");
   }
 
-  const reviewsResult = (await reviewRes.json()) ?? null;
+  const [priceConfig, reviewsResult] = await Promise.all([
+    priceConfigRes.json(),
+    reviewRes.json(),
+  ]);
+
   const statistics = reviewsResult.result.statistics;
   const avg_rating = reviewsResult.result.avg_rating;
   const total_reviews = reviewsResult.result.total_reviews;
   const reviews = reviewsResult.result.reviews;
-
 
   return (
     <>

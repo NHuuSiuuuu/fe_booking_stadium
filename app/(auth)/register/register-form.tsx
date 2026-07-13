@@ -10,6 +10,7 @@ import {
 } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const fields = [
   {
@@ -50,6 +51,8 @@ const fields = [
 ] as const;
 
 export default function RegisterForm() {
+  const router = useRouter();
+
   const [isPending, setIsPending] = useState(false);
 
   const {
@@ -83,6 +86,7 @@ export default function RegisterForm() {
         throw payload;
       }
       toast.success(payload?.message, { position: "top-right" });
+      router.replace("/login");
     } catch (error: any) {
       toast.error(error.message, { position: "top-right" });
     } finally {

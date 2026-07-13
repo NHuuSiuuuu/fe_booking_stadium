@@ -18,7 +18,7 @@ export default function page({ searchParams }: any) {
 
       <div className="px-4">
           <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-            Khám Phá
+            Khám Phá 
           </p>
           <p className="text-[20px] font-bold mb-[2px] text-[#0f172a]">Sân Mới</p>
           <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">

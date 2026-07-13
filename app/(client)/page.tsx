@@ -104,5 +104,9 @@ async function NearByStadiumsServer() {
 
   const data = await stadiumRes.json();
 
-  return <NearByStadiums initialData={data} />;
+  return (
+    <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
+      <NearByStadiums initialData={data} />
+    </div>
+  );
 }

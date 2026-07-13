@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, User, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type AuthUser = {
   id: number;
@@ -18,10 +18,13 @@ type Props = {
 };
 
 export default function Header({ initialUser }: Props) {
-  const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(initialUser);
+
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
 
   async function handleLogout() {
     try {
@@ -122,13 +125,6 @@ export default function Header({ initialUser }: Props) {
                 >
                   Xin chào, {user.fullname}
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-[12px] font-semibold uppercase text-red-500 hover:text-red-900 bg-transparent border-none cursor-pointer transition-colors"
-                >
-                  Đăng xuất
-                </button>
               </>
             ) : (
               <>

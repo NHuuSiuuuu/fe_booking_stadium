@@ -119,15 +119,17 @@ export default function ListStadium({
       />
 
       <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Khám Phá
-        </p>
-        <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
-          Sân Mới Nổi Bật
-        </p>
-        <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-          Những sân vừa được cập nhật gần đây
-        </p>
+        <div className=" pb-5">
+          <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
+            Khám Phá
+          </p>
+          <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
+            Sân Mới Nổi Bật
+          </p>
+          <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
+            Những sân vừa được cập nhật gần đây
+          </p>
+        </div>
 
         {isLoading ? (
           <ListStadiumSkeleton count={3} />
@@ -144,7 +146,7 @@ export default function ListStadium({
                         sizes="(max-width: 768px) 100vw,
                           (max-width: 1200px) 50vw,
                           33vw"
-                         className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                         alt={s?.name}
                       />
                     )}
@@ -154,9 +156,7 @@ export default function ListStadium({
                     >
                       Sân {s.type}
                     </div>
-                    <div
-                      className={`absolute top-2.5 right-2.5 px-2.5 py-1 `}
-                    >
+                    <div className={`absolute top-2.5 right-2.5 px-2.5 py-1 `}>
                       <button
                         onClick={(e) => {
                           e.preventDefault();

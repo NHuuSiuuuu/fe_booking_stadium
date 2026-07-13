@@ -3,22 +3,91 @@
 import Link from "next/link";
 import { ImageOff, MapPin } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function NearByStadiums({ initialData }: any) {
-  // console.log("initialData", initialData);
+  const [stadiums, setStadiums] = useState(
+    initialData?.stadiums ||
+      initialData?.data ||
+      (Array.isArray(initialData) ? initialData : []),
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFindNearMe = () => {
+    // API lấy vị trí
+    // Kiểm tra trình duyệt có hỗ trợ định vị
+    if (!navigator.geolocation) return;
+
+    setIsLoading(true);
+
+    // Lây tọa độ
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const radius = 5000; // Bán kính 10km
+          const res = await fetch(
+            `/api/stadiums?limit=6&lat=${lat}&lng=${lng}&radius=${radius}`,
+          );
+
+          if (!res.ok) throw new Error("Không thể lấy danh sách sân gần đây");
+
+          const data = await res.json();
+          // Cập nhật lại danh sách sân
+          setStadiums(data?.stadiums || data?.data || []);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        setIsLoading(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Vui lòng cấp quyền truy cập vị trí để tìm sân gần bạn.");
+        } else {
+          toast.error("Không thể xác định vị trí của bạn.");
+        }
+      },
+    );
+  };
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6">
-      <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-        Vị trí của bạn
-      </p>
-      <p className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
-        Sân Gần Bạn
-      </p>
-      <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
-        Trong bán kính 10 km · Hà Nội
-      </p>
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <p className="text-[13px] font-bold uppercase text-slate-400 mb-1 tracking-wider">
+            Vị trí của bạn
+          </p>
+          <h2 className="text-[20px] font-bold mb-[2px] text-[#0f172a] ">
+            Sân Gần Bạn
+          </h2>
+          <p className="text-[13px] font-bold uppercase text-[#94a3b8] mb-[4px]">
+            Trong bán kính Hà Nội
+          </p>
+        </div>
+
+        <button
+          onClick={handleFindNearMe}
+          disabled={isLoading}
+          className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5  text-sm font-semibold transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed group"
+        >
+          {isLoading ? (
+            <>
+              <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Đang xác định vị trí...
+            </>
+          ) : (
+            <>
+              <MapPin className="size-4" />
+              Tìm sân gần tôi
+            </>
+          )}
+        </button>
+      </div>
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {initialData?.stadiums?.map((s: any) => (
+        {stadiums?.map((s: any) => (
           <Link key={s?.id} href={`/stadiums/${s?.slug}`}>
             <div className="overflow-hidden bg-white border border-slate-200 hover:border-slate-500 transition-all duration-200">
               <div className="flex flex-col  md:flex-row">
@@ -71,7 +140,9 @@ export default function NearByStadiums({ initialData }: any) {
 
                       <p className="text-sm text-slate-600 flex items-start gap-2">
                         <MapPin className="size-4 shrink-0 mt-0.5" />
-                        1.4 km
+                        {s.distance
+                          ? `${(Number(s.distance) / 1000).toFixed(1)} km`
+                          : "Đang cập nhật"}
                       </p>
                     </div>
 
@@ -91,6 +162,6 @@ export default function NearByStadiums({ initialData }: any) {
           </Link>
         ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -137,7 +137,7 @@ export default function CheckoutForm() {
 
     try {
       setISubmitting(true);
-      const res = await fetch(`api/booking/create`, {
+      const res = await fetch(`/api/booking/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

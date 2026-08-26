@@ -41,6 +41,10 @@ const DAY_MAP: Record<number, string> = {
 };
 type Props = { initialStadium: Stadium; initialPriceConfig: PriceConfig[] };
 
+function isValidSocketUrl(socketUrl: string) {
+  return socketUrl.startsWith("https://") || socketUrl.startsWith("http://");
+}
+
 export default function BookingSidebar({
   initialStadium,
   initialPriceConfig,
@@ -70,14 +74,21 @@ export default function BookingSidebar({
   // holdSlots chỉ chứa slot của người khác
   const [holdSlots, setHoldSlots] = useState<number[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [socketId, setSocketId] = useState<any>(null);
+  const [socketId, setSocketId] = useState<string | undefined>();
   // -------------------------------------------------------
   useEffect(() => {
     if (!selectedDate || !stadium?.id) {
       return;
     }
 
-    const socket = io(`${envConfig.NEXT_PUBLIC_SOCKET_URL}`);
+    const socketUrl = envConfig.NEXT_PUBLIC_SOCKET_URL;
+
+    if (!isValidSocketUrl(socketUrl)) {
+      console.warn("NEXT_PUBLIC_SOCKET_URL không hợp lệ:", socketUrl);
+      return;
+    }
+
+    const socket = io(socketUrl);
 
     socket.on("connect", () => {
       setSocketId(socket.id);
@@ -98,7 +109,7 @@ export default function BookingSidebar({
       socket.off("sold-held");
       socket.off("sold-released");
       socket.disconnect();
-      setSocketId(null);
+      setSocketId(undefined);
     };
   }, [selectedDate, stadium.id]);
 

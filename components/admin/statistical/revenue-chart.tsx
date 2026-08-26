@@ -22,30 +22,37 @@ type BookingChartProps = {
 type Props = {
   BookingByMonth: BookingChartProps;
 };
+
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string | number;
+};
+
+function RevenueTooltip({ active, payload, label }: ChartTooltipProps) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white border border-gray-200 shadow-sm p-3 rounded-lg">
+        <p className="text-sm font-medium text-gray-500 mb-1">
+          Doanh thu tháng {label}
+        </p>
+        <p className="font-semibold text-blue-600">
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(payload[0].value)}
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
+
 export function RevenueChart({ BookingByMonth }: Props) {
   const formattedData = BookingByMonth.data.map((item) => ({
     month: item.month,
     revenue: item.total_revenue,
   }));
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white border border-gray-200 shadow-sm p-3 rounded-lg">
-          <p className="text-sm font-medium text-gray-500 mb-1">
-            Doanh thu tháng {label}
-          </p>
-          <p className="font-semibold text-blue-600">
-            {new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            }).format(payload[0].value)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Card className="border-gray-200/60 shadow-sm bg-white">
@@ -81,7 +88,7 @@ export function RevenueChart({ BookingByMonth }: Props) {
                 dx={-10}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<RevenueTooltip />}
                 cursor={{
                   stroke: "#E5E7EB",
                   strokeWidth: 1,

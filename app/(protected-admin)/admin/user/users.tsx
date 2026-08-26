@@ -53,7 +53,7 @@ export default function Users({ initialUsers }: Props) {
 
   const [filterStatus, setFilterStatus] = useState("");
   const [sort, setSort] = useState("");
-  const [page, setPage] = useState<any>(1);
+  const [page, setPage] = useState(1);
   const users = initialUsers.result;
   const totalPage = initialUsers.totalPage;
   const totalUsers = initialUsers.total;
@@ -67,8 +67,6 @@ export default function Users({ initialUsers }: Props) {
     }
 
     if (filterStatus) {
-      // filter=status:pending
-      console.log("filterStatus", filterStatus);
       params.set("filter", filterStatus);
     } else {
       params.delete("filter");
@@ -82,7 +80,7 @@ export default function Users({ initialUsers }: Props) {
     }
 
     if (page) {
-      params.set("page", page);
+      params.set("page", String(page));
     } else {
       params.delete("page");
     }

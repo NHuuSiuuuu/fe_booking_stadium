@@ -3,10 +3,11 @@
 import Sidebar from "@/components/admin/layouts/sidebar";
 import Header from "@/components/admin/layouts/header";
 import { useState } from "react";
+import type { AdminUser } from "@/types/user";
 
 interface AdminLayoutClientProps {
   children: React.ReactNode;
-  user?: any;
+  user?: AdminUser;
 }
 
 
@@ -17,8 +18,8 @@ export function AdminLayoutClient({ children, user }: AdminLayoutClientProps) {
     <div className="  bg-gray-100">
       <Header collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
       <div className="flex">
-        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-      <div className="flex-1">  {children}</div>
+        <Sidebar collapsed={collapsed} />
+        <div className="flex-1"> {children}</div>
       </div>
     </div>
   );

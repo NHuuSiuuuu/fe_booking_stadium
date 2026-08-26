@@ -7,8 +7,19 @@ import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skelet
 import envConfig from "@/config";
 import { Suspense } from "react";
 
+type StadiumsSearchParams = Promise<{
+  page?: string;
+  keyword?: string;
+  sort?: string;
+  filter?: string;
+  featured?: string;
+}>;
 
-export default function page({ searchParams }: any) {
+export default function page({
+  searchParams,
+}: {
+  searchParams: StadiumsSearchParams;
+}) {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-[1200px] mx-auto px-4 pt-3 md:py-8 sm:px-6">
@@ -33,7 +44,11 @@ export default function page({ searchParams }: any) {
   );
 }
 
-async function ListStadiumsServer({ searchParams }: any) {
+async function ListStadiumsServer({
+  searchParams,
+}: {
+  searchParams: StadiumsSearchParams;
+}) {
   const resoledParams = await searchParams;
   const page = resoledParams.page || 1;
   const keyword = resoledParams.keyword || "";
@@ -74,5 +89,5 @@ async function ListStadiumsServer({ searchParams }: any) {
 
   const data = await res.json();
 
-  return<> <ListStadiums initialData={data} currentPage={Number(page)} /></>;
+  return <> <ListStadiums initialData={data} currentPage={Number(page)} /></>;
 }

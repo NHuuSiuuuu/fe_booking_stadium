@@ -36,20 +36,29 @@ export default function BookingSuccess() {
   const [data, setData] = useState<BookingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log(id);
   useEffect(() => {
-    setIsLoading(true);
+    let ignore = false;
 
-    fetch(`/api/booking/success/${id}`)
-      .then((res) => res.json())
-      .then((payload) => setData(payload.data))
-      .catch(() => {
-        console.error;
-      })
-      .finally(() => setIsLoading(false));
+    async function loadBooking() {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/booking/success/${id}`);
+        const payload = (await res.json()) as { data: BookingData };
+        if (!ignore) setData(payload.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    loadBooking();
+
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
-  console.log(data);
   if (isLoading || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen">

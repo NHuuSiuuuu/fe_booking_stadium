@@ -1,8 +1,15 @@
 "use client";
 
 import { Menu, MessageSquareMore, Bell, User } from "lucide-react";
+import type { AdminUser } from "@/types/user";
 
-export default function Header({ collapsed, setCollapsed, user }: any) {
+type HeaderProps = {
+  collapsed: boolean;
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  user?: AdminUser;
+};
+
+export default function Header({ collapsed, setCollapsed, user }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 flex items-center h-[52px] px-5 sticky top-0 z-10">
       {/* Toggle */}
@@ -34,7 +41,7 @@ export default function Header({ collapsed, setCollapsed, user }: any) {
             <User className="w-4 h-4" />
           </div>
           <span className="text-sm font-medium text-gray-900">
-            {user?.fullname || "Admin"}
+            {user?.fullname || user?.name || "Admin"}
           </span>
         </button>
       </div>

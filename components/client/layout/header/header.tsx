@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Menu, User, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Menu, User, X } from "lucide-react";
+import { useState } from "react";
 
 type AuthUser = {
   id: number;
@@ -20,22 +20,23 @@ type Props = {
 export default function Header({ initialUser }: Props) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(initialUser);
-
-  useEffect(() => {
-    setUser(initialUser);
-  }, [initialUser]);
+  const [hiddenUserId, setHiddenUserId] = useState<number | null>(null);
+  const user =
+    initialUser && initialUser.id !== hiddenUserId ? initialUser : null;
 
   async function handleLogout() {
     try {
-      await fetch("/api/logout", {
+      const res = await fetch("/api/logout", {
         method: "POST",
         credentials: "include",
       });
+      if (!res.ok) {
+        throw new Error("Đăng xuất thất bại");
+      }
+      setHiddenUserId(initialUser?.id ?? null);
     } catch (error) {
       console.error(error);
     }
-    setUser(null);
     setIsMenuOpen(false);
     router.push("/");
     router.refresh();

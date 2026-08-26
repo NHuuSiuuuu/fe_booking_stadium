@@ -11,7 +11,6 @@ import {
   LogOut,
   AlignJustify,
 } from "lucide-react";
-import { useState } from "react";
 
 const navItems = [
   { href: "/admin", label: "Thống kê", icon: BarChart3 },
@@ -21,7 +20,11 @@ const navItems = [
   { href: "/admin/user", label: "Quản lý người dùng", icon: Users },
 ];
 
-export default function Sidebar({ collapsed }: any) {
+type SidebarProps = {
+  collapsed: boolean;
+};
+
+export default function Sidebar({ collapsed }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 

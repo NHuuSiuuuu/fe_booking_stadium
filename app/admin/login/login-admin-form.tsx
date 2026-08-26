@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 const LoginBody = z
   .object({
@@ -37,7 +38,7 @@ export default function LoginAdminForm() {
   async function onSubmit(values: LoginBodyType) {
     try {
       setIsPending(true);
-      const result = await fetch(`/api/login`, {
+      await fetch(`/api/login`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: {
@@ -47,15 +48,15 @@ export default function LoginAdminForm() {
         const payload = await res.json();
 
         if (!res.ok) {
-          throw payload;
+          throw new Error(getApiErrorMessage(payload, "Đăng nhập thất bại"));
         }
         toast.success("Đăng nhập thành công", { position: "top-right" });
 
         router.replace("/admin");
         return payload;
       });
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Đăng nhập thất bại"));
     } finally {
       setIsPending(false);
     }

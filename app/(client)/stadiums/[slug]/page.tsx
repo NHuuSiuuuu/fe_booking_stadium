@@ -1,4 +1,5 @@
 import StadiumDetail from "@/app/(client)/stadiums/[slug]/stadium-detail";
+import ScrollToTop from "@/app/(client)/stadiums/[slug]/scroll-to-top";
 import ReviewSection from "@/components/client/reviews/review";
 import envConfig from "@/config";
 import { cookies } from "next/headers";
@@ -81,6 +82,7 @@ export default async function page({ params }: Props) {
 
   return (
     <>
+      <ScrollToTop />
       <StadiumDetail
         initialStadium={stadium}
         initialPriceConfig={priceConfig}

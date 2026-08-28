@@ -13,6 +13,7 @@ export type Stadium = {
   min_price?: number;
   max_price?: number;
   thumbnail: string[];
+  utility?: string[];
   start_time?: string;
   end_time?: string;
   featured?: boolean;

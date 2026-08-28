@@ -5,7 +5,16 @@ import {
 } from "@/app/(client)/stadiums/list-stadiums";
 import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skeleton";
 import envConfig from "@/config";
+import { publicPageMetadata } from "@/lib/seo";
+import type { Metadata } from "next";
 import { Suspense } from "react";
+
+export const metadata: Metadata = publicPageMetadata({
+  title: "Danh sách sân bóng đá Hà Nội",
+  description:
+    "Khám phá danh sách sân bóng đá tại Hà Nội, lọc theo quận, loại sân, trạng thái nổi bật và tìm sân phù hợp để đặt lịch nhanh.",
+  pathname: "/stadiums",
+});
 
 type StadiumsSearchParams = Promise<{
   page?: string;

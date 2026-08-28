@@ -3,6 +3,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Thanh toán",
   description: "Trang thanh toán đặt sân bóng",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function page() {

@@ -1,11 +1,46 @@
 // Bản đồ trung tâm
+import envConfig from "@/config";
+import { absoluteUrl } from "@/lib/seo";
 import { MetadataRoute } from "next";
+import type { Stadium } from "@/types/stadium";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
+async function getStadiumUrls(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/stadiums?limit=1000`, {
+      next: {
+        revalidate: 3600,
+      },
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const data = await res.json();
+    const stadiums: Stadium[] = data.stadiums ?? data.data ?? [];
+
+    if (!Array.isArray(stadiums)) {
+      return [];
+    }
+
+    return stadiums
+      .filter((stadium) => stadium.slug)
+      .map((stadium) => ({
+        url: absoluteUrl(`/stadiums/${stadium.slug}`),
+        lastModified: new Date(),
+        changeFrequency: "weekly",
+        priority: 0.7,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       // url của trang chủ
-      url: "https://booking-stadium.vercel.app",
+      url: absoluteUrl("/"),
       // thời gian cập nhật cuối cùng
       lastModified: new Date(),
       // tần suất cập nhật (yearly, daily, weekly, monthly, yearly, never)
@@ -15,7 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       // url của trang danh sách sân
-      url: "https://booking-stadium.vercel.app/stadiums",
+      url: absoluteUrl("/stadiums"),
       lastModified: new Date(),
       // Trang này thay đổi thường xuyên (thêm, sửa, xóa sân, giá)
       changeFrequency: "daily",
@@ -23,16 +58,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: "https://booking-stadium.vercel.app/map",
+      url: absoluteUrl("/map"),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
     },
-    {
-      url: "https://booking-stadium.vercel.app/favorite",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.5,
-    },
   ];
+
+  return [...staticRoutes, ...(await getStadiumUrls())];
 }

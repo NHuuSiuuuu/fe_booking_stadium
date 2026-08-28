@@ -1,7 +1,17 @@
 import { AdminLayoutClient } from "@/components/admin/layouts/admin-layout-client";
 import envConfig from "@/config";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Quản trị",
+  description: "Khu vực quản trị hệ thống đặt sân",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function Layout({
   children,

@@ -3,6 +3,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Đăt sân thành công",
   description: "Trang đặt sân thành công",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function page() {

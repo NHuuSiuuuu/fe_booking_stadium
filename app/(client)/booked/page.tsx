@@ -1,6 +1,16 @@
 import Booked from "@/app/(client)/booked/booked";
 import envConfig from "@/config";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
+
+export const metadata: Metadata = {
+  title: "Lịch sử đặt sân",
+  description: "Trang lịch sử đặt sân của người dùng",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function page() {
   let data = null;

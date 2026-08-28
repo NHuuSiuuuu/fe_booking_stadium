@@ -1,7 +1,17 @@
 import MePage from "@/app/(client)/me/me-setting";
 import envConfig from "@/config";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Tài khoản",
+  description: "Trang thông tin tài khoản người dùng",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function Page() {
   const cookieStore = await cookies();

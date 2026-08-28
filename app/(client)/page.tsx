@@ -8,22 +8,37 @@ import ListStadium from "@/components/client/stadium/list-stadium";
 import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skeleton";
 import StadiumHomeSkeleton from "@/components/client/stadium/stadium-home-skeleton";
 import envConfig from "@/config";
+import { absoluteUrl, publicPageMetadata, SITE_NAME } from "@/lib/seo";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Trang chủ | Đặt sân ngay",
-  description: "Trang chủ đặt sân bóng đá tại Hà Nội. Trải nghiệm tìm kiếm thông minh với Chatbot AI, tính năng định vị tìm sân bóng gần nhất, xem sân trực quan trên bản đồ. Nhanh chóng, tiện lợi, đảm bảo giữ chỗ 100%.",
-  openGraph: {
-    title: "Trang chủ | Đặt sân ngay",
-    description: "Trang chủ đặt sân bóng đá tại Hà Nội. Trải nghiệm tìm kiếm thông minh với Chatbot AI, tính năng định vị tìm sân bóng gần nhất, xem sân trực quan trên bản đồ. Nhanh chóng, tiện lợi, đảm bảo giữ chỗ 100%.",
-    url: "https://booking-stadium.vercel.app/",
-  }
-};
+export const metadata: Metadata = publicPageMetadata({
+  title: "Đặt sân bóng đá Hà Nội nhanh chóng",
+  description:
+    "Tìm và đặt sân bóng đá tại Hà Nội theo khu vực, giá, lịch trống và vị trí gần bạn. Xem sân trên bản đồ, giữ chỗ nhanh và thanh toán tiện lợi.",
+  pathname: "/",
+});
 
 export default async function Page() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: SITE_NAME,
+            url: absoluteUrl("/"),
+            potentialAction: {
+              "@type": "SearchAction",
+              target: absoluteUrl("/stadiums?keyword={search_term_string}"),
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
       <Suspense fallback={<StadiumHomeSkeleton count={6} />}>
         <ListStadiumServer />
       </Suspense>

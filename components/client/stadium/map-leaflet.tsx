@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import L from "leaflet";
 import useDebounce from "@/hooks/useDebounce";
-import { Search, Loader, Crosshair } from "lucide-react";
+import { Search, Loader, Crosshair, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { renderToString } from "react-dom/server";
 import { FaArrowUp, FaMap, FaMapMarkerAlt } from "react-icons/fa";
@@ -24,6 +24,13 @@ type UserPos = {
 };
 
 type FlyTarget = UserPos & { zoom: number };
+
+type RadiusControlProps = {
+  radius: number;
+  setRadius: (radius: number) => void;
+  disabled?: boolean;
+  compact?: boolean;
+};
 
 function makeIcon(color = "#16a34a", size = 32) {
   return L.divIcon({
@@ -45,12 +52,54 @@ function FlyTo({ lat, lng, zoom = 16 }: FlyTarget) {
   return null;
 }
 
+function RadiusControl({
+  radius,
+  setRadius,
+  disabled = false,
+  compact = false,
+}: RadiusControlProps) {
+  return (
+    <div
+      className={`border border-slate-200 bg-slate-50 ${
+        compact ? "px-3 py-2" : "px-3 py-3"
+      } ${disabled ? "opacity-60" : ""}`}
+    >
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-700">
+          <SlidersHorizontal className="size-3.5" />
+          Bán kính
+        </div>
+        <span className="shrink-0 text-xs font-bold text-slate-900">
+          {radius} km
+        </span>
+      </div>
+      <input
+        type="range"
+        min="1"
+        max="30"
+        step="1"
+        value={radius}
+        disabled={disabled}
+        onChange={(e) => setRadius(Number(e.target.value))}
+        className="h-2 w-full cursor-pointer accent-slate-900 disabled:cursor-not-allowed"
+        aria-label="Bán kính tìm kiếm sân"
+      />
+      {!compact && (
+        <div className="mt-1 flex justify-between text-[10px] font-semibold text-slate-400">
+          <span>1km</span>
+          <span>30km</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MapLeaflet() {
   const [selected, setSelected] = useState<Stadium | null>(null);
 
   // Lưu bị trí user
   const [userPos, setUserPos] = useState<UserPos | null>(null);
-  const [radius] = useState(10); // km
+  const [radius, setRadius] = useState(10);
   const [showList, setShowList] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState("");
@@ -218,6 +267,11 @@ export default function MapLeaflet() {
             ✕
           </button>
         )}
+        {userPos && (
+          <div className="md:hidden absolute left-3 right-16 top-[68px] z-30">
+            <RadiusControl radius={radius} setRadius={setRadius} compact />
+          </div>
+        )}
         <button
           onClick={() => setShowList(!showList)}
           className={`md:hidden fixed bottom-10 right-4 w-9 h-9  z-40
@@ -352,6 +406,12 @@ export default function MapLeaflet() {
                 {geoError}
               </p>
             )}
+            <div className="mt-3">
+              <RadiusControl
+                radius={radius}
+                setRadius={setRadius}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 px-5 py-4 border-b border-slate-100">

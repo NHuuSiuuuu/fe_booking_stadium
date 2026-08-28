@@ -56,3 +56,15 @@ test("stadium detail route resets scroll after delayed navigation", () => {
   assert.match(scrollSource, /window\.scrollTo/);
   assert.match(scrollSource, /top:\s*0/);
 });
+
+test("map page exposes a radius slider for nearby stadium search", () => {
+  const source = readProjectFile("components/client/stadium/map-leaflet.tsx");
+
+  assert.match(source, /const \[radius,\s*setRadius\] = useState\(10\)/);
+  assert.match(source, /type="range"/);
+  assert.match(source, /min="1"/);
+  assert.match(source, /max="30"/);
+  assert.match(source, /onChange=\{\(e\) => setRadius\(Number\(e\.target\.value\)\)\}/);
+  assert.match(source, /params\.set\("radius", String\(radius\)\)/);
+  assert.match(source, /radius \* 1000/);
+});

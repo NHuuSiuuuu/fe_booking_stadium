@@ -7,7 +7,11 @@ export const metadata: Metadata = {
   description: "Trang chi tiết đặt sân thành công",
 };
 
-export default async function page({ params }: any) {
+export default async function page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const cookieStore = await cookies();
 

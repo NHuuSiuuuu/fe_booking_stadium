@@ -7,28 +7,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useDebounce from "@/hooks/useDebounce";
 import Pagination from "@/components/admin/layouts/pagination";
-
-type Stadium = {
-  id: number;
-  slug: string;
-  name: string;
-  address: string;
-  type: string;
-  price: number;
-  thumbnail: string[];
-  start_time: string;
-  end_time: string;
-  featured: boolean;
-  description: string;
-  district_id: number;
-};
-
-type StadiumsResponse = {
-  stadiums: Stadium[];
-  pageCurrent: number;
-  totalPage: number;
-  total: any;
-};
+import type { Stadium, StadiumsResponse } from "@/types/stadium";
 
 export function StadiumFiltersSkeleton() {
   return (

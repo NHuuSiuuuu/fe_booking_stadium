@@ -1,7 +1,7 @@
 "use client";
 import { Star } from "lucide-react";
 // Dùng để bỏ qua lỗi type của @splidejs/react-splide
-// @ts-expect-error
+// @ts-expect-error @splidejs/react-splide does not ship React 19 compatible types.
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import ReviewCard from "@/components/client/reviews/review-card";

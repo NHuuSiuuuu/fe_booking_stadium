@@ -1,4 +1,8 @@
-export default function ListStadiumSkeleton({ count }: any) {
+type ListStadiumSkeletonProps = {
+  count: number;
+};
+
+export default function ListStadiumSkeleton({ count }: ListStadiumSkeletonProps) {
   return (
     <div className="min-h-screen ">
       <div className="max-w-[1200px] mx-auto px-4 py-8 sm:px-6 ">

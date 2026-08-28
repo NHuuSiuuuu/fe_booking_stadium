@@ -2,25 +2,19 @@
 
 import { MapPin, Heart, Inbox } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-type Stadium = {
-  id: number;
-  slug: string;
-  name: string;
-  address: string;
-  type: string;
-  price: number;
-  thumbnail: string[];
-};
-export default function FavoritePage() {
-  const [favorites, setFavorites] = useState<Stadium[]>([]);
-  useEffect(() => {
-    const data = localStorage.getItem("favorite");
+import { useState } from "react";
+import type { Stadium } from "@/types/stadium";
 
-    if (data) {
-      setFavorites(JSON.parse(data));
+export default function FavoritePage() {
+  const [favorites, setFavorites] = useState<Stadium[]>(() => {
+    try {
+      if (typeof window === "undefined") return [];
+      const data = window.localStorage.getItem("favorite");
+      return data ? (JSON.parse(data) as Stadium[]) : [];
+    } catch {
+      return [];
     }
-  }, []);
+  });
 
   //  bỏ yêu thích
   const removeFavorite = (id: number) => {

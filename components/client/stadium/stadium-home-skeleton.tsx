@@ -1,7 +1,11 @@
 import { Search } from "lucide-react";
 import Image from "next/image";
 
-export default function StadiumHomeSkeleton({ count }: any) {
+type StadiumHomeSkeletonProps = {
+  count: number;
+};
+
+export default function StadiumHomeSkeleton({ count }: StadiumHomeSkeletonProps) {
   return (
     <div className="min-h-screen ">
       <div className="relative min-h-[500px] md:min-h-[700px] flex flex-col justify-end overflow-hidden">

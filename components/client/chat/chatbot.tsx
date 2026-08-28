@@ -34,6 +34,10 @@ Tôi có thể hỗ trợ bạn:
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
     if (!chatContainer) return;
@@ -118,9 +122,6 @@ Tôi có thể hỗ trợ bạn:
     }
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
   return (
     <>
       <button

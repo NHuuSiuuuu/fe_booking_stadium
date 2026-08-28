@@ -19,7 +19,29 @@ type BookingChartProps = {
 };
 
 type Props = {
-  BookingByMonth:BookingChartProps
+  BookingByMonth: BookingChartProps;
+};
+
+type ChartTooltipProps = {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string | number;
+};
+
+function BookingTooltip({ active, payload, label }: ChartTooltipProps) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#F3F4F6] border border-gray-200 shadow-md rounded-lg p-3">
+        <p className="text-xs text-[#8884d8] mb-1">Tháng {label}</p>
+
+        <p className="font-semibold text-[#8884d8]">
+          {payload[0].value} lượt đặt
+        </p>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export function BookingChart({ BookingByMonth }: Props) {
@@ -28,21 +50,6 @@ export function BookingChart({ BookingByMonth }: Props) {
     bookings: item.total_bookings,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-[#F3F4F6] border border-gray-200 shadow-md rounded-lg p-3">
-          <p className="text-xs text-[#8884d8] mb-1">Tháng {label}</p>
-
-          <p className="font-semibold text-[#8884d8]">
-            {payload[0].value} lượt đặt
-          </p>
-        </div>
-      );
-    }
-
-    return null;
-  };
   return (
     <Card className="border-gray-200/60 shadow-sm bg-white">
       <CardHeader>
@@ -77,10 +84,7 @@ export function BookingChart({ BookingByMonth }: Props) {
                 tick={{ fontSize: 12, fill: "#6B7280" }}
                 dx={-10}
               />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "#F3F4F6" }}
-              />
+              <Tooltip content={<BookingTooltip />} cursor={{ fill: "#F3F4F6" }} />
               <Bar
                 dataKey="bookings"
                 fill="#8884d8"

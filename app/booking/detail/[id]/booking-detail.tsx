@@ -20,6 +20,7 @@ import PaymentSummary from "@/components/client/booking-detail/payment-summary";
 import ConfirmDeleteDialog from "@/components/client/booking-detail/confirm-delete-dialog";
 import useBookingDetail from "@/hooks/useBookingDetail";
 import { BookingData } from "@/app/booking/detail/[id]/types";
+import type { Review } from "@/types/review";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled";
 
@@ -54,7 +55,7 @@ const STATUS_MAP: Record<
 
 type Props = {
   data: BookingData;
-  myReview: any;
+  myReview: Review | null;
 };
 
 export default function BookingDetail({

@@ -5,12 +5,21 @@ import { ImageOff, MapPin } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Stadium, StadiumsResponse } from "@/types/stadium";
 
-export default function NearByStadiums({ initialData }: any) {
-  const [stadiums, setStadiums] = useState(
-    initialData?.stadiums ||
-      initialData?.data ||
-      (Array.isArray(initialData) ? initialData : []),
+type NearByStadiumsProps = {
+  initialData: StadiumsResponse | { data?: Stadium[] } | Stadium[];
+};
+
+function getInitialStadiums(initialData: NearByStadiumsProps["initialData"]) {
+  if (Array.isArray(initialData)) return initialData;
+  if ("stadiums" in initialData) return initialData.stadiums;
+  return initialData.data || [];
+}
+
+export default function NearByStadiums({ initialData }: NearByStadiumsProps) {
+  const [stadiums, setStadiums] = useState<Stadium[]>(() =>
+    getInitialStadiums(initialData),
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,9 +43,9 @@ export default function NearByStadiums({ initialData }: any) {
 
           if (!res.ok) throw new Error("Không thể lấy danh sách sân gần đây");
 
-          const data = await res.json();
+          const data = (await res.json()) as StadiumsResponse | { data?: Stadium[] };
           // Cập nhật lại danh sách sân
-          setStadiums(data?.stadiums || data?.data || []);
+          setStadiums(getInitialStadiums(data));
         } catch (err) {
           console.log(err);
         } finally {
@@ -87,7 +96,7 @@ export default function NearByStadiums({ initialData }: any) {
         </button>
       </div>
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {stadiums?.map((s: any) => (
+        {stadiums?.map((s) => (
           <Link key={s?.id} href={`/stadiums/${s?.slug}`}>
             <div className="overflow-hidden bg-white border border-slate-200 hover:border-slate-500 transition-all duration-200">
               <div className="flex flex-col  md:flex-row">

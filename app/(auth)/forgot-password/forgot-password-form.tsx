@@ -32,7 +32,7 @@ export default function ForgotPasswordForm() {
   }, [countdown]);
 
   //   Hàm gửi OTP
-  const handleSendOtp = async (e: any) => {
+  const handleSendOtp = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setSendingOtp(true);
 
@@ -57,7 +57,7 @@ export default function ForgotPasswordForm() {
   };
 
   //   Hàm gửi OTP
-  const handleResetPassword = async (e: any) => {
+  const handleResetPassword = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setResetting(true);
 

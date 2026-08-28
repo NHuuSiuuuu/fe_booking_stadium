@@ -1,7 +1,6 @@
 "use client";
 
 import Pagination from "@/components/admin/layouts/pagination";
-import envConfig from "@/config";
 import useDebounce from "@/hooks/useDebounce";
 import { ArrowDownUp, RefreshCcw } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -74,7 +73,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
 
   const [filterStatus, setFilterStatus] = useState("");
   const [sort, setSort] = useState("");
-  const [page, setPage] = useState<any>(1);
+  const [page, setPage] = useState(1);
   const orders = initialPriceConfig.result;
   const totalPage = initialPriceConfig.totalPage;
 
@@ -87,8 +86,6 @@ export default function Bookings({ initialPriceConfig }: Props) {
     }
 
     if (filterStatus) {
-      // filter=status:pending
-      console.log("filterStatus", filterStatus);
       params.set("filter", filterStatus);
     } else {
       params.delete("filter");
@@ -102,7 +99,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
     }
 
     if (page) {
-      params.set("page", page);
+      params.set("page", String(page));
     } else {
       params.delete("page");
     }
@@ -130,9 +127,10 @@ export default function Bookings({ initialPriceConfig }: Props) {
       }
 
       router.refresh();
-    } catch (error: any) {
-      alert(error.message || "Đã xảy ra lỗi hệ thống");
-    } finally {
+    } catch (error: unknown) {
+      alert(
+        error instanceof Error ? error.message : "Đã xảy ra lỗi hệ thống",
+      );
     }
   };
 

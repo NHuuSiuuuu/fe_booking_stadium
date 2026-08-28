@@ -25,19 +25,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-type Stadium = {
-  id: number;
-  slug: string;
-  name: string;
-  address: string;
-  type: string;
-  price: number;
-  thumbnail: string[];
-  start_time: string;
-  end_time: string;
-  featured: boolean;
-  description: string;
-  district_id: number;
+import type { District, Stadium, StadiumsResponse } from "@/types/stadium";
+
+type AdminStadium = Stadium & {
   createBy: {
     account_id: {
       fullName: string;
@@ -47,15 +37,8 @@ type Stadium = {
   status: boolean;
 };
 
-type StadiumsResponse = {
-  stadiums: Stadium[];
-  pageCurrent: number;
-  totalPage: number;
-  total: any;
-};
-type District = {
-  ogc_fid: number;
-  name_2: string;
+type AdminStadiumsResponse = Omit<StadiumsResponse, "stadiums"> & {
+  stadiums: AdminStadium[];
 };
 
 export default function StadiumAdmin() {
@@ -63,7 +46,7 @@ export default function StadiumAdmin() {
   const [filterFeatured, setFilterFeatured] = useState("");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("");
-  const [data, setData] = useState<StadiumsResponse>();
+  const [data, setData] = useState<AdminStadiumsResponse>();
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const debounceValue = useDebounce(search, 500);
@@ -71,21 +54,36 @@ export default function StadiumAdmin() {
   const [distCode, setDistCode] = useState("");
 
   useEffect(() => {
-    setIsLoading(true);
-    let url = `/api/stadiums?page=${page || 1}`;
-    if (debounceValue) url += `&keyword=${debounceValue}`;
-    if (distCode) url += `&filter=dist:${distCode}`;
-    if (sort) url += `&sort=${sort}`;
-    if (filterStatus) url += `&filter=status:${filterStatus}`;
-    if (filterFeatured) url += `&filter=featured:${filterFeatured}`;
+    let ignore = false;
 
-    const result = fetch(`${url}`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch(console.error);
-  }, [page, sort, search, filterFeatured, filterStatus, distCode]);
+    async function loadStadiums() {
+      setIsLoading(true);
+      const params = new URLSearchParams({ page: String(page || 1) });
+      if (debounceValue) params.set("keyword", debounceValue);
+      if (distCode) params.append("filter", `dist:${distCode}`);
+      if (sort) params.set("sort", sort);
+      if (filterStatus) params.append("filter", `status:${filterStatus}`);
+      if (filterFeatured) params.append("filter", `featured:${filterFeatured}`);
+
+      try {
+        const res = await fetch(`/api/stadiums?${params.toString()}`, {
+          credentials: "include",
+        });
+        const payload = (await res.json()) as AdminStadiumsResponse;
+        if (!ignore) setData(payload);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    loadStadiums();
+
+    return () => {
+      ignore = true;
+    };
+  }, [page, sort, debounceValue, filterFeatured, filterStatus, distCode]);
   const totalPage = data?.totalPage || 0;
 
   useEffect(() => {

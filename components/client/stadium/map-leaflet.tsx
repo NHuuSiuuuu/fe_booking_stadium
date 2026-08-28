@@ -12,76 +12,45 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import L from "leaflet";
 import useDebounce from "@/hooks/useDebounce";
-// import { Crosshair, Loader, Search } from "lucide-react";
-import { Search, Loader, Crosshair, X, List } from "lucide-react";
+import { Search, Loader, Crosshair } from "lucide-react";
 import Link from "next/link";
 import { renderToString } from "react-dom/server";
 import { FaArrowUp, FaMap, FaMapMarkerAlt } from "react-icons/fa";
+import type { District, Stadium, StadiumsResponse } from "@/types/stadium";
+
 type UserPos = {
   lat: number;
   lng: number;
 };
 
-type District = {
-  ogc_fid: number;
-  name_2: string;
-};
 type FlyTarget = UserPos & { zoom: number };
 
-type Stadium = {
-  id: number;
-  slug: string;
-  name: string;
-  address: string;
-  type: string;
-  price: number;
-  thumbnail: string[];
-  start_time: string;
-  end_time: string;
-  featured: boolean;
-  description: string;
-  district_id: number;
-  lat?: number;
-  lng?: number;
-};
+function makeIcon(color = "#16a34a", size = 32) {
+  return L.divIcon({
+    html: renderToString(<FaMapMarkerAlt size={size} color={color} />),
+    className: "",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size * 1.4],
+    popupAnchor: [0, -(size * 1.4)],
+  });
+}
 
-type StadiumsResponse = {
-  stadiums: Stadium[];
-  pageCurrent: number;
-  totalPage: number;
-  total: any;
-};
+const activeIcon = makeIcon("#0f172a");
+const userIcon = makeIcon("#ef4444", 32);
+
+function FlyTo({ lat, lng, zoom = 16 }: FlyTarget) {
+  const map = useMap();
+  if (lat != null && lng != null)
+    map.flyTo([lat, lng], zoom, { duration: 1.2 });
+  return null;
+}
 
 export default function MapLeaflet() {
-  // ── Custom  marker
-  function makeIcon(color = "#16a34a", size = 32) {
-    return L.divIcon({
-      html: renderToString(<FaMapMarkerAlt size={size} color={color} />),
-      className: "",
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size * 1.4],
-      popupAnchor: [0, -(size * 1.4)],
-    });
-  }
-
-  const activeIcon = makeIcon("#0f172a");
-  const userIcon = makeIcon("#ef4444", 32);
-
-  // Ra lệnh cho bản đồ bay tới vị trí
-  function FlyTo({ lat, lng, zoom = 16 }: FlyTarget) {
-    const map = useMap();
-    if (lat != null && lng != null)
-      map.flyTo([lat, lng], zoom, { duration: 1.2 });
-    return null;
-  }
-
-  const [selected, setSelected] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [selected, setSelected] = useState<Stadium | null>(null);
 
   // Lưu bị trí user
   const [userPos, setUserPos] = useState<UserPos | null>(null);
-  const [radius, setRadius] = useState(10); // km
+  const [radius] = useState(10); // km
   const [showList, setShowList] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [geoError, setGeoError] = useState("");
@@ -90,41 +59,50 @@ export default function MapLeaflet() {
   const [districts, setDistricts] = useState<District[]>([]);
 
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [type, setType] = useState("");
   const [data, setData] = useState<StadiumsResponse>();
   const debounceValue = useDebounce(search, 500);
   /* =======================
     API danh sách stadium
   =======================*/
-  const fetchStadiums = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      let url = `/api/stadiums?page=${page}`;
-      if (debounceValue) url += `&keyword=${debounceValue}`;
-      if (userPos) {
-        url += `&lat=${userPos.lat}&lng=${userPos.lng}&radius=${radius}`;
-      }
+  const buildStadiumsUrl = useCallback(() => {
+    const params = new URLSearchParams({ page: String(page) });
 
-      if (type) url += `&filter=type:${type}`;
-      if (distCode) url += `&filter=dist:${distCode}`;
-
-      const res = await fetch(url, { cache: "no-store" });
-
-      if (!res.ok) throw new Error("Lỗi");
-
-      const json = await res.json();
-      setData(json);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+    if (debounceValue) params.set("keyword", debounceValue);
+    if (userPos) {
+      params.set("lat", String(userPos.lat));
+      params.set("lng", String(userPos.lng));
+      params.set("radius", String(radius));
     }
+    if (type) params.append("filter", `type:${type}`);
+    if (distCode) params.append("filter", `dist:${distCode}`);
+
+    return `/api/stadiums?${params.toString()}`;
   }, [type, distCode, page, debounceValue, userPos, radius]);
 
   useEffect(() => {
-    fetchStadiums();
-  }, [fetchStadiums]);
+    let ignore = false;
+
+    async function loadStadiums() {
+      try {
+        const res = await fetch(buildStadiumsUrl(), { cache: "no-store" });
+
+        if (!res.ok) throw new Error("Lỗi");
+
+        const json = (await res.json()) as StadiumsResponse;
+        if (!ignore) setData(json);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadStadiums();
+
+    return () => {
+      ignore = true;
+    };
+  }, [buildStadiumsUrl]);
 
   // const totalPage = data?.totalPage || 0;
 
@@ -159,11 +137,12 @@ export default function MapLeaflet() {
     );
   };
 
-  const handleSelect = (s: any) => {
+  const handleSelect = (s: Stadium) => {
     setSelected(s);
-    setFlyTarget({ lat: s.lat, lng: s.lng, zoom: 16 });
+    if (s.lat != null && s.lng != null) {
+      setFlyTarget({ lat: s.lat, lng: s.lng, zoom: 16 });
+    }
   };
-  console.log(userPos);
 
   return (
     <div className="flex flex-col h-screen">

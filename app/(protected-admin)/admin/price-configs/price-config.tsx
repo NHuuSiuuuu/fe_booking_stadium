@@ -2,31 +2,17 @@
 
 import Pagination from "@/components/admin/layouts/pagination";
 import useDebounce from "@/hooks/useDebounce";
-import { BookMarked, ChevronRight, MapPin, Plus, Search } from "lucide-react";
+import { BookMarked, ChevronRight, MapPin, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { StadiumsResponse } from "@/types/stadium";
 
-type Stadium = {
-  id: number;
-  name: string;
-  slug: string;
-  address: string;
-  description: string;
-  type: number;
-  thumbnail: string[];
-  utility: string[];
-};
-
-type StadiumsResponse = {
-  stadiums: Stadium[];
-  pageCurrent: number;
-  totalPage: number;
-  total: any;
+type PriceConfigResponse = StadiumsResponse & {
   message: string;
 };
 
-type Props = { initialPriceConfig: StadiumsResponse };
+type Props = { initialPriceConfig: PriceConfigResponse };
 
 export default function PriceConfig({ initialPriceConfig }: Props) {
   const router = useRouter();
@@ -34,7 +20,7 @@ export default function PriceConfig({ initialPriceConfig }: Props) {
   const pathname = usePathname();
   const currentKeyword = searchParams.get("keyword");
 
-  const [search, setSearch] = useState(currentKeyword);
+  const [search, setSearch] = useState(currentKeyword ?? "");
   const debounceValue = useDebounce(search, 500);
 
   useEffect(() => {
@@ -53,10 +39,6 @@ export default function PriceConfig({ initialPriceConfig }: Props) {
       router.push(`${pathname}?${params.toString()}`); ///admin/price-configs?keyword=abc&page=1
     }
   }, [debounceValue, currentKeyword, pathname, router, searchParams]);
-
-  useEffect(() => {
-    setSearch(currentKeyword);
-  }, [currentKeyword]);
 
   const data = initialPriceConfig;
   const totalPage = data?.totalPage || 0;

@@ -11,6 +11,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 const fields = [
   {
@@ -58,7 +59,6 @@ export default function RegisterForm() {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
@@ -83,12 +83,14 @@ export default function RegisterForm() {
       });
       const payload = await result.json();
       if (!result.ok) {
-        throw payload;
+        throw new Error(getApiErrorMessage(payload, "Đăng ký thất bại"));
       }
       toast.success(payload?.message, { position: "top-right" });
       router.replace("/login");
-    } catch (error: any) {
-      toast.error(error.message, { position: "top-right" });
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Đăng ký thất bại"), {
+        position: "top-right",
+      });
     } finally {
       setIsPending(false);
     }

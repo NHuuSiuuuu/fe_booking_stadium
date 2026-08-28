@@ -53,60 +53,79 @@ type FormData = {
 
 type PaymentMethod = "cash" | "online";
 
+type BookingCreateResponse = {
+  payment_method?: PaymentMethod;
+  vnpayResponse?: string;
+  booking?: {
+    id: number;
+  };
+  message?: string;
+};
+
+function readCheckoutData() {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = window.sessionStorage.getItem("checkoutData");
+    return raw ? (JSON.parse(raw) as CheckoutData) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getInitialFormData(checkoutData: CheckoutData | null): FormData {
+  return {
+    fullName: checkoutData?.user?.fullname || "",
+    email: checkoutData?.user?.email || "",
+    phone: checkoutData?.user?.phone || "",
+    note: "",
+  };
+}
+
 export default function CheckoutForm() {
   const router = useRouter();
-  const [data, setData] = useState<CheckoutData | null>(null);
+  const [data] = useState<CheckoutData | null>(readCheckoutData);
   const [stadium, setStadium] = useState<Stadium | null>(null);
   const [isSubmitting, setISubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    note: "",
-  });
-  useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("checkoutData");
-      if (!raw) {
-        router.replace("/");
-        return;
-      }
+  const [formData, setFormData] = useState<FormData>(() =>
+    getInitialFormData(data),
+  );
 
-      setData(JSON.parse(raw));
-    } catch {
+  useEffect(() => {
+    if (!data) {
       router.replace("/");
     }
-  }, [router]);
+  }, [data, router]);
 
   // Load sân
   useEffect(() => {
     if (!data?.slug) return;
-    setIsLoading(true);
 
-    fetch(`/api/stadium/${data?.slug}`)
-      .then((r) => r.json())
-      .then((data) => setStadium(data[0] ?? null))
-      .catch(() => {
-        console.error;
-        setStadium(null);
-      })
-      .finally(() => setIsLoading(false));
+    let ignore = false;
+
+    async function loadStadium() {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/stadium/${data?.slug}`);
+        const payload = (await res.json()) as Stadium[];
+        if (!ignore) setStadium(payload[0] ?? null);
+      } catch (error) {
+        console.error(error);
+        if (!ignore) setStadium(null);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    loadStadium();
+
+    return () => {
+      ignore = true;
+    };
   }, [data?.slug]);
 
   const dateObj = new Date(data?.date ?? ""); // bên bên trái null/und thì lấy bên phải
-
-  useEffect(() => {
-    if (data?.user) {
-      setFormData({
-        fullName: data.user.fullname || "",
-        email: data.user.email || "",
-        phone: data.user.phone || "",
-        note: "",
-      });
-    }
-  }, [data]);
 
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, // kiểu event xảy ra khi input thay đổi: từ input, từ textare
@@ -118,7 +137,6 @@ export default function CheckoutForm() {
       [name]: value,
     }));
   };
-  console.log("form data", formData);
   const handleConfirm = async () => {
     if (!data?.user) {
       toast.error("Vui lòng đăng nhập để đặt sân", { position: "top-right" });
@@ -152,30 +170,30 @@ export default function CheckoutForm() {
         }),
       });
 
-      const result = await res.json();
+      const result = (await res.json()) as BookingCreateResponse;
       if (!res.ok) {
         throw new Error(result?.message || "Đặt sân thất bại");
       }
 
       sessionStorage.removeItem("checkoutData");
 
-      if (result.payment_method === "online") {
-        window.location.href = result.vnpayResponse;
+      if (result.payment_method === "online" && result.vnpayResponse) {
+        window.location.assign(result.vnpayResponse);
         return;
       }
 
       toast.success("Đặt sân thành công", { position: "top-right" });
-      router.push(`/booking/success/${result.booking.id}`);
-      console.log("result", result);
-      console.log("res", res);
-    } catch (err: any) {
-      toast.error(err.message, { position: "top-right" });
+      router.push(`/booking/success/${result.booking?.id}`);
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Đặt sân thất bại",
+        { position: "top-right" },
+      );
     } finally {
       setISubmitting(false);
     }
   };
 
-  console.log("paymentMethod", paymentMethod);
   if (!data || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

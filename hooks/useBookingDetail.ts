@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import type { Review } from "@/types/review";
 
 interface UseBookingDetailProps {
-  initialReview: any;
+  initialReview: Review | null;
   bookingId: number | string;
 }
 
@@ -13,7 +14,7 @@ export default function useBookingDetail({
   bookingId,
 }: UseBookingDetailProps) {
   const router = useRouter();
-  const [myReview, setMyReview] = useState<any>(initialReview);
+  const [myReview, setMyReview] = useState<Review | null>(initialReview);
   const [isCancelling, setIsCancelling] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [rating, setRating] = useState(3);

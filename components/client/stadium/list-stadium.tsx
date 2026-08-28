@@ -6,33 +6,7 @@ import { Heart, Signpost } from "lucide-react";
 import Hero from "@/components/client/layout/hero";
 import Image from "next/image";
 import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skeleton";
-type Stadium = {
-  id: number;
-  slug: string;
-  name: string;
-  address: string;
-  type: string;
-  price: number;
-  thumbnail: string[];
-  start_time: string;
-  end_time: string;
-  featured: boolean;
-  description: string;
-  district_id: number;
-  min_price: number;
-  max_price: number;
-};
-
-type StadiumsResponse = {
-  stadiums: Stadium[];
-  pageCurrent: number;
-  totalPage: number;
-  total: any;
-};
-type District = {
-  ogc_fid: number;
-  name_2: string;
-};
+import type { District, Stadium, StadiumsResponse } from "@/types/stadium";
 
 type ListStadiumsProp = {
   initialData: StadiumsResponse;
@@ -45,22 +19,22 @@ export default function ListStadium({
 }: ListStadiumsProp) {
   const [distCode, setDistCode] = useState("");
   const [type, setType] = useState("");
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const isFirstRender = useRef(true);
 
   const [data, setData] = useState(initialData);
 
   //   Sân yêu thích
-  const [favorites, setFavorites] = useState<Stadium[]>([]);
-  useEffect(() => {
+  const [favorites, setFavorites] = useState<Stadium[]>(() => {
     try {
-      const data = localStorage.getItem("favorite");
-      if (data) {
-        setFavorites(JSON.parse(data));
-      }
-    } catch {}
-  }, []);
+      if (typeof window === "undefined") return [];
+      const data = window.localStorage.getItem("favorite");
+      return data ? (JSON.parse(data) as Stadium[]) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Lần đầu load trang nó sẽ dừng ở đây - đây có thể coi là 1 cái chốt chặn để tránh fetch dữ liệu 2 lần
   // Tránh fetch lần đàu vì bên server component đã fetch
@@ -95,7 +69,6 @@ export default function ListStadium({
 
   const handleFavorite = (s: Stadium) => {
     const exist = favorites.find((item) => item.id === s.id);
-    console.log(exist);
     let newFavorites;
 
     // Kiểm tra nếu đã có thì xóa

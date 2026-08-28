@@ -37,3 +37,10 @@ test("stadium-heavy components consume shared stadium API types", () => {
     assert.doesNotMatch(source, /total:\s*any/);
   }
 });
+
+test("stadium detail route exposes an immediate loading state", () => {
+  const source = readProjectFile("app/(client)/stadiums/[slug]/loading.tsx");
+
+  assert.match(source, /Đang tải sân/);
+  assert.match(source, /animate-/);
+});

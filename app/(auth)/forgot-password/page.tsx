@@ -3,6 +3,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Quyên mật khẩu",
   description: "Trang lấy lại mật khẩu tài khoản",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 

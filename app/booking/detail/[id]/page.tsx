@@ -5,6 +5,10 @@ import { cookies } from "next/headers";
 export const metadata: Metadata = {
   title: "Chi tiết đặt sân",
   description: "Trang chi tiết đặt sân thành công",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function page({

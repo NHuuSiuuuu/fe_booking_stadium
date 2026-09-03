@@ -68,3 +68,11 @@ test("map page exposes a radius slider for nearby stadium search", () => {
   assert.match(source, /params\.set\("radius", String\(radius\)\)/);
   assert.match(source, /radius \* 1000/);
 });
+
+test("mobile map list toggle is centered away from the chat button", () => {
+  const source = readProjectFile("components/client/stadium/map-leaflet.tsx");
+
+  assert.match(source, /md:hidden fixed bottom-10 left-1\/2/);
+  assert.match(source, /-translate-x-1\/2/);
+  assert.doesNotMatch(source, /md:hidden fixed bottom-10 right-4/);
+});

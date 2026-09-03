@@ -9,7 +9,6 @@ import {
   ClipboardList,
   Users,
   LogOut,
-  AlignJustify,
 } from "lucide-react";
 
 const navItems = [
@@ -38,28 +37,28 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     }
   }
 
-  const textClass = `overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out ${
-    collapsed ? "w-0 opacity-0 ml-0" : "w-40 opacity-100 ml-3"
+  const textClass = `ml-2 overflow-hidden whitespace-nowrap transition-all duration-200 ease-in-out md:ml-3 ${
+    collapsed ? "md:w-0 md:opacity-0 md:ml-0" : "md:w-40 md:opacity-100"
   }`;
 
   return (
     <div
-      className={`flex flex-col h-[calc(100vh-52px)] sticky top-[52px] bg-[#1B1B29]
-        transition-all duration-300 ease-in-out
-        ${collapsed ? "w-16" : "w-56"}`}
+      className={`sticky top-[52px] z-20 flex w-full flex-row overflow-x-auto border-b border-slate-200 bg-white md:pb-16
+        transition-all duration-300 ease-in-out md:h-[calc(100vh-52px)] md:flex-col md:overflow-visible md:border-b-0 md:border-r
+        ${collapsed ? "md:w-16" : "md:w-56"}`}
     >
       {/* Logo */}
-      <div className="flex items-center px-3 py-5">
-        <div className={`${textClass} ml-2`}>
-          <p className="text-sm font-bold text-white leading-tight">
+      <div className="hidden items-center px-3 py-5 md:flex">
+        <div className={textClass}>
+          <p className="text-sm font-bold leading-tight text-slate-950">
             Sân Bóng Hà Nội
           </p>
-          <p className="text-xs text-[#1b1b1b]">Admin Panel</p>
+          <p className="text-xs font-medium text-slate-500">Admin Panel</p>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-col flex-1 gap-1 py-4">
+      <nav className="flex flex-row flex-1 gap-1 px-2 py-2 md:flex-col md:px-0 md:py-4">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             href === "/admin"
@@ -70,12 +69,12 @@ export default function Sidebar({ collapsed }: SidebarProps) {
             <Link
               key={href}
               href={href}
-              className={`flex items-center px-3 py-2.5 font-semibold
+              className={`flex shrink-0 items-center px-3 py-2.5 text-sm font-semibold
                 transition-colors duration-200
                 ${
                   isActive
-                    ? "bg-[#414147] text-white"
-                    : "text-[#939393] hover:bg-[#414147] hover:text-white"
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                 }`}
             >
               <Icon className="w-4 h-4 shrink-0 ml-1" />
@@ -88,8 +87,8 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       {/* Logout */}
       <button
         onClick={handleLogout}
-        className="flex items-center px-3 py-4 font-semibold
-                   text-[#939393] hover:bg-[#414147] hover:text-white
+        className="flex shrink-0 items-center px-3 py-2.5 text-sm font-semibold md:py-4
+                   text-slate-700 hover:bg-slate-100 hover:text-slate-950
                    transition-colors duration-200"
       >
         <LogOut className="w-4 h-4 shrink-0 ml-1" />

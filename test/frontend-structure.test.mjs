@@ -140,3 +140,28 @@ test("admin user detail dialog shows active status", () => {
   assert.match(source, /<span className="text-gray-500">Trạng thái<\/span>/);
   assert.match(source, /detailUser\?\.status !== false\s*\?\s*"Hoạt động"\s*:\s*"Dừng hoạt động"/);
 });
+
+test("admin layout stacks sidebar above content on mobile", () => {
+  const source = readProjectFile("components/admin/layouts/admin-layout-client.tsx");
+
+  assert.match(source, /className="flex flex-col md:flex-row"/);
+  assert.match(source, /className="min-w-0 flex-1"/);
+});
+
+test("admin sidebar uses readable light colors and mobile horizontal navigation", () => {
+  const source = readProjectFile("components/admin/layouts/sidebar.tsx");
+
+  assert.match(source, /bg-white/);
+  assert.match(source, /border-slate-200/);
+  assert.match(source, /text-slate-700/);
+  assert.match(source, /overflow-x-auto/);
+  assert.match(source, /md:flex-col/);
+  assert.doesNotMatch(source, /text-\[#1b1b1b\]/);
+  assert.doesNotMatch(source, /bg-\[#1B1B29\]/);
+});
+
+test("admin sidebar keeps logout clear of the floating chat button", () => {
+  const source = readProjectFile("components/admin/layouts/sidebar.tsx");
+
+  assert.match(source, /md:pb-16/);
+});

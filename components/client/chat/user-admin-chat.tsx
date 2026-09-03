@@ -31,25 +31,53 @@ export default function UserAdminChat({ stadium }: Props) {
   useEffect(() => {
     if (!conversation?.id) return;
 
-    const socket = io(envConfig.NEXT_PUBLIC_SOCKET_URL, {
-      withCredentials: true,
-    });
+    const conversationId = conversation.id;
+    let ignore = false;
+    let socket: ReturnType<typeof io> | null = null;
 
-    socket.on("connect", () => {
-      socket.emit("chat:join-conversation", conversation.id);
-    });
+    async function connectSocket() {
+      try {
+        const res = await fetch("/api/conversations/socket-token", {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await res.json();
 
-    socket.on("chat:message-created", (message: ChatMessage) => {
-      if (message.conversation_id !== conversation.id) return;
+        if (!res.ok) {
+          throw new Error(data?.message || "Không kết nối được chat realtime");
+        }
 
-      setMessages((prev) =>
-        prev.some((item) => item.id === message.id) ? prev : [...prev, message],
-      );
-    });
+        if (ignore) return;
+
+        socket = io(envConfig.NEXT_PUBLIC_SOCKET_URL, {
+          auth: { token: data.result.token },
+          withCredentials: true,
+        });
+
+        socket.on("connect", () => {
+          socket?.emit("chat:join-conversation", conversationId);
+        });
+
+        socket.on("chat:message-created", (message: ChatMessage) => {
+          if (message.conversation_id !== conversationId) return;
+
+          setMessages((prev) =>
+            prev.some((item) => item.id === message.id) ? prev : [...prev, message],
+          );
+        });
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Thao tác thất bại");
+        }
+      }
+    }
+
+    connectSocket();
 
     return () => {
-      socket.emit("chat:leave-conversation", conversation.id);
-      socket.disconnect();
+      ignore = true;
+      socket?.emit("chat:leave-conversation", conversationId);
+      socket?.disconnect();
     };
   }, [conversation?.id]);
 

@@ -9,6 +9,7 @@ import ListStadiumSkeleton from "@/components/client/stadium/list-stadium-skelet
 import StadiumHomeSkeleton from "@/components/client/stadium/stadium-home-skeleton";
 import envConfig from "@/config";
 import { absoluteUrl, publicPageMetadata, SITE_NAME } from "@/lib/seo";
+import { DEFAULT_WEATHER, resolveWeatherData } from "@/lib/weather";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
@@ -99,19 +100,19 @@ async function WeatherServer() {
   );
   url.searchParams.set("timezone", "Asia/Bangkok");
 
-  const weatherRes = await fetch(url.toString(), {
-    next: {
-      revalidate: 1800,
-    },
+  const weather = await resolveWeatherData(async () => {
+    const weatherRes = await fetch(url.toString(), {
+      next: {
+        revalidate: 1800,
+      },
+    });
+
+    if (!weatherRes.ok) return { current: DEFAULT_WEATHER };
+
+    return weatherRes.json();
   });
 
-  if (!weatherRes.ok) {
-    console.log("Lỗi fetch thời tiết");
-  }
-
-  const weather = await weatherRes.json();
-
-  return <Weather initialData={weather.current} />;
+  return <Weather initialData={weather} />;
 }
 
 async function NearByStadiumsServer() {

@@ -54,6 +54,8 @@ type UserFormState = {
   fullName: string;
   email: string;
   phone: string;
+  isadmin: "true" | "false";
+  status: "true" | "false";
 };
 
 export default function Users({ initialUsers }: Props) {
@@ -78,6 +80,8 @@ export default function Users({ initialUsers }: Props) {
     fullName: "",
     email: "",
     phone: "",
+    isadmin: "false",
+    status: "true",
   });
   const [actionError, setActionError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -118,6 +122,8 @@ export default function Users({ initialUsers }: Props) {
       fullName: user.fullname || "",
       email: user.email || "",
       phone: user.phone || "",
+      isadmin: user.isadmin ? "true" : "false",
+      status: user.status !== false ? "true" : "false",
     });
   };
 
@@ -158,7 +164,13 @@ export default function Users({ initialUsers }: Props) {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          isadmin: formData.isadmin === "true",
+          status: formData.status === "true",
+        }),
       });
 
       if (!res.ok) {
@@ -392,10 +404,10 @@ export default function Users({ initialUsers }: Props) {
                   <td className="px-6 py-4">
                     <div
                       className={`
-                        ${user.status === true ? "text-emerald-800 border-emerald-400 bg-emerald-50/30" : "text-rose-800 border-rose-400 bg-rose-50/30"}
+                        ${user.status !== false ? "text-emerald-800 border-emerald-400 bg-emerald-50/30" : "text-rose-800 border-rose-400 bg-rose-50/30"}
                       `}
                     >
-                      {user?.status === true ? "Hoạt động" : "Dừng hoạt động"}
+                      {user?.status !== false ? "Hoạt động" : "Dừng hoạt động"}
                     </div>
                   </td>
 
@@ -474,6 +486,42 @@ export default function Users({ initialUsers }: Props) {
                                 }
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                               />
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Vai trò
+                              </label>
+                              <select
+                                value={formData.isadmin}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    isadmin: e.target.value as "true" | "false",
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="true">Admin</option>
+                                <option value="false">User</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Trạng thái
+                              </label>
+                              <select
+                                value={formData.status}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    status: e.target.value as "true" | "false",
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="true">Hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
+                              </select>
                             </div>
                             {actionError && (
                               <p className="text-sm font-medium text-red-600">
@@ -597,6 +645,14 @@ export default function Users({ initialUsers }: Props) {
                                 <span className="text-gray-500">Vai trò</span>
                                 <span className="font-medium text-gray-900">
                                   {detailUser?.isadmin ? "Admin" : "User"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Trạng thái</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.status !== false
+                                    ? "Hoạt động"
+                                    : "Dừng hoạt động"}
                                 </span>
                               </div>
                               <div className="flex justify-between gap-4">

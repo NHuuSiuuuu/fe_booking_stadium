@@ -119,3 +119,24 @@ test("admin user actions call user management APIs and refresh the table", () =>
   assert.match(source, /method:\s*"DELETE"/);
   assert.match(source, /router\.refresh\(\)/);
 });
+
+test("admin user edit dialog can update role and active status", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /isadmin:\s*user\.isadmin\s*\?\s*"true"\s*:\s*"false"/);
+  assert.match(source, /status:\s*user\.status !== false\s*\?\s*"true"\s*:\s*"false"/);
+  assert.match(source, /JSON\.stringify\(\{\s*fullName:\s*formData\.fullName/);
+  assert.match(source, /isadmin:\s*formData\.isadmin === "true"/);
+  assert.match(source, /status:\s*formData\.status === "true"/);
+  assert.match(source, /<option value="true">Admin<\/option>/);
+  assert.match(source, /<option value="false">User<\/option>/);
+  assert.match(source, /<option value="true">Hoạt động<\/option>/);
+  assert.match(source, /<option value="false">Dừng hoạt động<\/option>/);
+});
+
+test("admin user detail dialog shows active status", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /<span className="text-gray-500">Trạng thái<\/span>/);
+  assert.match(source, /detailUser\?\.status !== false\s*\?\s*"Hoạt động"\s*:\s*"Dừng hoạt động"/);
+});

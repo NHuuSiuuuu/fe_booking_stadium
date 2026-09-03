@@ -1,5 +1,6 @@
 import BookingSidebar from "@/app/(client)/stadiums/[slug]/booking-sidebar";
 import ImageGallery from "@/app/(client)/stadiums/[slug]/image-gallery";
+import UserAdminChat from "@/components/client/chat/user-admin-chat";
 import { ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
 
@@ -153,6 +154,7 @@ export default function StadiumDetail({
           />
         </div>
       </div>
+      <UserAdminChat stadium={stadium} />
     </div>
   );
 }

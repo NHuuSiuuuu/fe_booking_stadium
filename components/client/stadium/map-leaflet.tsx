@@ -15,7 +15,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { Search, Loader, Crosshair, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { renderToString } from "react-dom/server";
-import { FaArrowUp, FaMap, FaMapMarkerAlt } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaMap, FaMapMarkerAlt } from "react-icons/fa";
 import type { District, Stadium, StadiumsResponse } from "@/types/stadium";
 
 type UserPos = {
@@ -274,12 +274,17 @@ export default function MapLeaflet() {
         )}
         <button
           onClick={() => setShowList(!showList)}
-          className={`md:hidden fixed bottom-10 right-4 w-9 h-9  z-40
+          aria-label={showList ? "Ẩn danh sách sân" : "Hiện danh sách sân"}
+          className={`md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 w-9 h-9  z-40
           flex items-center gap-2 bg-gray-900 text-white transition-transform duration-400
       
           px-3 py-3 ${showList ? "-translate-y-[60vh]" : "translate-y-0"}`}
         >
-          <FaArrowUp className="size-4" />
+          {showList ? (
+            <FaArrowDown className="size-4" />
+          ) : (
+            <FaArrowUp className="size-4" />
+          )}
 
           {/* Danh sách ({data?.total} sân) */}
         </button>

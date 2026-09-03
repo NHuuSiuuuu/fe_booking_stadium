@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 const openSans = Open_Sans({
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   subsets: ["vietnamese"],
 });
 
@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className="scroll-smooth">
-      <body className={openSans.className}>
+      <body className={openSans.variable}>
         {children}
         <Toaster />
       </body>

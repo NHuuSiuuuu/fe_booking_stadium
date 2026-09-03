@@ -244,3 +244,32 @@ test("human chat frontend authenticates socket connections with REST-issued toke
     assert.match(source, /auth:\s*\{\s*token:\s*data\.result\.token\s*\}/);
   }
 });
+
+test("human chat bubbles fit content and show message times", () => {
+  const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
+  const adminMessages = readProjectFile(
+    "app/(protected-admin)/admin/messages/messages.tsx",
+  );
+
+  for (const source of [userChat, adminMessages]) {
+    assert.match(source, /function\s+formatTime\(value:\s*string \| null\)/);
+    assert.match(source, /w-fit/);
+    assert.match(source, /max-w-\[\d+%\]/);
+    assert.match(source, /formatTime\(message\.created_at\)/);
+  }
+});
+
+test("human chat frontend emits and displays typing indicators", () => {
+  const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
+  const adminMessages = readProjectFile(
+    "app/(protected-admin)/admin/messages/messages.tsx",
+  );
+
+  for (const source of [userChat, adminMessages]) {
+    assert.match(source, /chat:typing/);
+    assert.match(source, /chat:stop-typing/);
+    assert.match(source, /typingTimeoutRef/);
+    assert.match(source, /animate-bounce/);
+    assert.match(source, /Đang nhập/);
+  }
+});

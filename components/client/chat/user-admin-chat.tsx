@@ -5,7 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
-import type { ChatMessage, Conversation } from "@/types/conversation";
+import type { ChatMessage, Conversation, SenderRole } from "@/types/conversation";
+
+type TypingPayload = {
+  conversationId: number;
+  senderRole: SenderRole;
+};
 
 type Props = {
   stadium: {
@@ -13,6 +18,15 @@ type Props = {
     name: string;
   };
 };
+
+function formatTime(value: string | null) {
+  if (!value) return "";
+
+  return new Date(value).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export default function UserAdminChat({ stadium }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,11 +36,14 @@ export default function UserAdminChat({ stadium }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [typingSenderRole, setTypingSenderRole] = useState<SenderRole | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, typingSenderRole]);
 
   useEffect(() => {
     if (!conversation?.id) return;
@@ -53,6 +70,7 @@ export default function UserAdminChat({ stadium }: Props) {
           auth: { token: data.result.token },
           withCredentials: true,
         });
+        socketRef.current = socket;
 
         socket.on("connect", () => {
           socket?.emit("chat:join-conversation", conversationId);
@@ -65,6 +83,24 @@ export default function UserAdminChat({ stadium }: Props) {
             prev.some((item) => item.id === message.id) ? prev : [...prev, message],
           );
         });
+
+        socket.on("chat:typing", (payload: TypingPayload) => {
+          if (
+            payload.conversationId === conversationId &&
+            payload.senderRole === "admin"
+          ) {
+            setTypingSenderRole(payload.senderRole);
+          }
+        });
+
+        socket.on("chat:stop-typing", (payload: TypingPayload) => {
+          if (
+            payload.conversationId === conversationId &&
+            payload.senderRole === "admin"
+          ) {
+            setTypingSenderRole(null);
+          }
+        });
       } catch (err) {
         if (!ignore) {
           setError(err instanceof Error ? err.message : "Thao tác thất bại");
@@ -76,10 +112,43 @@ export default function UserAdminChat({ stadium }: Props) {
 
     return () => {
       ignore = true;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
       socket?.emit("chat:leave-conversation", conversationId);
       socket?.disconnect();
+      socketRef.current = null;
+      setTypingSenderRole(null);
     };
   }, [conversation?.id]);
+
+  function stopTyping() {
+    if (!conversation?.id) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+
+    socketRef.current?.emit("chat:stop-typing", conversation.id);
+  }
+
+  function handleInputChange(value: string) {
+    setInput(value);
+
+    if (!conversation?.id) return;
+
+    socketRef.current?.emit("chat:typing", conversation.id);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current?.emit("chat:stop-typing", conversation.id);
+      typingTimeoutRef.current = null;
+    }, 1200);
+  }
 
   async function openChat() {
     setIsOpen(true);
@@ -137,6 +206,7 @@ export default function UserAdminChat({ stadium }: Props) {
     const content = input.trim();
     setIsSending(true);
     setError("");
+    stopTyping();
 
     try {
       const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
@@ -215,15 +285,44 @@ export default function UserAdminChat({ stadium }: Props) {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`max-w-[82%] break-words rounded-2xl px-3 py-2 text-sm ${
+              className={`flex ${
                 message.sender_role === "user"
-                  ? "ml-auto bg-[#042b47] text-white"
-                  : "mr-auto bg-white text-slate-800 shadow-sm"
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
-              {message.content}
+              <div
+                className={`flex max-w-[82%] flex-col ${
+                  message.sender_role === "user" ? "items-end" : "items-start"
+                }`}
+              >
+                <div
+                  className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
+                    message.sender_role === "user"
+                      ? "bg-[#042b47] text-white"
+                      : "bg-white text-slate-800 shadow-sm"
+                  }`}
+                >
+                  {message.content}
+                </div>
+                <span className="mt-1 px-1 text-[11px] text-slate-400">
+                  {formatTime(message.created_at)}
+                </span>
+              </div>
             </div>
           ))}
+          {typingSenderRole === "admin" && (
+            <div className="flex justify-start">
+              <div className="flex max-w-[82%] flex-col items-start">
+                <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                  <span>Đang nhập</span>
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={bottomRef} />
         </div>
 
@@ -234,7 +333,7 @@ export default function UserAdminChat({ stadium }: Props) {
         <form onSubmit={handleSubmit} className="flex gap-2 border-t bg-white p-3">
           <input
             value={input}
-            onChange={(event) => setInput(event.target.value)}
+            onChange={(event) => handleInputChange(event.target.value)}
             className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#042b47]"
             placeholder="Nhập tin nhắn..."
             disabled={!conversation || isSending}

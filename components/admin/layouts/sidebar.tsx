@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Users,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
   { href: "/admin/price-configs", label: "Cấu hình giá giờ", icon: DollarSign },
   { href: "/admin/bookings", label: "Quản lý đơn đặt", icon: ClipboardList },
   { href: "/admin/user", label: "Quản lý người dùng", icon: Users },
+  { href: "/admin/messages", label: "Tin nhắn", icon: MessageSquare },
 ];
 
 type SidebarProps = {

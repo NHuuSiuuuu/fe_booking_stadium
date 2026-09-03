@@ -165,3 +165,70 @@ test("admin sidebar keeps logout clear of the floating chat button", () => {
 
   assert.match(source, /md:pb-16/);
 });
+
+test("human chat frontend defines shared conversation types", () => {
+  const source = readProjectFile("types/conversation.ts");
+
+  assert.match(source, /export type SenderRole = "user" \| "admin"/);
+  assert.match(source, /export type Conversation =/);
+  assert.match(source, /stadium_id:\s*number \| null/);
+  assert.match(source, /admin_unread_count:\s*number/);
+  assert.match(source, /export type ChatMessage =/);
+  assert.match(source, /sender_role:\s*SenderRole/);
+});
+
+test("stadium detail renders user admin chat without using AI chat endpoint", () => {
+  const detail = readProjectFile("app/(client)/stadiums/[slug]/stadium-detail.tsx");
+  const chat = readProjectFile("components/client/chat/user-admin-chat.tsx");
+
+  assert.match(detail, /UserAdminChat/);
+  assert.match(detail, /stadium=\{stadium\}/);
+  assert.match(chat, /Chat với chủ sân/);
+  assert.match(chat, />\s*Nhắn chủ sân\s*</);
+  assert.match(chat, /z-\[1000000000\]/);
+  assert.match(chat, /fetch\("\/api\/conversations"/);
+  assert.match(
+    chat,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}\/messages`/,
+  );
+  assert.match(
+    chat,
+    /fetch\(`\/api\/conversations\/\$\{data\.result\.id\}\/read`/,
+  );
+  assert.doesNotMatch(chat, /\/api\/chat/);
+});
+
+test("admin messages page provides inbox route and sidebar entry", () => {
+  const sidebar = readProjectFile("components/admin/layouts/sidebar.tsx");
+  const page = readProjectFile("app/(protected-admin)/admin/messages/page.tsx");
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(sidebar, /href:\s*"\/admin\/messages"/);
+  assert.match(sidebar, /label:\s*"Tin nhắn"/);
+  assert.match(page, /<Messages/);
+  assert.match(messages, /fetch\("\/api\/conversations"/);
+  assert.match(
+    messages,
+    /fetch\(\s*`\/api\/conversations\/\$\{conversation\.id\}\/messages`/,
+  );
+  assert.match(
+    messages,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}\/read`/,
+  );
+  assert.match(messages, /md:grid-cols-\[320px_1fr\]/);
+});
+
+test("human chat frontend uses dedicated socket events", () => {
+  const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
+  const adminMessages = readProjectFile(
+    "app/(protected-admin)/admin/messages/messages.tsx",
+  );
+
+  assert.match(userChat, /io\(envConfig\.NEXT_PUBLIC_SOCKET_URL/);
+  assert.match(userChat, /chat:join-conversation/);
+  assert.match(userChat, /chat:message-created/);
+  assert.match(adminMessages, /chat:join-admin/);
+  assert.match(adminMessages, /chat:conversation-updated/);
+  assert.doesNotMatch(userChat, /join-stadium/);
+  assert.doesNotMatch(adminMessages, /join-stadium/);
+});

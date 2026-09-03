@@ -97,3 +97,71 @@ test("site typography uses the shared Open Sans font token", () => {
   assert.match(globalSource, /line-height:\s*1\.6/);
   assert.doesNotMatch(layoutSource, /--font-geist-sans/);
 });
+
+test("admin user actions open dialogs instead of stadium routes", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /Dialog/);
+  assert.match(source, /DialogTrigger/);
+  assert.match(source, /Chi tiết tài khoản/);
+  assert.match(source, /Chỉnh sửa tài khoản/);
+  assert.doesNotMatch(source, /href=\{`\/admin\/stadiums\/update\/`\}/);
+  assert.doesNotMatch(source, /href=\{`\/admin\/stadiums\/detail\/`\}/);
+});
+
+test("admin user actions call user management APIs and refresh the table", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /fetch\(`\/api\/user\/detail\/\$\{user\.id\}`/);
+  assert.match(source, /fetch\(`\/api\/user\/update\/\$\{editingUser\.id\}`/);
+  assert.match(source, /method:\s*"PATCH"/);
+  assert.match(source, /fetch\(`\/api\/user\/delete\/\$\{user\.id\}`/);
+  assert.match(source, /method:\s*"DELETE"/);
+  assert.match(source, /router\.refresh\(\)/);
+});
+
+test("admin user edit dialog can update role and active status", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /isadmin:\s*user\.isadmin\s*\?\s*"true"\s*:\s*"false"/);
+  assert.match(source, /status:\s*user\.status !== false\s*\?\s*"true"\s*:\s*"false"/);
+  assert.match(source, /JSON\.stringify\(\{\s*fullName:\s*formData\.fullName/);
+  assert.match(source, /isadmin:\s*formData\.isadmin === "true"/);
+  assert.match(source, /status:\s*formData\.status === "true"/);
+  assert.match(source, /<option value="true">Admin<\/option>/);
+  assert.match(source, /<option value="false">User<\/option>/);
+  assert.match(source, /<option value="true">Hoạt động<\/option>/);
+  assert.match(source, /<option value="false">Dừng hoạt động<\/option>/);
+});
+
+test("admin user detail dialog shows active status", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /<span className="text-gray-500">Trạng thái<\/span>/);
+  assert.match(source, /detailUser\?\.status !== false\s*\?\s*"Hoạt động"\s*:\s*"Dừng hoạt động"/);
+});
+
+test("admin layout stacks sidebar above content on mobile", () => {
+  const source = readProjectFile("components/admin/layouts/admin-layout-client.tsx");
+
+  assert.match(source, /className="flex flex-col md:flex-row"/);
+  assert.match(source, /className="min-w-0 flex-1"/);
+});
+
+test("admin sidebar uses readable light colors and mobile horizontal navigation", () => {
+  const source = readProjectFile("components/admin/layouts/sidebar.tsx");
+
+  assert.match(source, /bg-white/);
+  assert.match(source, /border-slate-200/);
+  assert.match(source, /text-slate-700/);
+  assert.match(source, /overflow-x-auto/);
+  assert.match(source, /md:flex-col/);
+  assert.doesNotMatch(source, /text-\[#1b1b1b\]/);
+  assert.doesNotMatch(source, /bg-\[#1B1B29\]/);
+});
+
+test("admin sidebar keeps logout clear of the floating chat button", () => {
+  const source = readProjectFile("components/admin/layouts/sidebar.tsx");
+
+  assert.match(source, /md:pb-16/);
+});

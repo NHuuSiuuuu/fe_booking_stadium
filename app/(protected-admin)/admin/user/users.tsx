@@ -12,12 +12,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import useDebounce from "@/hooks/useDebounce";
 import { ArrowDownUp, Info, RefreshCcw, SquarePen, Trash } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 // import { AlertDialog } from "radix-ui";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type UsersStatus = false | true;
 
@@ -28,7 +36,7 @@ type Users = {
   created_at: string;
   isadmin: boolean;
   email: string;
-  status: UsersStatus;
+  status?: UsersStatus;
 };
 
 type UsersResponse = {
@@ -40,6 +48,14 @@ type UsersResponse = {
 
 type Props = {
   initialUsers: UsersResponse;
+};
+
+type UserFormState = {
+  fullName: string;
+  email: string;
+  phone: string;
+  isadmin: "true" | "false";
+  status: "true" | "false";
 };
 
 export default function Users({ initialUsers }: Props) {
@@ -57,6 +73,18 @@ export default function Users({ initialUsers }: Props) {
   const users = initialUsers.result;
   const totalPage = initialUsers.totalPage;
   const totalUsers = initialUsers.total;
+  const [editingUser, setEditingUser] = useState<Users | null>(null);
+  const [detailUser, setDetailUser] = useState<Users | null>(null);
+  const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<UserFormState>({
+    fullName: "",
+    email: "",
+    phone: "",
+    isadmin: "false",
+    status: "true",
+  });
+  const [actionError, setActionError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -86,6 +114,101 @@ export default function Users({ initialUsers }: Props) {
     }
     router.push(`${pathName}?${params.toString()}`);
   }, [debounceValue, filterStatus, sort, page, pathName]);
+
+  const openEditDialog = (user: Users) => {
+    setActionError("");
+    setEditingUser(user);
+    setFormData({
+      fullName: user.fullname || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      isadmin: user.isadmin ? "true" : "false",
+      status: user.status !== false ? "true" : "false",
+    });
+  };
+
+  const openDetailDialog = async (user: Users) => {
+    setActionError("");
+    setDetailUser(user);
+    setDetailLoadingId(user.id);
+
+    try {
+      const res = await fetch(`/api/user/detail/${user.id}`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Không lấy được chi tiết tài khoản");
+      }
+
+      const data = await res.json();
+      setDetailUser(data.result ?? user);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Thao tác thất bại");
+    } finally {
+      setDetailLoadingId(null);
+    }
+  };
+
+  const handleUpdateUser = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingUser) return;
+
+    setActionError("");
+    setActionLoading(true);
+
+    try {
+      const res = await fetch(`/api/user/update/${editingUser.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          isadmin: formData.isadmin === "true",
+          status: formData.status === "true",
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Không cập nhật được tài khoản");
+      }
+
+      setEditingUser(null);
+      router.refresh();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Thao tác thất bại");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (user: Users) => {
+    setActionError("");
+    setActionLoading(true);
+
+    try {
+      const res = await fetch(`/api/user/delete/${user.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Không xóa được tài khoản");
+      }
+
+      router.refresh();
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Thao tác thất bại");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -179,6 +302,12 @@ export default function Users({ initialUsers }: Props) {
             </div>
           </div>
         </div>
+
+        {actionError && (
+          <div className="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {actionError}
+          </div>
+        )}
 
         {/* Bảng */}
         <div className="overflow-x-auto">
@@ -275,23 +404,149 @@ export default function Users({ initialUsers }: Props) {
                   <td className="px-6 py-4">
                     <div
                       className={`
-                        ${user.status === true ? "text-emerald-800 border-emerald-400 bg-emerald-50/30" : "text-rose-800 border-rose-400 bg-rose-50/30"}
+                        ${user.status !== false ? "text-emerald-800 border-emerald-400 bg-emerald-50/30" : "text-rose-800 border-rose-400 bg-rose-50/30"}
                       `}
                     >
-                      {user?.status === true ? "Hoạt động" : "Dừng hoạt động"}
+                      {user?.status !== false ? "Hoạt động" : "Dừng hoạt động"}
                     </div>
                   </td>
 
                   {/* Thao tác*/}
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <Link
-                        href={`/admin/stadiums/update/`}
-                        className="inline-flex items-center px-3 py-1.5 border border-blue-300 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-50 transition"
+                      <Dialog
+                        open={editingUser?.id === user.id}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            openEditDialog(user);
+                          } else {
+                            setEditingUser(null);
+                          }
+                        }}
                       >
-                        <SquarePen size={16} />
-                        Sửa
-                      </Link>
+                        <DialogTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center px-3 py-1.5 border border-blue-300 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-50 transition"
+                          >
+                            <SquarePen size={16} />
+                            Sửa
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Chỉnh sửa tài khoản</DialogTitle>
+                            <DialogDescription>
+                              Cập nhật thông tin cơ bản của tài khoản.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleUpdateUser} className="space-y-4">
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Họ tên
+                              </label>
+                              <input
+                                value={formData.fullName}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    fullName: e.target.value,
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Email
+                              </label>
+                              <input
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    email: e.target.value,
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Số điện thoại
+                              </label>
+                              <input
+                                value={formData.phone}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    phone: e.target.value,
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Vai trò
+                              </label>
+                              <select
+                                value={formData.isadmin}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    isadmin: e.target.value as "true" | "false",
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="true">Admin</option>
+                                <option value="false">User</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Trạng thái
+                              </label>
+                              <select
+                                value={formData.status}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    status: e.target.value as "true" | "false",
+                                  }))
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="true">Hoạt động</option>
+                                <option value="false">Dừng hoạt động</option>
+                              </select>
+                            </div>
+                            {actionError && (
+                              <p className="text-sm font-medium text-red-600">
+                                {actionError}
+                              </p>
+                            )}
+                            <DialogFooter>
+                              <button
+                                type="button"
+                                onClick={() => setEditingUser(null)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                              >
+                                Hủy
+                              </button>
+                              <button
+                                type="submit"
+                                disabled={actionLoading}
+                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+                              >
+                                {actionLoading ? "Đang lưu..." : "Lưu"}
+                              </button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
 
                       {/* Xóa */}
                       <AlertDialog>
@@ -320,21 +575,105 @@ export default function Users({ initialUsers }: Props) {
                             <AlertDialogCancel>Hủy</AlertDialogCancel>
 
                             <AlertDialogAction
-                              // onClick={() => handleRemoveStadium(item.id)}
+                              onClick={() => handleDeleteUser(user)}
                               className="bg-red-600 hover:bg-red-700"
                             >
-                              Xóa
+                              {actionLoading ? "Đang xóa..." : "Xóa"}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                      <Link
-                        href={`/admin/stadiums/detail/`}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                      <Dialog
+                        open={detailUser?.id === user.id}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            openDetailDialog(user);
+                          } else {
+                            setDetailUser(null);
+                          }
+                        }}
                       >
-                        <Info className="text-[7px] p-1 border rounded-[100%] mr-1" />
-                        Chi tiết
-                      </Link>
+                        <DialogTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                          >
+                            <Info className="text-[7px] p-1 border rounded-[100%] mr-1" />
+                            Chi tiết
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Chi tiết tài khoản</DialogTitle>
+                            <DialogDescription>
+                              Thông tin tài khoản trong hệ thống.
+                            </DialogDescription>
+                          </DialogHeader>
+                          {detailLoadingId === user.id ? (
+                            <p className="text-sm text-gray-500">
+                              Đang tải chi tiết...
+                            </p>
+                          ) : (
+                            <div className="space-y-3 text-sm">
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">ID</span>
+                                <span className="font-medium text-gray-900">
+                                  #{detailUser?.id}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Họ tên</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.fullname}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Email</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.email}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">
+                                  Số điện thoại
+                                </span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.phone}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Vai trò</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.isadmin ? "Admin" : "User"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Trạng thái</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.status !== false
+                                    ? "Hoạt động"
+                                    : "Dừng hoạt động"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-gray-500">Ngày tạo</span>
+                                <span className="font-medium text-gray-900">
+                                  {detailUser?.created_at
+                                    ? new Date(
+                                        detailUser.created_at,
+                                      ).toLocaleDateString("vi-VN")
+                                    : ""}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {actionError && (
+                            <p className="text-sm font-medium text-red-600">
+                              {actionError}
+                            </p>
+                          )}
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </td>
                 </tr>

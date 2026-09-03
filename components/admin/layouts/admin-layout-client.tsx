@@ -15,11 +15,11 @@ export function AdminLayoutClient({ children, user }: AdminLayoutClientProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="  bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <Header collapsed={collapsed} setCollapsed={setCollapsed} user={user} />
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar collapsed={collapsed} />
-        <div className="flex-1"> {children}</div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
   );

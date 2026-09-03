@@ -232,3 +232,15 @@ test("human chat frontend uses dedicated socket events", () => {
   assert.doesNotMatch(userChat, /join-stadium/);
   assert.doesNotMatch(adminMessages, /join-stadium/);
 });
+
+test("human chat frontend authenticates socket connections with REST-issued token", () => {
+  const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
+  const adminMessages = readProjectFile(
+    "app/(protected-admin)/admin/messages/messages.tsx",
+  );
+
+  for (const source of [userChat, adminMessages]) {
+    assert.match(source, /fetch\("\/api\/conversations\/socket-token"/);
+    assert.match(source, /auth:\s*\{\s*token:\s*data\.result\.token\s*\}/);
+  }
+});

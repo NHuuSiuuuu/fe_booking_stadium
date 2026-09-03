@@ -89,28 +89,55 @@ export default function Messages() {
   }, []);
 
   useEffect(() => {
-    const socket = io(envConfig.NEXT_PUBLIC_SOCKET_URL, {
-      withCredentials: true,
-    });
+    let ignore = false;
+    let socket: ReturnType<typeof io> | null = null;
 
-    socket.on("connect", () => {
-      socket.emit("chat:join-admin");
-    });
+    async function connectSocket() {
+      try {
+        const res = await fetch("/api/conversations/socket-token", {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await res.json();
 
-    socket.on("chat:conversation-updated", (conversation: Conversation) => {
-      upsertConversation(conversation);
-    });
+        if (!res.ok) {
+          throw new Error(data?.message || "Không kết nối được chat realtime");
+        }
 
-    socket.on("chat:message-created", (message: ChatMessage) => {
-      if (selectedConversation?.id !== message.conversation_id) return;
+        if (ignore) return;
 
-      setMessages((prev) =>
-        prev.some((item) => item.id === message.id) ? prev : [...prev, message],
-      );
-    });
+        socket = io(envConfig.NEXT_PUBLIC_SOCKET_URL, {
+          auth: { token: data.result.token },
+          withCredentials: true,
+        });
+
+        socket.on("connect", () => {
+          socket?.emit("chat:join-admin");
+        });
+
+        socket.on("chat:conversation-updated", (conversation: Conversation) => {
+          upsertConversation(conversation);
+        });
+
+        socket.on("chat:message-created", (message: ChatMessage) => {
+          if (selectedConversation?.id !== message.conversation_id) return;
+
+          setMessages((prev) =>
+            prev.some((item) => item.id === message.id) ? prev : [...prev, message],
+          );
+        });
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Thao tác thất bại");
+        }
+      }
+    }
+
+    connectSocket();
 
     return () => {
-      socket.disconnect();
+      ignore = true;
+      socket?.disconnect();
     };
   }, [selectedConversation?.id]);
 

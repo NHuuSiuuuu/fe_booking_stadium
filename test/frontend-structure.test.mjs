@@ -97,3 +97,25 @@ test("site typography uses the shared Open Sans font token", () => {
   assert.match(globalSource, /line-height:\s*1\.6/);
   assert.doesNotMatch(layoutSource, /--font-geist-sans/);
 });
+
+test("admin user actions open dialogs instead of stadium routes", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /Dialog/);
+  assert.match(source, /DialogTrigger/);
+  assert.match(source, /Chi tiết tài khoản/);
+  assert.match(source, /Chỉnh sửa tài khoản/);
+  assert.doesNotMatch(source, /href=\{`\/admin\/stadiums\/update\/`\}/);
+  assert.doesNotMatch(source, /href=\{`\/admin\/stadiums\/detail\/`\}/);
+});
+
+test("admin user actions call user management APIs and refresh the table", () => {
+  const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
+
+  assert.match(source, /fetch\(`\/api\/user\/detail\/\$\{user\.id\}`/);
+  assert.match(source, /fetch\(`\/api\/user\/update\/\$\{editingUser\.id\}`/);
+  assert.match(source, /method:\s*"PATCH"/);
+  assert.match(source, /fetch\(`\/api\/user\/delete\/\$\{user\.id\}`/);
+  assert.match(source, /method:\s*"DELETE"/);
+  assert.match(source, /router\.refresh\(\)/);
+});

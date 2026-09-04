@@ -218,6 +218,34 @@ test("admin messages page provides inbox route and sidebar entry", () => {
   assert.match(messages, /md:grid-cols-\[320px_1fr\]/);
 });
 
+test("admin messages surface stadium context and user detail dialog", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /User đang hỏi về sân này/);
+  assert.match(messages, /selectedConversation\.stadium_slug/);
+  assert.match(messages, /href=\{`\/stadiums\/detail\/\$\{selectedConversation\.stadium_slug\}`\}/);
+  assert.doesNotMatch(messages, /href=\{`\/admin\/stadiums\/detail\/\$\{selectedConversation\.stadium_id\}`\}/);
+  assert.doesNotMatch(messages, /Thông tin sân/);
+  assert.match(messages, /Dialog/);
+  assert.match(messages, /DialogTitle>Thông tin người dùng/);
+  assert.match(messages, /setIsUserDialogOpen\(true\)/);
+  assert.match(messages, /selectedConversation\.user_email/);
+  assert.match(messages, /selectedConversation\.user_phone/);
+});
+
+test("admin header shows realtime message notifications", () => {
+  const header = readProjectFile("components/admin/layouts/header.tsx");
+
+  assert.match(header, /fetch\("\/api\/conversations"/);
+  assert.match(header, /admin_unread_count/);
+  assert.match(header, /reduce/);
+  assert.match(header, /chat:conversation-updated/);
+  assert.match(header, /chat:message-created/);
+  assert.match(header, /\/admin\/messages/);
+  assert.match(header, /Tin nhắn mới/);
+  assert.doesNotMatch(header, />\s*2\s*<\/span>/);
+});
+
 test("human chat frontend uses dedicated socket events", () => {
   const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
   const adminMessages = readProjectFile(
@@ -270,6 +298,99 @@ test("human chat frontend emits and displays typing indicators", () => {
     assert.match(source, /chat:stop-typing/);
     assert.match(source, /typingTimeoutRef/);
     assert.match(source, /animate-bounce/);
-    assert.match(source, /Đang nhập/);
+    assert.doesNotMatch(source, /Đang nhập/);
   }
+});
+
+test("admin message loading uses skeleton animation instead of loading text", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /MessageThreadSkeleton/);
+  assert.match(messages, /animate-pulse/);
+  assert.doesNotMatch(messages, /Đang tải tin nhắn/);
+});
+
+test("admin messages cache loaded threads by conversation id", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /messagesByConversationId/);
+  assert.match(messages, /setMessagesByConversationId/);
+  assert.match(
+    messages,
+    /const cachedMessages = messagesByConversationId\[conversation\.id\]/,
+  );
+  assert.match(messages, /if \(cachedMessages\)/);
+  assert.match(messages, /setMessages\(cachedMessages\)/);
+  assert.match(messages, /setIsLoadingMessages\(false\)/);
+  assert.match(
+    messages,
+    /setMessagesByConversationId\(\(prev\) => \(\{\s*\.\.\.prev,\s*\[conversation\.id\]: data\.result \?\? \[\],\s*\}\)\)/s,
+  );
+});
+
+test("admin messages keep conversation order when a thread is read", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /function\s+mergeConversation\(/);
+  assert.match(messages, /options:\s*\{\s*promote\?: boolean\s*\}\s*=\s*\{\}/);
+  assert.match(messages, /options\.promote === true/);
+  assert.match(
+    messages,
+    /mergeConversation\(readData\.result,\s*\{\s*promote:\s*false\s*\}\)/,
+  );
+  assert.doesNotMatch(messages, /function\s+upsertConversation/);
+});
+
+test("admin messages use a messenger style layout with a dark chat header", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /getConversationInitial/);
+  assert.match(messages, /rounded-full bg-slate-200/);
+  assert.match(messages, /bg-slate-100/);
+  assert.match(messages, /bg-slate-950 text-white/);
+  assert.match(messages, /bg-blue-600 text-white/);
+  assert.match(messages, /rounded-full border border-slate-200 bg-white/);
+  assert.doesNotMatch(messages, /bg-blue-500/);
+});
+
+test("admin messages keep the thread scrollable and provide a scroll-to-bottom button", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /messagesScrollRef/);
+  assert.match(messages, /messagesBottomRef/);
+  assert.match(messages, /showScrollToBottom/);
+  assert.match(messages, /function\s+scrollToLatestMessage/);
+  assert.match(messages, /function\s+handleMessagesScroll/);
+  assert.match(messages, /onScroll=\{handleMessagesScroll\}/);
+  assert.match(messages, /min-h-0 flex-1 overflow-y-auto/);
+  assert.match(messages, /aria-label="Cuộn xuống tin mới nhất"/);
+  assert.match(messages, /ArrowDown/);
+});
+
+test("me sidebar contains messages and uses the logout icon for logout", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /MessageSquare/);
+  assert.match(source, /label:\s*"Tin nhắn"/);
+  assert.match(source, /page:\s*"messages"/);
+  assert.match(source, /<LogOut className=/);
+  assert.doesNotMatch(source, /<Settings className=\{`h-4 w-4 `\} \/>/);
+});
+
+test("me messages are rendered inside the account page without a new route", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /activePage == "messages"/);
+  assert.match(source, /fetch\("\/api\/conversations"/);
+  assert.match(
+    source,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}\/messages`/,
+  );
+  assert.match(
+    source,
+    /fetch\(`\/api\/conversations\/\$\{selectedConversation\.id\}\/messages`/,
+  );
+  assert.match(source, /chat:join-conversation/);
+  assert.match(source, /Chat với chủ sân/);
+  assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
 });

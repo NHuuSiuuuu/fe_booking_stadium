@@ -397,7 +397,7 @@ test("me messages are rendered inside the account page without a new route", () 
   assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
 });
 
-test("admin messages can delete a conversation from the inbox", () => {
+test("admin messages can hide a conversation from the admin inbox", () => {
   const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
 
   assert.match(messages, /Trash2/);
@@ -409,5 +409,6 @@ test("admin messages can delete a conversation from the inbox", () => {
   assert.match(messages, /method:\s*"DELETE"/);
   assert.match(messages, /window\.confirm/);
   assert.match(messages, /chat:conversation-deleted/);
-  assert.match(messages, /aria-label=\{`Xóa hội thoại/);
+  assert.match(messages, /Ẩn hội thoại với/);
+  assert.match(messages, /aria-label=\{`Ẩn hội thoại/);
 });

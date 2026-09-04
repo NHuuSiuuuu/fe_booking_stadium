@@ -404,7 +404,7 @@ export default function Messages() {
 
   async function deleteConversation(conversation: Conversation) {
     const confirmed = window.confirm(
-      `Xóa hội thoại với ${getConversationTitle(conversation)}?`,
+      `Ẩn hội thoại với ${getConversationTitle(conversation)} khỏi inbox admin?`,
     );
 
     if (!confirmed) return;
@@ -419,7 +419,7 @@ export default function Messages() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.message || "Không xóa được hội thoại");
+        throw new Error(data?.message || "Không ẩn được hội thoại");
       }
 
       removeConversation(conversation.id);
@@ -543,7 +543,7 @@ export default function Messages() {
                     type="button"
                     onClick={() => deleteConversation(conversation)}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
-                    aria-label={`Xóa hội thoại ${getConversationTitle(conversation)}`}
+                    aria-label={`Ẩn hội thoại ${getConversationTitle(conversation)}`}
                   >
                     <Trash2 size={16} />
                   </button>

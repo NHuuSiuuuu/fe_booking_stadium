@@ -366,3 +366,31 @@ test("admin messages keep the thread scrollable and provide a scroll-to-bottom b
   assert.match(messages, /aria-label="Cuộn xuống tin mới nhất"/);
   assert.match(messages, /ArrowDown/);
 });
+
+test("me sidebar contains messages and uses the logout icon for logout", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /MessageSquare/);
+  assert.match(source, /label:\s*"Tin nhắn"/);
+  assert.match(source, /page:\s*"messages"/);
+  assert.match(source, /<LogOut className=/);
+  assert.doesNotMatch(source, /<Settings className=\{`h-4 w-4 `\} \/>/);
+});
+
+test("me messages are rendered inside the account page without a new route", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /activePage == "messages"/);
+  assert.match(source, /fetch\("\/api\/conversations"/);
+  assert.match(
+    source,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}\/messages`/,
+  );
+  assert.match(
+    source,
+    /fetch\(`\/api\/conversations\/\$\{selectedConversation\.id\}\/messages`/,
+  );
+  assert.match(source, /chat:join-conversation/);
+  assert.match(source, /Chat với chủ sân/);
+  assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
+});

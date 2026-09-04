@@ -1,15 +1,24 @@
 "use client";
 import {
-  CreditCard,
   FileText,
-  Receipt,
-  Wallet,
-  Settings,
   LogOut,
-  ChevronDown,
+  MessageSquare,
+  Receipt,
+  Send,
+  Settings,
+  Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import type { FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
+import envConfig from "@/config";
+import type { ChatMessage, Conversation, SenderRole } from "@/types/conversation";
+
+type TypingPayload = {
+  conversationId: number;
+  senderRole: SenderRole;
+};
 
 type AuthUser = {
   id: number;
@@ -19,6 +28,17 @@ type AuthUser = {
   isAdmin: boolean;
 };
 
+function formatTime(value: string | null) {
+  if (!value) return "";
+
+  return new Date(value).toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+  });
+}
+
 export default function MePage({
   initialUser,
 }: {
@@ -26,6 +46,22 @@ export default function MePage({
 }) {
   const [activePage, setActivePage] = useState("account");
   const [activeTab, setActiveTab] = useState("info");
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messagesByConversationId, setMessagesByConversationId] = useState<
+    Record<number, ChatMessage[]>
+  >({});
+  const [messageInput, setMessageInput] = useState("");
+  const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [messageError, setMessageError] = useState("");
+  const [typingSenderRole, setTypingSenderRole] = useState<SenderRole | null>(null);
+  const messageBottomRef = useRef<HTMLDivElement | null>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
   async function handleLogout() {
@@ -53,8 +89,283 @@ export default function MePage({
     { icon: FileText, label: "Đặt chỗ của tôi", page: "bookings" },
     { icon: Receipt, label: "Danh sách giao dịch", page: "transactions" },
     { icon: Wallet, label: "Thanh toán & Hoàn tiền", page: "refunds" },
+    { icon: MessageSquare, label: "Tin nhắn", page: "messages" },
     { icon: Settings, label: "Tài khoản", page: "account" },
   ];
+
+  function mergeConversation(conversation: Conversation) {
+    setConversations((prev) => {
+      const currentIndex = prev.findIndex((item) => item.id === conversation.id);
+      const next = prev.filter((item) => item.id !== conversation.id);
+      const currentConversation =
+        currentIndex >= 0 ? prev[currentIndex] : undefined;
+      const mergedConversation = currentConversation
+        ? { ...currentConversation, ...conversation }
+        : conversation;
+
+      return [mergedConversation, ...next];
+    });
+    setSelectedConversation((current) =>
+      current?.id === conversation.id ? { ...current, ...conversation } : current,
+    );
+  }
+
+  function appendMessage(message: ChatMessage) {
+    setMessagesByConversationId((prev) => {
+      const currentMessages = prev[message.conversation_id] ?? [];
+
+      if (currentMessages.some((item) => item.id === message.id)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [message.conversation_id]: [...currentMessages, message],
+      };
+    });
+  }
+
+  function stopTyping() {
+    if (!selectedConversation?.id) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+
+    socketRef.current?.emit("chat:stop-typing", selectedConversation.id);
+  }
+
+  function handleMessageInputChange(value: string) {
+    setMessageInput(value);
+
+    if (!selectedConversation?.id) return;
+
+    socketRef.current?.emit("chat:typing", selectedConversation.id);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current?.emit("chat:stop-typing", selectedConversation.id);
+      typingTimeoutRef.current = null;
+    }, 1200);
+  }
+
+  async function openConversation(conversation: Conversation) {
+    setSelectedConversation(conversation);
+    setMessageError("");
+    setTypingSenderRole(null);
+
+    const cachedMessages = messagesByConversationId[conversation.id];
+
+    if (cachedMessages) {
+      setMessages(cachedMessages);
+      setIsLoadingMessages(false);
+      return;
+    }
+
+    setIsLoadingMessages(true);
+
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Không tải được nội dung chat");
+      }
+
+      setMessages(data.result ?? []);
+      setMessagesByConversationId((prev) => ({
+        ...prev,
+        [conversation.id]: data.result ?? [],
+      }));
+      await fetch(`/api/conversations/${conversation.id}/read`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+    } catch (err) {
+      setMessageError(err instanceof Error ? err.message : "Thao tác thất bại");
+      setMessages([]);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }
+
+  async function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedConversation || !messageInput.trim()) return;
+
+    const content = messageInput.trim();
+    setIsSendingMessage(true);
+    setMessageError("");
+    stopTyping();
+
+    try {
+      const res = await fetch(`/api/conversations/${selectedConversation.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Không gửi được tin nhắn");
+      }
+
+      setMessages((prev) =>
+        prev.some((message) => message.id === data.result.id)
+          ? prev
+          : [...prev, data.result],
+      );
+      appendMessage(data.result);
+      mergeConversation({
+        ...selectedConversation,
+        last_message: data.result.content,
+        last_message_at: data.result.created_at,
+      });
+      setMessageInput("");
+    } catch (err) {
+      setMessageError(err instanceof Error ? err.message : "Thao tác thất bại");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activePage !== "messages") return;
+
+    let ignore = false;
+
+    async function loadConversations() {
+      setIsLoadingConversations(true);
+      setMessageError("");
+
+      try {
+        const res = await fetch("/api/conversations", {
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.message || "Không tải được tin nhắn");
+        }
+
+        if (!ignore) {
+          setConversations(data.result ?? []);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setMessageError(
+            err instanceof Error ? err.message : "Thao tác thất bại",
+          );
+          setConversations([]);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoadingConversations(false);
+        }
+      }
+    }
+
+    loadConversations();
+
+    return () => {
+      ignore = true;
+    };
+  }, [activePage]);
+
+  useEffect(() => {
+    if (!selectedConversation?.id) return;
+
+    const conversationId = selectedConversation.id;
+    let ignore = false;
+    let socket: ReturnType<typeof io> | null = null;
+
+    async function connectSocket() {
+      try {
+        const res = await fetch("/api/conversations/socket-token", {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.message || "Không kết nối được chat realtime");
+        }
+
+        if (ignore) return;
+
+        socket = io(envConfig.NEXT_PUBLIC_SOCKET_URL, {
+          auth: { token: data.result.token },
+          withCredentials: true,
+        });
+        socketRef.current = socket;
+
+        socket.on("connect", () => {
+          socket?.emit("chat:join-conversation", conversationId);
+        });
+
+        socket.on("chat:conversation-updated", (conversation: Conversation) => {
+          mergeConversation(conversation);
+        });
+
+        socket.on("chat:message-created", (message: ChatMessage) => {
+          appendMessage(message);
+
+          if (message.conversation_id !== conversationId) return;
+
+          setMessages((prev) =>
+            prev.some((item) => item.id === message.id) ? prev : [...prev, message],
+          );
+        });
+
+        socket.on("chat:typing", (payload: TypingPayload) => {
+          if (
+            payload.conversationId === conversationId &&
+            payload.senderRole === "admin"
+          ) {
+            setTypingSenderRole(payload.senderRole);
+          }
+        });
+
+        socket.on("chat:stop-typing", (payload: TypingPayload) => {
+          if (
+            payload.conversationId === conversationId &&
+            payload.senderRole === "admin"
+          ) {
+            setTypingSenderRole(null);
+          }
+        });
+      } catch (err) {
+        if (!ignore) {
+          setMessageError(err instanceof Error ? err.message : "Thao tác thất bại");
+        }
+      }
+    }
+
+    connectSocket();
+
+    return () => {
+      ignore = true;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      socket?.emit("chat:leave-conversation", conversationId);
+      socket?.disconnect();
+      socketRef.current = null;
+      setTypingSenderRole(null);
+    };
+  }, [selectedConversation?.id]);
+
+  useEffect(() => {
+    messageBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typingSenderRole]);
 
   return (
     <div className="min-h-screen bg-slate-100 p-6">
@@ -97,13 +408,10 @@ export default function MePage({
               );
             })}
             <button
-              className={`flex w-full items-center gap-3 px-5 py-3 text-sm transition-colors 
-               
-               text-slate-700 hover:bg-slate-50 
-              `}
+              className="flex w-full items-center gap-3 px-5 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50"
               onClick={handleLogout}
             >
-              <Settings className={`h-4 w-4 `} />
+              <LogOut className="h-4 w-4" />
               Đăng xuất
             </button>
           </nav>
@@ -262,6 +570,196 @@ export default function MePage({
                 )}
               </div>
             </>
+          )}
+          {activePage == "messages" && (
+            <section className="h-[calc(100vh-9rem)] min-h-[560px] overflow-hidden bg-white shadow-sm">
+              <div className="grid h-full min-h-0 md:grid-cols-[280px_1fr]">
+                <aside className="min-h-0 border-r border-slate-100">
+                  <div className="flex h-14 items-center border-b border-slate-100 px-4">
+                    <h1 className="text-base font-semibold text-slate-950">
+                      Tin nhắn
+                    </h1>
+                  </div>
+
+                  <div className="h-[calc(100%-56px)] overflow-y-auto">
+                    {isLoadingConversations ? (
+                      <p className="p-4 text-sm text-slate-500">
+                        Đang tải hội thoại...
+                      </p>
+                    ) : conversations.length === 0 ? (
+                      <p className="p-4 text-sm text-slate-500">
+                        Chưa có tin nhắn.
+                      </p>
+                    ) : (
+                      conversations.map((conversation) => {
+                        const isActive =
+                          selectedConversation?.id === conversation.id;
+
+                        return (
+                          <button
+                            key={conversation.id}
+                            type="button"
+                            onClick={() => openConversation(conversation)}
+                            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                              isActive
+                                ? "bg-[#001A2D] text-white"
+                                : "text-slate-700 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                                isActive
+                                  ? "bg-white/15 text-white"
+                                  : "bg-slate-100 text-slate-700"
+                              }`}
+                            >
+                              {(conversation.stadium_name || "Sân")
+                                .trim()
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="truncate text-sm font-semibold">
+                                  {conversation.stadium_name || "Chat với chủ sân"}
+                                </p>
+                                <span
+                                  className={`shrink-0 text-[11px] ${
+                                    isActive ? "text-white/65" : "text-slate-400"
+                                  }`}
+                                >
+                                  {formatTime(conversation.last_message_at)}
+                                </span>
+                              </div>
+                              <p
+                                className={`mt-1 truncate text-xs ${
+                                  isActive ? "text-white/70" : "text-slate-500"
+                                }`}
+                              >
+                                {conversation.last_message || "Chưa có tin nhắn"}
+                              </p>
+                              {conversation.user_unread_count > 0 && (
+                                <span className="mt-2 inline-flex rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+                                  {conversation.user_unread_count}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </aside>
+
+                <div className="flex min-h-0 flex-col bg-slate-50">
+                  <header className="flex h-14 items-center border-b border-slate-100 bg-white px-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">
+                        {selectedConversation?.stadium_name || "Chat với chủ sân"}
+                      </p>
+                      <p className="truncate text-xs text-slate-500">
+                        {selectedConversation
+                          ? "Nhắn tin với admin sân"
+                          : "Chọn một hội thoại để xem tin nhắn"}
+                      </p>
+                    </div>
+                  </header>
+
+                  {messageError && (
+                    <p className="border-b border-red-100 bg-red-50 px-4 py-2 text-sm text-red-700">
+                      {messageError}
+                    </p>
+                  )}
+
+                  <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+                    {isLoadingMessages ? (
+                      <div className="space-y-4 animate-pulse">
+                        <div className="h-10 w-48 rounded-2xl bg-white" />
+                        <div className="ml-auto h-10 w-36 rounded-2xl bg-slate-200" />
+                        <div className="h-16 w-56 rounded-2xl bg-white" />
+                      </div>
+                    ) : selectedConversation && messages.length === 0 ? (
+                      <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                        Hội thoại này chưa có tin nhắn.
+                      </p>
+                    ) : !selectedConversation ? (
+                      <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                        Chọn một hội thoại ở danh sách bên trái.
+                      </p>
+                    ) : (
+                      messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.sender_role === "user"
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`flex max-w-[78%] flex-col ${
+                              message.sender_role === "user"
+                                ? "items-end"
+                                : "items-start"
+                            }`}
+                          >
+                            <div
+                              className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
+                                message.sender_role === "user"
+                                  ? "bg-[#001A2D] text-white"
+                                  : "bg-white text-slate-800 shadow-sm"
+                              }`}
+                            >
+                              {message.content}
+                            </div>
+                            <span className="mt-1 px-1 text-[11px] text-slate-400">
+                              {formatTime(message.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    {typingSenderRole === "admin" && (
+                      <div className="flex justify-start">
+                        <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
+                        </div>
+                      </div>
+                    )}
+                    <div ref={messageBottomRef} />
+                  </div>
+
+                  <form
+                    onSubmit={handleMessageSubmit}
+                    className="flex gap-3 border-t border-slate-100 bg-white p-4"
+                  >
+                    <input
+                      value={messageInput}
+                      onChange={(event) =>
+                        handleMessageInputChange(event.target.value)
+                      }
+                      className="min-w-0 flex-1 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#001A2D]"
+                      placeholder="Nhập tin nhắn..."
+                      disabled={!selectedConversation || isSendingMessage}
+                    />
+                    <button
+                      type="submit"
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#001A2D] text-white transition-opacity disabled:opacity-50"
+                      disabled={
+                        !selectedConversation ||
+                        isSendingMessage ||
+                        !messageInput.trim()
+                      }
+                      aria-label="Gửi tin nhắn"
+                    >
+                      <Send size={18} />
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </section>
           )}
         </main>
       </div>

@@ -221,8 +221,11 @@ test("admin messages page provides inbox route and sidebar entry", () => {
 test("admin messages surface stadium context and user detail dialog", () => {
   const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
 
-  assert.match(messages, /Thông tin sân/);
-  assert.match(messages, /href=\{`\/admin\/stadiums\/detail\/\$\{selectedConversation\.stadium_id\}`\}/);
+  assert.match(messages, /User đang hỏi về sân này/);
+  assert.match(messages, /selectedConversation\.stadium_slug/);
+  assert.match(messages, /href=\{`\/stadiums\/detail\/\$\{selectedConversation\.stadium_slug\}`\}/);
+  assert.doesNotMatch(messages, /href=\{`\/admin\/stadiums\/detail\/\$\{selectedConversation\.stadium_id\}`\}/);
+  assert.doesNotMatch(messages, /Thông tin sân/);
   assert.match(messages, /Dialog/);
   assert.match(messages, /DialogTitle>Thông tin người dùng/);
   assert.match(messages, /setIsUserDialogOpen\(true\)/);
@@ -323,4 +326,17 @@ test("admin messages cache loaded threads by conversation id", () => {
     messages,
     /setMessagesByConversationId\(\(prev\) => \(\{\s*\.\.\.prev,\s*\[conversation\.id\]: data\.result \?\? \[\],\s*\}\)\)/s,
   );
+});
+
+test("admin messages keep conversation order when a thread is read", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /function\s+mergeConversation\(/);
+  assert.match(messages, /options:\s*\{\s*promote\?: boolean\s*\}\s*=\s*\{\}/);
+  assert.match(messages, /options\.promote === true/);
+  assert.match(
+    messages,
+    /mergeConversation\(readData\.result,\s*\{\s*promote:\s*false\s*\}\)/,
+  );
+  assert.doesNotMatch(messages, /function\s+upsertConversation/);
 });

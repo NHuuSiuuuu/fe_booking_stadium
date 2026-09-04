@@ -78,10 +78,32 @@ export default function Messages() {
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function upsertConversation(conversation: Conversation) {
+  function mergeConversation(
+    conversation: Conversation,
+    options: { promote?: boolean } = {},
+  ) {
     setConversations((prev) => {
-      const next = prev.filter((item) => item.id !== conversation.id);
-      return [conversation, ...next];
+      const currentIndex = prev.findIndex((item) => item.id === conversation.id);
+      const currentConversation =
+        currentIndex >= 0 ? prev[currentIndex] : undefined;
+      const mergedConversation = currentConversation
+        ? { ...currentConversation, ...conversation }
+        : conversation;
+      const hasNewLastMessage =
+        currentConversation?.last_message !== conversation.last_message ||
+        currentConversation?.last_message_at !== conversation.last_message_at;
+      const shouldPromote =
+        currentIndex === -1 ||
+        (options.promote === true && hasNewLastMessage);
+
+      if (shouldPromote) {
+        const next = prev.filter((item) => item.id !== conversation.id);
+        return [mergedConversation, ...next];
+      }
+
+      return prev.map((item) =>
+        item.id === conversation.id ? mergedConversation : item,
+      );
     });
     setSelectedConversation((current) =>
       current?.id === conversation.id ? { ...current, ...conversation } : current,
@@ -171,7 +193,7 @@ export default function Messages() {
         });
 
         socket.on("chat:conversation-updated", (conversation: Conversation) => {
-          upsertConversation(conversation);
+          mergeConversation(conversation, { promote: true });
         });
 
         socket.on("chat:message-created", (message: ChatMessage) => {
@@ -259,7 +281,7 @@ export default function Messages() {
       const readData = await readRes.json();
 
       if (readRes.ok && readData.result) {
-        upsertConversation(readData.result);
+        mergeConversation(readData.result, { promote: false });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không cập nhật trạng thái đọc");
@@ -459,10 +481,7 @@ export default function Messages() {
           <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
             {selectedConversation?.stadium_id && (
               <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                <p className="text-xs font-semibold uppercase text-slate-400">
-                  Thông tin sân
-                </p>
-                <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-950">
                       {selectedConversation.stadium_name || "Sân bóng"}
@@ -471,12 +490,14 @@ export default function Messages() {
                       User đang hỏi về sân này
                     </p>
                   </div>
-                  <Link
-                    href={`/admin/stadiums/detail/${selectedConversation.stadium_id}`}
-                    className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
-                  >
-                    Xem sân
-                  </Link>
+                  {selectedConversation.stadium_slug && (
+                    <Link
+                      href={`/stadiums/detail/${selectedConversation.stadium_slug}`}
+                      className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
+                    >
+                      Xem sân
+                    </Link>
+                  )}
                 </div>
               </div>
             )}

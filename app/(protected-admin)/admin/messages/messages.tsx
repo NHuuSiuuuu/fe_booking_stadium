@@ -1,11 +1,16 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Send } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
-import type { ChatMessage, Conversation } from "@/types/conversation";
+import type { ChatMessage, Conversation, SenderRole } from "@/types/conversation";
+
+type TypingPayload = {
+  conversationId: number;
+  senderRole: SenderRole;
+};
 
 function getConversationTitle(conversation: Conversation) {
   return (
@@ -38,6 +43,12 @@ export default function Messages() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [typingConversationId, setTypingConversationId] = useState<number | null>(
+    null,
+  );
+  const [typingSenderRole, setTypingSenderRole] = useState<SenderRole | null>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function upsertConversation(conversation: Conversation) {
     setConversations((prev) => {
@@ -110,6 +121,7 @@ export default function Messages() {
           auth: { token: data.result.token },
           withCredentials: true,
         });
+        socketRef.current = socket;
 
         socket.on("connect", () => {
           socket?.emit("chat:join-admin");
@@ -126,6 +138,24 @@ export default function Messages() {
             prev.some((item) => item.id === message.id) ? prev : [...prev, message],
           );
         });
+
+        socket.on("chat:typing", (payload: TypingPayload) => {
+          if (payload.senderRole !== "user") return;
+
+          setTypingConversationId(payload.conversationId);
+          setTypingSenderRole(payload.senderRole);
+        });
+
+        socket.on("chat:stop-typing", (payload: TypingPayload) => {
+          if (payload.senderRole !== "user") return;
+
+          setTypingConversationId((current) =>
+            current === payload.conversationId ? null : current,
+          );
+          setTypingSenderRole((current) =>
+            current === payload.senderRole ? null : current,
+          );
+        });
       } catch (err) {
         if (!ignore) {
           setError(err instanceof Error ? err.message : "Thao tác thất bại");
@@ -137,9 +167,43 @@ export default function Messages() {
 
     return () => {
       ignore = true;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
       socket?.disconnect();
+      socketRef.current = null;
+      setTypingConversationId(null);
+      setTypingSenderRole(null);
     };
   }, [selectedConversation?.id]);
+
+  function stopTyping() {
+    if (!selectedConversation?.id) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+
+    socketRef.current?.emit("chat:stop-typing", selectedConversation.id);
+  }
+
+  function handleInputChange(value: string) {
+    setInput(value);
+
+    if (!selectedConversation?.id) return;
+
+    socketRef.current?.emit("chat:typing", selectedConversation.id);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current?.emit("chat:stop-typing", selectedConversation.id);
+      typingTimeoutRef.current = null;
+    }, 1200);
+  }
 
   async function openConversation(conversation: Conversation) {
     setSelectedConversation(conversation);
@@ -187,6 +251,7 @@ export default function Messages() {
     const content = input.trim();
     setIsSending(true);
     setError("");
+    stopTyping();
 
     try {
       const res = await fetch(
@@ -331,22 +396,53 @@ export default function Messages() {
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`max-w-[78%] break-words rounded-2xl px-3 py-2 text-sm ${
+                  className={`flex ${
                     message.sender_role === "admin"
-                      ? "ml-auto bg-slate-900 text-white"
-                      : "mr-auto bg-white text-slate-800 shadow-sm"
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
-                  {message.content}
+                  <div
+                    className={`flex max-w-[78%] flex-col ${
+                      message.sender_role === "admin" ? "items-end" : "items-start"
+                    }`}
+                  >
+                    <div
+                      className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
+                        message.sender_role === "admin"
+                          ? "bg-slate-900 text-white"
+                          : "bg-white text-slate-800 shadow-sm"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+                    <span className="mt-1 px-1 text-[11px] text-slate-400">
+                      {formatTime(message.created_at)}
+                    </span>
+                  </div>
                 </div>
               ))
             )}
+            {selectedConversation &&
+              typingConversationId === selectedConversation.id &&
+              typingSenderRole === "user" && (
+                <div className="flex justify-start">
+                  <div className="flex max-w-[78%] flex-col items-start">
+                    <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                      <span>Đang nhập</span>
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
+                    </div>
+                  </div>
+                </div>
+              )}
           </div>
 
           <form onSubmit={handleSubmit} className="flex gap-2 border-t border-slate-200 p-3">
             <input
               value={input}
-              onChange={(event) => setInput(event.target.value)}
+              onChange={(event) => handleInputChange(event.target.value)}
               className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
               placeholder="Trả lời tin nhắn..."
               disabled={!selectedConversation || isSending}

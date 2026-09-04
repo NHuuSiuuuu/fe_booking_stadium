@@ -394,3 +394,18 @@ test("me messages are rendered inside the account page without a new route", () 
   assert.match(source, /Chat với chủ sân/);
   assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
 });
+
+test("admin messages can delete a conversation from the inbox", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /Trash2/);
+  assert.match(messages, /async function\s+deleteConversation/);
+  assert.match(
+    messages,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}`,\s*\{/,
+  );
+  assert.match(messages, /method:\s*"DELETE"/);
+  assert.match(messages, /window\.confirm/);
+  assert.match(messages, /chat:conversation-deleted/);
+  assert.match(messages, /aria-label=\{`Xóa hội thoại/);
+});

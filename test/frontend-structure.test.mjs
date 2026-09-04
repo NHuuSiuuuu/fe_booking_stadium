@@ -306,3 +306,21 @@ test("admin message loading uses skeleton animation instead of loading text", ()
   assert.match(messages, /animate-pulse/);
   assert.doesNotMatch(messages, /Đang tải tin nhắn/);
 });
+
+test("admin messages cache loaded threads by conversation id", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /messagesByConversationId/);
+  assert.match(messages, /setMessagesByConversationId/);
+  assert.match(
+    messages,
+    /const cachedMessages = messagesByConversationId\[conversation\.id\]/,
+  );
+  assert.match(messages, /if \(cachedMessages\)/);
+  assert.match(messages, /setMessages\(cachedMessages\)/);
+  assert.match(messages, /setIsLoadingMessages\(false\)/);
+  assert.match(
+    messages,
+    /setMessagesByConversationId\(\(prev\) => \(\{\s*\.\.\.prev,\s*\[conversation\.id\]: data\.result \?\? \[\],\s*\}\)\)/s,
+  );
+});

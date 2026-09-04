@@ -61,6 +61,9 @@ export default function Messages() {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messagesByConversationId, setMessagesByConversationId] = useState<
+    Record<number, ChatMessage[]>
+  >({});
   const [input, setInput] = useState("");
   const [isThreadOpen, setIsThreadOpen] = useState(false);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
@@ -83,6 +86,21 @@ export default function Messages() {
     setSelectedConversation((current) =>
       current?.id === conversation.id ? { ...current, ...conversation } : current,
     );
+  }
+
+  function appendMessageToThread(message: ChatMessage) {
+    setMessagesByConversationId((prev) => {
+      const currentMessages = prev[message.conversation_id] ?? [];
+
+      if (currentMessages.some((item) => item.id === message.id)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [message.conversation_id]: [...currentMessages, message],
+      };
+    });
   }
 
   useEffect(() => {
@@ -157,6 +175,8 @@ export default function Messages() {
         });
 
         socket.on("chat:message-created", (message: ChatMessage) => {
+          appendMessageToThread(message);
+
           if (selectedConversation?.id !== message.conversation_id) return;
 
           setMessages((prev) =>
@@ -230,11 +250,37 @@ export default function Messages() {
     }, 1200);
   }
 
+  async function markConversationRead(conversation: Conversation) {
+    try {
+      const readRes = await fetch(`/api/conversations/${conversation.id}/read`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const readData = await readRes.json();
+
+      if (readRes.ok && readData.result) {
+        upsertConversation(readData.result);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Không cập nhật trạng thái đọc");
+    }
+  }
+
   async function openConversation(conversation: Conversation) {
     setSelectedConversation(conversation);
     setIsThreadOpen(true);
-    setIsLoadingMessages(true);
     setError("");
+
+    const cachedMessages = messagesByConversationId[conversation.id];
+
+    if (cachedMessages) {
+      setMessages(cachedMessages);
+      setIsLoadingMessages(false);
+      markConversationRead(conversation);
+      return;
+    }
+
+    setIsLoadingMessages(true);
 
     try {
       const res = await fetch(
@@ -250,16 +296,11 @@ export default function Messages() {
       }
 
       setMessages(data.result ?? []);
-
-      const readRes = await fetch(`/api/conversations/${conversation.id}/read`, {
-        method: "PATCH",
-        credentials: "include",
-      });
-      const readData = await readRes.json();
-
-      if (readRes.ok && readData.result) {
-        upsertConversation(readData.result);
-      }
+      setMessagesByConversationId((prev) => ({
+        ...prev,
+        [conversation.id]: data.result ?? [],
+      }));
+      await markConversationRead(conversation);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Thao tác thất bại");
       setMessages([]);
@@ -299,6 +340,7 @@ export default function Messages() {
           ? prev
           : [...prev, data.result],
       );
+      appendMessageToThread(data.result);
       setConversations((prev) =>
         prev.map((conversation) =>
           conversation.id === selectedConversation.id

@@ -314,8 +314,7 @@ export default function UserAdminChat({ stadium }: Props) {
           {typingSenderRole === "admin" && (
             <div className="flex justify-start">
               <div className="flex max-w-[82%] flex-col items-start">
-                <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
-                  <span>Đang nhập</span>
+                <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />

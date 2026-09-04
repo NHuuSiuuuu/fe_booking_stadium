@@ -2,9 +2,17 @@
 
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, Send } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { ChatMessage, Conversation, SenderRole } from "@/types/conversation";
 
 type TypingPayload = {
@@ -32,6 +40,22 @@ function formatTime(value: string | null) {
   });
 }
 
+function MessageThreadSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="flex justify-start">
+        <div className="h-10 w-44 rounded-2xl bg-white shadow-sm" />
+      </div>
+      <div className="flex justify-end">
+        <div className="h-10 w-36 rounded-2xl bg-slate-200" />
+      </div>
+      <div className="flex justify-start">
+        <div className="h-16 w-56 rounded-2xl bg-white shadow-sm" />
+      </div>
+    </div>
+  );
+}
+
 export default function Messages() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
@@ -39,6 +63,7 @@ export default function Messages() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isThreadOpen, setIsThreadOpen] = useState(false);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -363,11 +388,19 @@ export default function Messages() {
               <ArrowLeft size={18} />
             </button>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-950">
-                {selectedConversation
-                  ? getConversationTitle(selectedConversation)
-                  : "Chọn cuộc trò chuyện"}
-              </p>
+              {selectedConversation ? (
+                <button
+                  type="button"
+                  onClick={() => setIsUserDialogOpen(true)}
+                  className="block max-w-full truncate text-left text-sm font-semibold text-slate-950 hover:text-blue-700"
+                >
+                  {getConversationTitle(selectedConversation)}
+                </button>
+              ) : (
+                <p className="truncate text-sm font-semibold text-slate-950">
+                  Chọn cuộc trò chuyện
+                </p>
+              )}
               <p className="truncate text-xs text-slate-500">
                 {selectedConversation?.stadium_name ||
                   "Chọn một hội thoại để bắt đầu trả lời"}
@@ -382,8 +415,31 @@ export default function Messages() {
           )}
 
           <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
+            {selectedConversation?.stadium_id && (
+              <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                <p className="text-xs font-semibold uppercase text-slate-400">
+                  Thông tin sân
+                </p>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-950">
+                      {selectedConversation.stadium_name || "Sân bóng"}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      User đang hỏi về sân này
+                    </p>
+                  </div>
+                  <Link
+                    href={`/admin/stadiums/detail/${selectedConversation.stadium_id}`}
+                    className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
+                  >
+                    Xem sân
+                  </Link>
+                </div>
+              </div>
+            )}
             {isLoadingMessages ? (
-              <p className="text-sm text-slate-500">Đang tải tin nhắn...</p>
+              <MessageThreadSkeleton />
             ) : selectedConversation && messages.length === 0 ? (
               <p className="rounded-lg bg-white p-3 text-sm text-slate-600 shadow-sm">
                 Hội thoại này chưa có tin nhắn.
@@ -428,8 +484,7 @@ export default function Messages() {
               typingSenderRole === "user" && (
                 <div className="flex justify-start">
                   <div className="flex max-w-[78%] flex-col items-start">
-                    <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
-                      <span>Đang nhập</span>
+                    <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
@@ -458,6 +513,47 @@ export default function Messages() {
           </form>
         </section>
       </div>
+      <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Thông tin người dùng</DialogTitle>
+            <DialogDescription>
+              Thông tin tài khoản đang nhắn trong hội thoại này.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedConversation && (
+            <div className="space-y-3 text-sm">
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs font-medium text-slate-500">Họ tên</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {selectedConversation.user_fullname || "Chưa cập nhật"}
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="text-xs font-medium text-slate-500">Email</p>
+                  <p className="mt-1 break-words font-semibold text-slate-950">
+                    {selectedConversation.user_email || "Chưa cập nhật"}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="text-xs font-medium text-slate-500">Số điện thoại</p>
+                  <p className="mt-1 font-semibold text-slate-950">
+                    {selectedConversation.user_phone || "Chưa cập nhật"}
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <p className="text-xs font-medium text-slate-500">Sân đang hỏi</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {selectedConversation.stadium_name || "Không có thông tin sân"}
+                </p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

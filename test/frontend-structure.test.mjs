@@ -218,6 +218,31 @@ test("admin messages page provides inbox route and sidebar entry", () => {
   assert.match(messages, /md:grid-cols-\[320px_1fr\]/);
 });
 
+test("admin messages surface stadium context and user detail dialog", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /Thông tin sân/);
+  assert.match(messages, /href=\{`\/admin\/stadiums\/detail\/\$\{selectedConversation\.stadium_id\}`\}/);
+  assert.match(messages, /Dialog/);
+  assert.match(messages, /DialogTitle>Thông tin người dùng/);
+  assert.match(messages, /setIsUserDialogOpen\(true\)/);
+  assert.match(messages, /selectedConversation\.user_email/);
+  assert.match(messages, /selectedConversation\.user_phone/);
+});
+
+test("admin header shows realtime message notifications", () => {
+  const header = readProjectFile("components/admin/layouts/header.tsx");
+
+  assert.match(header, /fetch\("\/api\/conversations"/);
+  assert.match(header, /admin_unread_count/);
+  assert.match(header, /reduce/);
+  assert.match(header, /chat:conversation-updated/);
+  assert.match(header, /chat:message-created/);
+  assert.match(header, /\/admin\/messages/);
+  assert.match(header, /Tin nhắn mới/);
+  assert.doesNotMatch(header, />\s*2\s*<\/span>/);
+});
+
 test("human chat frontend uses dedicated socket events", () => {
   const userChat = readProjectFile("components/client/chat/user-admin-chat.tsx");
   const adminMessages = readProjectFile(
@@ -270,6 +295,14 @@ test("human chat frontend emits and displays typing indicators", () => {
     assert.match(source, /chat:stop-typing/);
     assert.match(source, /typingTimeoutRef/);
     assert.match(source, /animate-bounce/);
-    assert.match(source, /Đang nhập/);
+    assert.doesNotMatch(source, /Đang nhập/);
   }
+});
+
+test("admin message loading uses skeleton animation instead of loading text", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /MessageThreadSkeleton/);
+  assert.match(messages, /animate-pulse/);
+  assert.doesNotMatch(messages, /Đang tải tin nhắn/);
 });

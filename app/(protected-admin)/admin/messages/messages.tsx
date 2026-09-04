@@ -1,9 +1,9 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type { FormEvent, UIEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowDown, ArrowLeft, Send } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
 import {
@@ -75,12 +75,16 @@ export default function Messages() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [typingConversationId, setTypingConversationId] = useState<number | null>(
     null,
   );
   const [typingSenderRole, setTypingSenderRole] = useState<SenderRole | null>(null);
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messagesScrollRef = useRef<HTMLDivElement | null>(null);
+  const messagesBottomRef = useRef<HTMLDivElement | null>(null);
+  const shouldStickToBottomRef = useRef(true);
 
   function mergeConversation(
     conversation: Conversation,
@@ -127,6 +131,34 @@ export default function Messages() {
         [message.conversation_id]: [...currentMessages, message],
       };
     });
+  }
+
+  function isNearThreadBottom() {
+    const scrollElement = messagesScrollRef.current;
+
+    if (!scrollElement) return true;
+
+    return (
+      scrollElement.scrollHeight -
+        scrollElement.scrollTop -
+        scrollElement.clientHeight <
+      96
+    );
+  }
+
+  function scrollToLatestMessage(behavior: ScrollBehavior = "smooth") {
+    messagesBottomRef.current?.scrollIntoView({ block: "end", behavior });
+    shouldStickToBottomRef.current = true;
+    setShowScrollToBottom(false);
+  }
+
+  function handleMessagesScroll(event: UIEvent<HTMLDivElement>) {
+    const target = event.currentTarget;
+    const isNearBottom =
+      target.scrollHeight - target.scrollTop - target.clientHeight < 96;
+
+    shouldStickToBottomRef.current = isNearBottom;
+    setShowScrollToBottom(!isNearBottom);
   }
 
   useEffect(() => {
@@ -205,6 +237,7 @@ export default function Messages() {
 
           if (selectedConversation?.id !== message.conversation_id) return;
 
+          shouldStickToBottomRef.current = isNearThreadBottom();
           setMessages((prev) =>
             prev.some((item) => item.id === message.id) ? prev : [...prev, message],
           );
@@ -247,6 +280,18 @@ export default function Messages() {
       setTypingSenderRole(null);
     };
   }, [selectedConversation?.id]);
+
+  useEffect(() => {
+    if (!selectedConversation || isLoadingMessages) return;
+    if (!shouldStickToBottomRef.current) return;
+
+    requestAnimationFrame(() => scrollToLatestMessage("auto"));
+  }, [
+    isLoadingMessages,
+    messages.length,
+    selectedConversation,
+    typingConversationId,
+  ]);
 
   function stopTyping() {
     if (!selectedConversation?.id) return;
@@ -296,6 +341,8 @@ export default function Messages() {
     setSelectedConversation(conversation);
     setIsThreadOpen(true);
     setError("");
+    setShowScrollToBottom(false);
+    shouldStickToBottomRef.current = true;
 
     const cachedMessages = messagesByConversationId[conversation.id];
 
@@ -344,6 +391,7 @@ export default function Messages() {
     setIsSending(true);
     setError("");
     stopTyping();
+    shouldStickToBottomRef.current = true;
 
     try {
       const res = await fetch(
@@ -448,7 +496,7 @@ export default function Messages() {
         </aside>
 
         <section
-          className={`${isThreadOpen ? "flex" : "hidden md:flex"} min-w-0 flex-col bg-slate-100`}
+          className={`${isThreadOpen ? "flex" : "hidden md:flex"} min-h-0 min-w-0 flex-col bg-slate-100`}
         >
           <header className="flex h-14 items-center gap-3 bg-slate-950 px-4 text-white shadow-sm">
             <button
@@ -491,83 +539,102 @@ export default function Messages() {
             </p>
           )}
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-slate-100 p-4 md:p-6">
-            {selectedConversation?.stadium_id && (
-              <div className="max-w-md rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-950">
-                      {selectedConversation.stadium_name || "Sân bóng"}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      User đang hỏi về sân này
-                    </p>
-                  </div>
-                  {selectedConversation.stadium_slug && (
-                    <Link
-                      href={`/stadiums/detail/${selectedConversation.stadium_slug}`}
-                      className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
-                    >
-                      Xem sân
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
-            {isLoadingMessages ? (
-              <MessageThreadSkeleton />
-            ) : selectedConversation && messages.length === 0 ? (
-              <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
-                Hội thoại này chưa có tin nhắn.
-              </p>
-            ) : !selectedConversation ? (
-              <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
-                Chọn một hội thoại ở danh sách bên trái.
-              </p>
-            ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.sender_role === "admin"
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`flex max-w-[78%] flex-col ${
-                      message.sender_role === "admin" ? "items-end" : "items-start"
-                    }`}
-                  >
-                    <div
-                      className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
-                        message.sender_role === "admin"
-                          ? "bg-blue-600 text-white"
-                          : "bg-white text-slate-800 shadow-sm"
-                      }`}
-                    >
-                      {message.content}
+          <div className="relative min-h-0 flex-1">
+            <div
+              ref={messagesScrollRef}
+              onScroll={handleMessagesScroll}
+              className="min-h-0 flex-1 overflow-y-auto h-full space-y-3 bg-slate-100 p-4 md:p-6"
+            >
+              {selectedConversation?.stadium_id && (
+                <div className="max-w-md rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">
+                        {selectedConversation.stadium_name || "Sân bóng"}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        User đang hỏi về sân này
+                      </p>
                     </div>
-                    <span className="mt-1 px-1 text-[11px] text-slate-400">
-                      {formatTime(message.created_at)}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-            {selectedConversation &&
-              typingConversationId === selectedConversation.id &&
-              typingSenderRole === "user" && (
-                <div className="flex justify-start">
-                  <div className="flex max-w-[78%] flex-col items-start">
-                    <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
-                    </div>
+                    {selectedConversation.stadium_slug && (
+                      <Link
+                        href={`/stadiums/detail/${selectedConversation.stadium_slug}`}
+                        className="shrink-0 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100"
+                      >
+                        Xem sân
+                      </Link>
+                    )}
                   </div>
                 </div>
               )}
+              {isLoadingMessages ? (
+                <MessageThreadSkeleton />
+              ) : selectedConversation && messages.length === 0 ? (
+                <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                  Hội thoại này chưa có tin nhắn.
+                </p>
+              ) : !selectedConversation ? (
+                <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
+                  Chọn một hội thoại ở danh sách bên trái.
+                </p>
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.sender_role === "admin"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`flex max-w-[78%] flex-col ${
+                        message.sender_role === "admin"
+                          ? "items-end"
+                          : "items-start"
+                      }`}
+                    >
+                      <div
+                        className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
+                          message.sender_role === "admin"
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-slate-800 shadow-sm"
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                      <span className="mt-1 px-1 text-[11px] text-slate-400">
+                        {formatTime(message.created_at)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+              {selectedConversation &&
+                typingConversationId === selectedConversation.id &&
+                typingSenderRole === "user" && (
+                  <div className="flex justify-start">
+                    <div className="flex max-w-[78%] flex-col items-start">
+                      <div className="flex w-fit items-center gap-1 rounded-2xl bg-white px-3 py-2 shadow-sm">
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:120ms]" />
+                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:240ms]" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              <div ref={messagesBottomRef} />
+            </div>
+            {showScrollToBottom && (
+              <button
+                type="button"
+                onClick={() => scrollToLatestMessage()}
+                className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-white shadow-lg transition-colors hover:bg-slate-800"
+                aria-label="Cuộn xuống tin mới nhất"
+              >
+                <ArrowDown size={18} />
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="flex gap-3 bg-slate-100 p-4">

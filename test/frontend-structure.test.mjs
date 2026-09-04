@@ -352,3 +352,17 @@ test("admin messages use a messenger style layout with a dark chat header", () =
   assert.match(messages, /rounded-full border border-slate-200 bg-white/);
   assert.doesNotMatch(messages, /bg-blue-500/);
 });
+
+test("admin messages keep the thread scrollable and provide a scroll-to-bottom button", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /messagesScrollRef/);
+  assert.match(messages, /messagesBottomRef/);
+  assert.match(messages, /showScrollToBottom/);
+  assert.match(messages, /function\s+scrollToLatestMessage/);
+  assert.match(messages, /function\s+handleMessagesScroll/);
+  assert.match(messages, /onScroll=\{handleMessagesScroll\}/);
+  assert.match(messages, /min-h-0 flex-1 overflow-y-auto/);
+  assert.match(messages, /aria-label="Cuộn xuống tin mới nhất"/);
+  assert.match(messages, /ArrowDown/);
+});

@@ -3,7 +3,7 @@
 import type { FormEvent, UIEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowLeft, Send, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, LoaderCircle, Send, Trash2 } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
 import {
@@ -48,18 +48,10 @@ function formatTime(value: string | null) {
   });
 }
 
-function MessageThreadSkeleton() {
+function MessageThreadLoading() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="flex justify-start">
-        <div className="h-10 w-44 rounded-2xl bg-white shadow-sm" />
-      </div>
-      <div className="flex justify-end">
-        <div className="h-10 w-36 rounded-2xl bg-slate-200" />
-      </div>
-      <div className="flex justify-start">
-        <div className="h-16 w-56 rounded-2xl bg-white shadow-sm" />
-      </div>
+    <div className="flex min-h-40 items-center justify-center">
+      <LoaderCircle className="h-8 w-8 animate-spin text-slate-500" />
     </div>
   );
 }
@@ -634,7 +626,7 @@ export default function Messages() {
                 </div>
               )}
               {isLoadingMessages ? (
-                <MessageThreadSkeleton />
+                <MessageThreadLoading />
               ) : selectedConversation && messages.length === 0 ? (
                 <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
                   Hội thoại này chưa có tin nhắn.

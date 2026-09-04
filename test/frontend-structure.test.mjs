@@ -302,11 +302,13 @@ test("human chat frontend emits and displays typing indicators", () => {
   }
 });
 
-test("admin message loading uses skeleton animation instead of loading text", () => {
+test("admin message loading uses a circular spinner instead of skeleton or loading text", () => {
   const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
 
-  assert.match(messages, /MessageThreadSkeleton/);
-  assert.match(messages, /animate-pulse/);
+  assert.match(messages, /LoaderCircle/);
+  assert.match(messages, /MessageThreadLoading/);
+  assert.match(messages, /animate-spin/);
+  assert.doesNotMatch(messages, /MessageThreadSkeleton/);
   assert.doesNotMatch(messages, /Đang tải tin nhắn/);
 });
 

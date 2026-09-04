@@ -29,6 +29,10 @@ function getConversationTitle(conversation: Conversation) {
   );
 }
 
+function getConversationInitial(conversation: Conversation) {
+  return getConversationTitle(conversation).trim().charAt(0).toUpperCase();
+}
+
 function formatTime(value: string | null) {
   if (!value) return "";
 
@@ -383,19 +387,16 @@ export default function Messages() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-52px)] bg-slate-50 p-4 md:p-6">
-      <div className="grid h-[calc(100vh-100px)] overflow-hidden rounded-lg border border-slate-200 bg-white md:grid-cols-[320px_1fr]">
+    <main className="min-h-[calc(100vh-52px)] bg-slate-100">
+      <div className="grid h-[calc(100vh-52px)] overflow-hidden bg-white md:grid-cols-[320px_1fr]">
         <aside
-          className={`${isThreadOpen ? "hidden md:block" : "block"} min-w-0 border-r border-slate-200`}
+          className={`${isThreadOpen ? "hidden md:block" : "block"} min-w-0 border-r border-slate-200 bg-white`}
         >
-          <div className="border-b border-slate-200 p-4">
-            <h1 className="text-lg font-bold text-slate-950">Tin nhắn</h1>
-            <p className="text-xs text-slate-500">
-              Hội thoại giữa user và nhóm admin
-            </p>
+          <div className="flex h-14 items-center border-b border-slate-100 px-4">
+            <h1 className="text-base font-semibold text-slate-950">Messages</h1>
           </div>
 
-          <div className="h-[calc(100%-73px)] divide-y divide-slate-100 overflow-y-auto">
+          <div className="h-[calc(100%-56px)] overflow-y-auto">
             {isLoadingConversations ? (
               <p className="p-4 text-sm text-slate-500">Đang tải hội thoại...</p>
             ) : conversations.length === 0 ? (
@@ -406,33 +407,40 @@ export default function Messages() {
                   key={conversation.id}
                   type="button"
                   onClick={() => openConversation(conversation)}
-                  className={`block w-full p-4 text-left transition-colors hover:bg-slate-50 ${
+                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
                     selectedConversation?.id === conversation.id
                       ? "bg-slate-100"
                       : "bg-white"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">
-                        {getConversationTitle(conversation)}
-                      </p>
-                      <p className="truncate text-xs text-slate-500">
-                        {conversation.stadium_name || "Tất cả sân"}
-                      </p>
-                    </div>
-                    {conversation.admin_unread_count > 0 && (
-                      <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-                        {conversation.admin_unread_count}
-                      </span>
-                    )}
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
+                    {getConversationInitial(conversation)}
                   </div>
-                  <p className="mt-2 truncate text-sm text-slate-600">
-                    {conversation.last_message || "Chưa có tin nhắn"}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    {formatTime(conversation.last_message_at)}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {getConversationTitle(conversation)}
+                        </p>
+                        <p className="truncate text-xs text-slate-500">
+                          {conversation.last_message || "Chưa có tin nhắn"}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="text-[11px] text-slate-400">
+                          {formatTime(conversation.last_message_at)}
+                        </span>
+                        {conversation.admin_unread_count > 0 && (
+                          <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+                            {conversation.admin_unread_count}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {conversation.stadium_name || "Tất cả sân"}
+                    </p>
+                  </div>
                 </button>
               ))
             )}
@@ -440,32 +448,37 @@ export default function Messages() {
         </aside>
 
         <section
-          className={`${isThreadOpen ? "flex" : "hidden md:flex"} min-w-0 flex-col`}
+          className={`${isThreadOpen ? "flex" : "hidden md:flex"} min-w-0 flex-col bg-slate-100`}
         >
-          <header className="flex items-center gap-3 border-b border-slate-200 p-4">
+          <header className="flex h-14 items-center gap-3 bg-slate-950 px-4 text-white shadow-sm">
             <button
               type="button"
-              className="rounded-full p-1 text-slate-700 hover:bg-slate-100 md:hidden"
+              className="rounded-full p-1 text-white hover:bg-white/10 md:hidden"
               onClick={() => setIsThreadOpen(false)}
               aria-label="Quay lại"
             >
               <ArrowLeft size={18} />
             </button>
+            {selectedConversation && (
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-semibold text-white">
+                {getConversationInitial(selectedConversation)}
+              </div>
+            )}
             <div className="min-w-0">
               {selectedConversation ? (
                 <button
                   type="button"
                   onClick={() => setIsUserDialogOpen(true)}
-                  className="block max-w-full truncate text-left text-sm font-semibold text-slate-950 hover:text-blue-700"
+                  className="block max-w-full truncate text-left text-sm font-semibold text-white hover:text-slate-200"
                 >
                   {getConversationTitle(selectedConversation)}
                 </button>
               ) : (
-                <p className="truncate text-sm font-semibold text-slate-950">
+                <p className="truncate text-sm font-semibold text-white">
                   Chọn cuộc trò chuyện
                 </p>
               )}
-              <p className="truncate text-xs text-slate-500">
+              <p className="truncate text-xs text-slate-300">
                 {selectedConversation?.stadium_name ||
                   "Chọn một hội thoại để bắt đầu trả lời"}
               </p>
@@ -478,9 +491,9 @@ export default function Messages() {
             </p>
           )}
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
+          <div className="flex-1 space-y-3 overflow-y-auto bg-slate-100 p-4 md:p-6">
             {selectedConversation?.stadium_id && (
-              <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="max-w-md rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-950">
@@ -504,11 +517,11 @@ export default function Messages() {
             {isLoadingMessages ? (
               <MessageThreadSkeleton />
             ) : selectedConversation && messages.length === 0 ? (
-              <p className="rounded-lg bg-white p-3 text-sm text-slate-600 shadow-sm">
+              <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
                 Hội thoại này chưa có tin nhắn.
               </p>
             ) : !selectedConversation ? (
-              <p className="rounded-lg bg-white p-3 text-sm text-slate-600 shadow-sm">
+              <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
                 Chọn một hội thoại ở danh sách bên trái.
               </p>
             ) : (
@@ -529,7 +542,7 @@ export default function Messages() {
                     <div
                       className={`w-fit max-w-full break-words rounded-2xl px-3 py-2 text-sm ${
                         message.sender_role === "admin"
-                          ? "bg-slate-900 text-white"
+                          ? "bg-blue-600 text-white"
                           : "bg-white text-slate-800 shadow-sm"
                       }`}
                     >
@@ -557,21 +570,21 @@ export default function Messages() {
               )}
           </div>
 
-          <form onSubmit={handleSubmit} className="flex gap-2 border-t border-slate-200 p-3">
+          <form onSubmit={handleSubmit} className="flex gap-3 bg-slate-100 p-4">
             <input
               value={input}
               onChange={(event) => handleInputChange(event.target.value)}
-              className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900"
-              placeholder="Trả lời tin nhắn..."
+              className="min-w-0 flex-1 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none focus:border-slate-900"
+              placeholder="Chat message"
               disabled={!selectedConversation || isSending}
             />
             <button
               type="submit"
-              className="rounded-lg bg-slate-900 px-3 text-white transition-opacity disabled:opacity-50"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white shadow-sm transition-opacity disabled:opacity-50"
               disabled={!selectedConversation || isSending || !input.trim()}
               aria-label="Gửi tin nhắn"
             >
-              <Send size={16} />
+              <Send size={18} />
             </button>
           </form>
         </section>

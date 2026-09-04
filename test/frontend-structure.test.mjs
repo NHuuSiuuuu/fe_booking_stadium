@@ -340,3 +340,15 @@ test("admin messages keep conversation order when a thread is read", () => {
   );
   assert.doesNotMatch(messages, /function\s+upsertConversation/);
 });
+
+test("admin messages use a messenger style layout with a dark chat header", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /getConversationInitial/);
+  assert.match(messages, /rounded-full bg-slate-200/);
+  assert.match(messages, /bg-slate-100/);
+  assert.match(messages, /bg-slate-950 text-white/);
+  assert.match(messages, /bg-blue-600 text-white/);
+  assert.match(messages, /rounded-full border border-slate-200 bg-white/);
+  assert.doesNotMatch(messages, /bg-blue-500/);
+});

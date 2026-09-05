@@ -536,3 +536,25 @@ test("admin dashboard keeps rendering when optional advanced statistics are unav
     /fetchStatistics\("\/statistics\/status-summary"\)/,
   );
 });
+
+test("booking pages show refund status for cancelled paid online bookings", () => {
+  const bookedSource = readProjectFile("app/(client)/booked/booked.tsx");
+  const detailSource = readProjectFile("components/client/booking-detail/payment-summary.jsx");
+  const adminBookingsSource = readProjectFile("app/(protected-admin)/admin/bookings/bookings.tsx");
+
+  assert.match(bookedSource, /paymentStatusLabels/);
+  assert.match(bookedSource, /refund_pending:\s*"Chờ hoàn tiền"/);
+  assert.match(bookedSource, /refunded:\s*"Đã hoàn tiền"/);
+  assert.match(bookedSource, /booking\.payment_status/);
+
+  assert.match(detailSource, /refund_pending/);
+  assert.match(detailSource, /Chờ hoàn tiền/);
+  assert.match(detailSource, /refunded/);
+  assert.match(detailSource, /Đã hoàn tiền/);
+
+  assert.match(adminBookingsSource, /payment_status:\s*PaymentStatus/);
+  assert.match(adminBookingsSource, /order\.payment_status === "refund_pending"/);
+  assert.match(adminBookingsSource, /order\.payment_status === "refunded"/);
+  assert.doesNotMatch(adminBookingsSource, /order\.paymentStatus/);
+  assert.doesNotMatch(adminBookingsSource, /Đã hoàn tiền hoàn tiền/);
+});

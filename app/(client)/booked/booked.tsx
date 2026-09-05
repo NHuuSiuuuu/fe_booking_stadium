@@ -4,8 +4,6 @@ import {
   Calendar,
   Clock,
   CreditCard,
-  ChevronRight,
-  FileText,
   Hourglass,
   CheckCircle2,
   XCircle,
@@ -14,6 +12,12 @@ import {
 import Link from "next/link";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled";
+type PaymentStatus =
+  | "paid"
+  | "unpaid"
+  | "refund_pending"
+  | "refunded"
+  | "failed";
 
 const STATUS_MAP: Record<
   BookingStatus,
@@ -40,6 +44,22 @@ const STATUS_MAP: Record<
   },
 };
 
+const paymentStatusLabels: Record<PaymentStatus, string> = {
+  paid: "Đã thanh toán",
+  unpaid: "Chưa thanh toán",
+  refund_pending: "Chờ hoàn tiền",
+  refunded: "Đã hoàn tiền",
+  failed: "Thanh toán lỗi",
+};
+
+const paymentStatusClasses: Record<PaymentStatus, string> = {
+  paid: "bg-black text-white",
+  unpaid: "bg-gray-100 text-gray-700",
+  refund_pending: "bg-amber-100 text-amber-800",
+  refunded: "bg-emerald-100 text-emerald-800",
+  failed: "bg-red-100 text-red-700",
+};
+
 type ListBooked = {
   id: number;
   stadium_id: number;
@@ -53,7 +73,7 @@ type ListBooked = {
   total_price: number;
   status: BookingStatus;
   created_at: string;
-  payment_status: string;
+  payment_status: PaymentStatus;
   user_id: number;
   stadium_name: string;
   address: string;
@@ -102,6 +122,11 @@ export default function Booked({ data }: Props) {
         <div className="flex flex-col gap-4">
           {data?.map((booking) => {
             const status = STATUS_MAP[booking.status] ?? STATUS_MAP["pending"];
+            const paymentStatus =
+              paymentStatusLabels[booking.payment_status] ?? booking.payment_status;
+            const paymentStatusClass =
+              paymentStatusClasses[booking.payment_status] ??
+              "bg-gray-100 text-gray-700";
             return (
               <div
                 key={booking.id}
@@ -158,6 +183,11 @@ export default function Booked({ data }: Props) {
                         <CreditCard size={11} />
                         {booking.payment_method}
                       </div>
+                      <span
+                        className={`inline-flex w-fit px-2 py-1 text-[10px] font-medium uppercase tracking-widest ${paymentStatusClass}`}
+                      >
+                        {paymentStatus}
+                      </span>
                     </div>
 
                     {/* Price + action */}
@@ -176,9 +206,7 @@ export default function Booked({ data }: Props) {
                       <Link
                         href={`/booking/detail/${booking.id}`}
                         className="inline-flex items-center gap-1.5 px-4 py-2 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
-                      // className="text-red-500"
                       >
-                        
                         Chi tiết →
                       </Link>
                     </div>

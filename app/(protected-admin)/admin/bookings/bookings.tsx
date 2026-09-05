@@ -46,8 +46,8 @@ type Booking = {
   start_time: string;
   end_time: string;
   total_price: number;
-  payment_method: "cash" | "banking";
-  paymentStatus: PaymentStatus;
+  payment_method: "cash" | "online" | "banking";
+  payment_status: PaymentStatus;
   status: BookingStatus;
 };
 
@@ -104,7 +104,7 @@ export default function Bookings({ initialPriceConfig }: Props) {
       params.delete("page");
     }
     router.push(`${pathName}?${params.toString()}`);
-  }, [debounceValue, filterStatus, sort, page, pathName]);
+  }, [debounceValue, filterStatus, sort, page, pathName, router, searchParams]);
 
   const handleUpdateStatus = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -382,15 +382,14 @@ export default function Bookings({ initialPriceConfig }: Props) {
                         : "Chuyển khoản"}
                     </span>
                     <p className="mt-1 text-xs text-gray-500">
-                      {order.paymentStatus === "paid" && "Đã thanh toán"}
-                      {order.paymentStatus === "unpaid" && "Chưa thanh toán"}
-                      {order.paymentStatus === "refund_pending" &&
+                      {order.payment_status === "paid" && "Đã thanh toán"}
+                      {order.payment_status === "unpaid" && "Chưa thanh toán"}
+                      {order.payment_status === "refund_pending" &&
                         "Chờ hoàn tiền"}
-                      {order.paymentStatus === "refunded" &&
-                        "Đã hoàn tiền hoàn tiền"}
-                      {order.paymentStatus === "failed" && "Lỗi khi thanh toán"}
+                      {order.payment_status === "refunded" && "Đã hoàn tiền"}
+                      {order.payment_status === "failed" && "Lỗi khi thanh toán"}
                     </p>
-                    {order.paymentStatus === "refund_pending" && (
+                    {order.payment_status === "refund_pending" && (
                       <button
                         // onClick={() => handleRefundOrder(order._id)}
                         className="border"

@@ -1,6 +1,27 @@
 import { SquareCheckBig } from "lucide-react";
 
+const paymentStatusLabels = {
+  paid: "Đã thanh toán",
+  unpaid: "Chưa thanh toán",
+  refund_pending: "Chờ hoàn tiền",
+  refunded: "Đã hoàn tiền",
+  failed: "Thanh toán lỗi",
+};
+
+const paymentStatusClasses = {
+  paid: "bg-black text-white",
+  unpaid: "bg-gray-100 text-gray-700",
+  refund_pending: "bg-amber-100 text-amber-800",
+  refunded: "bg-emerald-100 text-emerald-800",
+  failed: "bg-red-100 text-red-700",
+};
+
 export default function PaymentSummary({ booking }) {
+  const paymentStatus = booking?.payment_status;
+  const paymentLabel = paymentStatusLabels[paymentStatus] || paymentStatus;
+  const paymentClass =
+    paymentStatusClasses[paymentStatus] || "bg-gray-100 text-gray-700";
+
   return (
     <div className="border border-gray-200">
       <div className="px-5 py-3 bg-black">
@@ -35,14 +56,9 @@ export default function PaymentSummary({ booking }) {
                 }).format(booking?.total_price)}
               </span>
               <span
-                className={`${
-                  booking?.payment_method === "online" &&
-                  booking?.payment_status === "paid"
-                    ? "block"
-                    : "hidden"
-                } text-[10px] font-medium uppercase  bg-black text-white px-2 py-1`}
+                className={`text-[10px] font-medium uppercase px-2 py-1 ${paymentClass}`}
               >
-                Đã thanh toán
+                {paymentLabel}
               </span>
             </div>
           </div>

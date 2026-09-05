@@ -502,3 +502,23 @@ test("admin messages can hide a conversation from the admin inbox", () => {
   assert.match(messages, /Ẩn hội thoại với/);
   assert.match(messages, /aria-label=\{`Ẩn hội thoại/);
 });
+
+test("admin dashboard fetches advanced statistics and exposes csv export", () => {
+  const pageSource = readProjectFile("app/(protected-admin)/admin/page.tsx");
+  const dashboardSource = readProjectFile("components/admin/statistical/statistical.tsx");
+
+  for (const endpoint of [
+    "/statistics/status-summary",
+    "/statistics/payment-summary",
+    "/statistics/bookings-export.csv",
+  ]) {
+    assert.match(pageSource, new RegExp(endpoint.replace(/\//g, "\\/")));
+  }
+
+  assert.match(dashboardSource, /StatusSummary/);
+  assert.match(dashboardSource, /PaymentSummary/);
+  assert.match(dashboardSource, /href=\{BookingsExportUrl\}/);
+  assert.match(dashboardSource, /Tải báo cáo CSV/);
+  assert.match(dashboardSource, /Trạng thái đơn đặt/);
+  assert.match(dashboardSource, /Phương thức thanh toán/);
+});

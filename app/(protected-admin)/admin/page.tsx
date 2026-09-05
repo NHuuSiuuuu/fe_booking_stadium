@@ -14,55 +14,45 @@ export default async function page() {
     .filter(Boolean)
     .join("; ");
 
-  const resStatisticsOverview = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/overview`,
-    {
+  const fetchStatistics = async (path: string) => {
+    const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}${path}`, {
       headers: {
         Cookie: cookieHeader,
       },
       cache: "no-store",
-    },
-  );
-  if (!resStatisticsOverview.ok) {
-    throw new Error("Lỗi");
-  }
+    });
 
-  const resBookingByMonth = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/bookings-by-month`,
-    {
-      headers: {
-        Cookie: cookieHeader,
-      },
-      cache: "no-store",
-    },
-  );
-  if (!resBookingByMonth.ok) {
-    throw new Error("Lỗi");
-  }
+    if (!res.ok) {
+      throw new Error("Không tải được dữ liệu thống kê");
+    }
 
-  const resTopStadiums = await fetch(
-    `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/statistics/top-stadiums`,
-    {
-      headers: {
-        Cookie: cookieHeader,
-      },
-      cache: "no-store",
-    },
-  );
-  if (!resTopStadiums.ok) {
-    throw new Error("Lỗi");
-  }
+    return res.json();
+  };
 
-  const StatisticsOverview = await resStatisticsOverview.json();
-  const BookingByMonth = await resBookingByMonth.json();
-  const TopStadiums = await resTopStadiums.json();
+  const [
+    StatisticsOverview,
+    BookingByMonth,
+    TopStadiums,
+    StatusSummary,
+    PaymentSummary,
+  ] = await Promise.all([
+    fetchStatistics("/statistics/overview"),
+    fetchStatistics("/statistics/bookings-by-month"),
+    fetchStatistics("/statistics/top-stadiums"),
+    fetchStatistics("/statistics/status-summary"),
+    fetchStatistics("/statistics/payment-summary"),
+  ]);
 
-  console.log("TopStadiums", TopStadiums);
+  const BookingsExportUrl = "/api/statistics/bookings-export.csv";
+
   return (
     <Statistical
       StatisticsOverview={StatisticsOverview}
       BookingByMonth={BookingByMonth}
       TopStadiums={TopStadiums}
+      StatusSummary={StatusSummary}
+      PaymentSummary={PaymentSummary}
+      BookingsExportUrl={BookingsExportUrl}
     />
   );
 }

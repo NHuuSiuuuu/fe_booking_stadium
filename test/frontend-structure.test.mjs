@@ -98,6 +98,14 @@ test("site typography uses the shared Open Sans font token", () => {
   assert.doesNotMatch(layoutSource, /--font-geist-sans/);
 });
 
+test("client layout waits for authenticated header state instead of flashing logged-out fallback", () => {
+  const source = readProjectFile("app/(client)/layout.tsx");
+
+  assert.match(source, /<HeaderServer \/>/);
+  assert.doesNotMatch(source, /fallback=\{<Header initialUser=\{null\} \/>/);
+  assert.doesNotMatch(source, /import \{ Suspense \} from "react"/);
+});
+
 test("admin user actions open dialogs instead of stadium routes", () => {
   const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
 

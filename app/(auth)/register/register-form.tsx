@@ -74,7 +74,7 @@ export default function RegisterForm() {
   const handleRegister = async (values: RegisterBodyType) => {
     setIsPending(true);
     try {
-      const result = await fetch(`api/user/create`, {
+      const result = await fetch(`/api/user/create`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: {

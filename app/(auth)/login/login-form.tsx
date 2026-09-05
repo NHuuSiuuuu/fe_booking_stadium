@@ -38,7 +38,7 @@ export default function LoginForm() {
   async function onSubmit(values: LoginBodyType) {
     try {
       setIsPending(true);
-      const result = await fetch(`api/login`, {
+      const result = await fetch(`/api/login`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: {

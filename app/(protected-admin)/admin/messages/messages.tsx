@@ -1,9 +1,9 @@
 "use client";
 
 import type { FormEvent, UIEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowLeft, Send } from "lucide-react";
+import { ArrowDown, ArrowLeft, LoaderCircle, Send, Trash2 } from "lucide-react";
 import { io } from "socket.io-client";
 import envConfig from "@/config";
 import {
@@ -18,6 +18,10 @@ import type { ChatMessage, Conversation, SenderRole } from "@/types/conversation
 type TypingPayload = {
   conversationId: number;
   senderRole: SenderRole;
+};
+
+type ConversationDeletedPayload = {
+  conversationId: number;
 };
 
 function getConversationTitle(conversation: Conversation) {
@@ -44,18 +48,10 @@ function formatTime(value: string | null) {
   });
 }
 
-function MessageThreadSkeleton() {
+function MessageThreadLoading() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="flex justify-start">
-        <div className="h-10 w-44 rounded-2xl bg-white shadow-sm" />
-      </div>
-      <div className="flex justify-end">
-        <div className="h-10 w-36 rounded-2xl bg-slate-200" />
-      </div>
-      <div className="flex justify-start">
-        <div className="h-16 w-56 rounded-2xl bg-white shadow-sm" />
-      </div>
+    <div className="flex min-h-40 items-center justify-center">
+      <LoaderCircle className="h-8 w-8 animate-spin text-slate-500" />
     </div>
   );
 }
@@ -132,6 +128,26 @@ export default function Messages() {
       };
     });
   }
+
+  const removeConversation = useCallback((conversationId: number) => {
+    setConversations((prev) =>
+      prev.filter((conversation) => conversation.id !== conversationId),
+    );
+    setMessagesByConversationId((prev) => {
+      const next = { ...prev };
+      delete next[conversationId];
+      return next;
+    });
+    setSelectedConversation((current) =>
+      current?.id === conversationId ? null : current,
+    );
+    setMessages((current) =>
+      selectedConversation?.id === conversationId ? [] : current,
+    );
+    setTypingConversationId((current) =>
+      current === conversationId ? null : current,
+    );
+  }, [selectedConversation?.id]);
 
   function isNearThreadBottom() {
     const scrollElement = messagesScrollRef.current;
@@ -260,6 +276,10 @@ export default function Messages() {
             current === payload.senderRole ? null : current,
           );
         });
+
+        socket.on("chat:conversation-deleted", (payload: ConversationDeletedPayload) => {
+          removeConversation(payload.conversationId);
+        });
       } catch (err) {
         if (!ignore) {
           setError(err instanceof Error ? err.message : "Thao tác thất bại");
@@ -279,7 +299,7 @@ export default function Messages() {
       setTypingConversationId(null);
       setTypingSenderRole(null);
     };
-  }, [selectedConversation?.id]);
+  }, [removeConversation, selectedConversation?.id]);
 
   useEffect(() => {
     if (!selectedConversation || isLoadingMessages) return;
@@ -382,6 +402,32 @@ export default function Messages() {
     }
   }
 
+  async function deleteConversation(conversation: Conversation) {
+    const confirmed = window.confirm(
+      `Ẩn hội thoại với ${getConversationTitle(conversation)} khỏi inbox admin?`,
+    );
+
+    if (!confirmed) return;
+
+    setError("");
+
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Không ẩn được hội thoại");
+      }
+
+      removeConversation(conversation.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Thao tác thất bại");
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -451,45 +497,57 @@ export default function Messages() {
               <p className="p-4 text-sm text-slate-500">Chưa có tin nhắn.</p>
             ) : (
               conversations.map((conversation) => (
-                <button
+                <div
                   key={conversation.id}
-                  type="button"
-                  onClick={() => openConversation(conversation)}
-                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
+                  className={`group flex w-full items-center gap-2 px-4 py-3 transition-colors hover:bg-slate-50 ${
                     selectedConversation?.id === conversation.id
                       ? "bg-slate-100"
                       : "bg-white"
                   }`}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
-                    {getConversationInitial(conversation)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-900">
-                          {getConversationTitle(conversation)}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">
-                          {conversation.last_message || "Chưa có tin nhắn"}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="text-[11px] text-slate-400">
-                          {formatTime(conversation.last_message_at)}
-                        </span>
-                        {conversation.admin_unread_count > 0 && (
-                          <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-                            {conversation.admin_unread_count}
-                          </span>
-                        )}
-                      </div>
+                  <button
+                    type="button"
+                    onClick={() => openConversation(conversation)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
+                      {getConversationInitial(conversation)}
                     </div>
-                    <p className="mt-1 truncate text-xs text-slate-400">
-                      {conversation.stadium_name || "Tất cả sân"}
-                    </p>
-                  </div>
-                </button>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-slate-900">
+                            {getConversationTitle(conversation)}
+                          </p>
+                          <p className="truncate text-xs text-slate-500">
+                            {conversation.last_message || "Chưa có tin nhắn"}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          <span className="text-[11px] text-slate-400">
+                            {formatTime(conversation.last_message_at)}
+                          </span>
+                          {conversation.admin_unread_count > 0 && (
+                            <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+                              {conversation.admin_unread_count}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="mt-1 truncate text-xs text-slate-400">
+                        {conversation.stadium_name || "Tất cả sân"}
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteConversation(conversation)}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                    aria-label={`Ẩn hội thoại ${getConversationTitle(conversation)}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               ))
             )}
           </div>
@@ -568,7 +626,7 @@ export default function Messages() {
                 </div>
               )}
               {isLoadingMessages ? (
-                <MessageThreadSkeleton />
+                <MessageThreadLoading />
               ) : selectedConversation && messages.length === 0 ? (
                 <p className="w-fit rounded-2xl bg-white px-3 py-2 text-sm text-slate-600 shadow-sm">
                   Hội thoại này chưa có tin nhắn.

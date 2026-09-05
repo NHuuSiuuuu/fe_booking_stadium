@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import Header from "@/components/client/layout/header/header";
 import Footer from "@/components/client/layout/footer";
 import { HeaderServer } from "@/components/client/layout/header/header-server";
 import Chat from "@/components/client/chat/chatbot";
@@ -11,9 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <>
-      <Suspense fallback={<Header initialUser={null} />}>
-        <HeaderServer />
-      </Suspense>
+      <HeaderServer />
       <Chat />
       {children}
 

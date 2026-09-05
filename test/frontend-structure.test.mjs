@@ -5,9 +5,25 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const sourceDirs = ["app", "components", "hooks", "lib"];
 
 function readProjectFile(filePath) {
   return fs.readFileSync(path.join(rootDir, filePath), "utf8");
+}
+
+function listSourceFiles(dir) {
+  const absoluteDir = path.join(rootDir, dir);
+  if (!fs.existsSync(absoluteDir)) return [];
+
+  return fs.readdirSync(absoluteDir, { withFileTypes: true }).flatMap((entry) => {
+    const relativePath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      return listSourceFiles(relativePath);
+    }
+
+    return /\.(tsx?|jsx?)$/.test(entry.name) ? [relativePath] : [];
+  });
 }
 
 test("env example documents every required public environment variable", () => {
@@ -96,6 +112,32 @@ test("site typography uses the shared Open Sans font token", () => {
   assert.match(globalSource, /font-size:\s*15px/);
   assert.match(globalSource, /line-height:\s*1\.6/);
   assert.doesNotMatch(layoutSource, /--font-geist-sans/);
+});
+
+test("client layout waits for authenticated header state instead of flashing logged-out fallback", () => {
+  const source = readProjectFile("app/(client)/layout.tsx");
+
+  assert.match(source, /<HeaderServer \/>/);
+  assert.doesNotMatch(source, /fallback=\{<Header initialUser=\{null\} \/>/);
+  assert.doesNotMatch(source, /import \{ Suspense \} from "react"/);
+});
+
+test("auth forms call root api routes from nested auth pages", () => {
+  const loginSource = readProjectFile("app/(auth)/login/login-form.tsx");
+  const registerSource = readProjectFile("app/(auth)/register/register-form.tsx");
+
+  assert.match(loginSource, /fetch\(`\/api\/login`/);
+  assert.doesNotMatch(loginSource, /fetch\(`api\/login`/);
+  assert.match(registerSource, /fetch\(`\/api\/user\/create`/);
+  assert.doesNotMatch(registerSource, /fetch\(`api\/user\/create`/);
+});
+
+test("client fetch calls use root api paths instead of page-relative api paths", () => {
+  const offenders = sourceDirs
+    .flatMap(listSourceFiles)
+    .filter((filePath) => /fetch\(\s*["'`]api\//.test(readProjectFile(filePath)));
+
+  assert.deepEqual(offenders, []);
 });
 
 test("admin user actions open dialogs instead of stadium routes", () => {
@@ -302,11 +344,13 @@ test("human chat frontend emits and displays typing indicators", () => {
   }
 });
 
-test("admin message loading uses skeleton animation instead of loading text", () => {
+test("admin message loading uses a circular spinner instead of skeleton or loading text", () => {
   const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
 
-  assert.match(messages, /MessageThreadSkeleton/);
-  assert.match(messages, /animate-pulse/);
+  assert.match(messages, /LoaderCircle/);
+  assert.match(messages, /MessageThreadLoading/);
+  assert.match(messages, /animate-spin/);
+  assert.doesNotMatch(messages, /MessageThreadSkeleton/);
   assert.doesNotMatch(messages, /Đang tải tin nhắn/);
 });
 
@@ -377,6 +421,18 @@ test("me sidebar contains messages and uses the logout icon for logout", () => {
   assert.doesNotMatch(source, /<Settings className=\{`h-4 w-4 `\} \/>/);
 });
 
+test("me page adapts account and message layout for mobile and tablet screens", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /p-4 sm:p-6/);
+  assert.match(source, /flex-col lg:flex-row/);
+  assert.match(source, /w-full lg:w-64/);
+  assert.match(source, /min-w-0 flex-1/);
+  assert.match(source, /grid-rows-\[minmax\(0,220px\)_minmax\(0,1fr\)\]/);
+  assert.match(source, /lg:grid-cols-\[280px_1fr\]/);
+  assert.match(source, /lg:grid-rows-1/);
+});
+
 test("me messages are rendered inside the account page without a new route", () => {
   const source = readProjectFile("app/(client)/me/me-setting.tsx");
 
@@ -393,4 +449,40 @@ test("me messages are rendered inside the account page without a new route", () 
   assert.match(source, /chat:join-conversation/);
   assert.match(source, /Chat với chủ sân/);
   assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
+});
+
+test("mobile header menu includes the account page link for signed-in users", () => {
+  const source = readProjectFile("components/client/layout/header/header.tsx");
+
+  assert.match(source, /href="\/me"/);
+  assert.match(source, /Tài khoản của tôi/);
+  assert.match(source, /onClick=\{\(\) => setIsMenuOpen\(false\)\}/);
+});
+
+test("me messages scroll inside the chat panel without moving the account page", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /messageScrollRef/);
+  assert.match(source, /ref=\{messageScrollRef\}/);
+  assert.match(source, /scrollElement\.scrollTop = scrollElement\.scrollHeight/);
+  assert.doesNotMatch(
+    source,
+    /messageBottomRef\.current\?\.scrollIntoView/,
+  );
+});
+
+test("admin messages can hide a conversation from the admin inbox", () => {
+  const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
+
+  assert.match(messages, /Trash2/);
+  assert.match(messages, /async function\s+deleteConversation/);
+  assert.match(
+    messages,
+    /fetch\(`\/api\/conversations\/\$\{conversation\.id\}`,\s*\{/,
+  );
+  assert.match(messages, /method:\s*"DELETE"/);
+  assert.match(messages, /window\.confirm/);
+  assert.match(messages, /chat:conversation-deleted/);
+  assert.match(messages, /Ẩn hội thoại với/);
+  assert.match(messages, /aria-label=\{`Ẩn hội thoại/);
 });

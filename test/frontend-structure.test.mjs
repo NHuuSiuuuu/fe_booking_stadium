@@ -522,3 +522,17 @@ test("admin dashboard fetches advanced statistics and exposes csv export", () =>
   assert.match(dashboardSource, /Trạng thái đơn đặt/);
   assert.match(dashboardSource, /Phương thức thanh toán/);
 });
+
+test("admin dashboard keeps rendering when optional advanced statistics are unavailable", () => {
+  const pageSource = readProjectFile("app/(protected-admin)/admin/page.tsx");
+
+  assert.match(pageSource, /async function fetchRequiredStatistics/);
+  assert.match(pageSource, /async function fetchOptionalStatistics/);
+  assert.match(pageSource, /return \{ data: \[\], message: "Không có dữ liệu", status: "fallback" \}/);
+  assert.match(pageSource, /fetchOptionalStatistics\("\/statistics\/status-summary"\)/);
+  assert.match(pageSource, /fetchOptionalStatistics\("\/statistics\/payment-summary"\)/);
+  assert.doesNotMatch(
+    pageSource,
+    /fetchStatistics\("\/statistics\/status-summary"\)/,
+  );
+});

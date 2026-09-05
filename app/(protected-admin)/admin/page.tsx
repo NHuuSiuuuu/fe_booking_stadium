@@ -14,7 +14,7 @@ export default async function page() {
     .filter(Boolean)
     .join("; ");
 
-  const fetchStatistics = async (path: string) => {
+  async function fetchRequiredStatistics(path: string) {
     const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}${path}`, {
       headers: {
         Cookie: cookieHeader,
@@ -27,7 +27,22 @@ export default async function page() {
     }
 
     return res.json();
-  };
+  }
+
+  async function fetchOptionalStatistics(path: string) {
+    const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}${path}`, {
+      headers: {
+        Cookie: cookieHeader,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return { data: [], message: "Không có dữ liệu", status: "fallback" };
+    }
+
+    return res.json();
+  }
 
   const [
     StatisticsOverview,
@@ -36,11 +51,11 @@ export default async function page() {
     StatusSummary,
     PaymentSummary,
   ] = await Promise.all([
-    fetchStatistics("/statistics/overview"),
-    fetchStatistics("/statistics/bookings-by-month"),
-    fetchStatistics("/statistics/top-stadiums"),
-    fetchStatistics("/statistics/status-summary"),
-    fetchStatistics("/statistics/payment-summary"),
+    fetchRequiredStatistics("/statistics/overview"),
+    fetchRequiredStatistics("/statistics/bookings-by-month"),
+    fetchRequiredStatistics("/statistics/top-stadiums"),
+    fetchOptionalStatistics("/statistics/status-summary"),
+    fetchOptionalStatistics("/statistics/payment-summary"),
   ]);
 
   const BookingsExportUrl = "/api/statistics/bookings-export.csv";

@@ -372,10 +372,10 @@ export default function MePage({
   }, [messages, typingSenderRole]);
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto flex max-w-5xl gap-6">
+    <div className="min-h-screen bg-slate-100 p-4 sm:p-6">
+      <div className="mx-auto flex flex-col lg:flex-row max-w-5xl gap-6">
         {/* Sidebar */}
-        <aside className="h-fit w-64 shrink-0 overflow-hidden  bg-white shadow-sm">
+        <aside className="h-fit w-full lg:w-64 shrink-0 overflow-hidden bg-white shadow-sm">
           {/* Profile */}
           <div className="flex items-center gap-3 border-b border-slate-100 p-5">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-700">
@@ -422,7 +422,7 @@ export default function MePage({
         </aside>
 
         {/* Main content */}
-        <main className="flex-1">
+        <main className="min-w-0 flex-1">
           {activePage == "account" && (
             <>
               <h1 className="mb-4 text-2xl font-bold text-slate-900">
@@ -576,9 +576,9 @@ export default function MePage({
             </>
           )}
           {activePage == "messages" && (
-            <section className="h-[calc(100vh-9rem)] min-h-[560px] overflow-hidden bg-white shadow-sm">
-              <div className="grid h-full min-h-0 md:grid-cols-[280px_1fr]">
-                <aside className="min-h-0 border-r border-slate-100">
+            <section className="h-[calc(100vh-7rem)] min-h-[620px] overflow-hidden bg-white shadow-sm lg:h-[calc(100vh-9rem)] lg:min-h-[560px]">
+              <div className="grid h-full min-h-0 grid-rows-[minmax(0,220px)_minmax(0,1fr)] lg:grid-cols-[280px_1fr] lg:grid-rows-1">
+                <aside className="min-h-0 border-b border-slate-100 lg:border-b-0 lg:border-r">
                   <div className="flex h-14 items-center border-b border-slate-100 px-4">
                     <h1 className="text-base font-semibold text-slate-950">
                       Tin nhắn

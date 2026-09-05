@@ -379,6 +379,18 @@ test("me sidebar contains messages and uses the logout icon for logout", () => {
   assert.doesNotMatch(source, /<Settings className=\{`h-4 w-4 `\} \/>/);
 });
 
+test("me page adapts account and message layout for mobile and tablet screens", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /p-4 sm:p-6/);
+  assert.match(source, /flex-col lg:flex-row/);
+  assert.match(source, /w-full lg:w-64/);
+  assert.match(source, /min-w-0 flex-1/);
+  assert.match(source, /grid-rows-\[minmax\(0,220px\)_minmax\(0,1fr\)\]/);
+  assert.match(source, /lg:grid-cols-\[280px_1fr\]/);
+  assert.match(source, /lg:grid-rows-1/);
+});
+
 test("me messages are rendered inside the account page without a new route", () => {
   const source = readProjectFile("app/(client)/me/me-setting.tsx");
 
@@ -395,6 +407,14 @@ test("me messages are rendered inside the account page without a new route", () 
   assert.match(source, /chat:join-conversation/);
   assert.match(source, /Chat với chủ sân/);
   assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
+});
+
+test("mobile header menu includes the account page link for signed-in users", () => {
+  const source = readProjectFile("components/client/layout/header/header.tsx");
+
+  assert.match(source, /href="\/me"/);
+  assert.match(source, /Tài khoản của tôi/);
+  assert.match(source, /onClick=\{\(\) => setIsMenuOpen\(false\)\}/);
 });
 
 test("me messages scroll inside the chat panel without moving the account page", () => {

@@ -191,6 +191,16 @@ export default function Header({ initialUser }: Props) {
               </div>
             )}
 
+            {user && (
+              <Link
+                href="/me"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-3 text-sm font-medium text-[#1b1b1b] border-b"
+              >
+                Tài khoản của tôi
+              </Link>
+            )}
+
             {/* Link Trang chủ (mobile) */}
             <Link
               href="/"

@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, Heart, Inbox } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { Stadium } from "@/types/stadium";
@@ -52,8 +53,11 @@ export default function FavoritePage() {
           {favorites.map((s) => (
             <div key={s.id} className="bg-white border">
               <div className="relative">
-                <img
-                  src={s.thumbnail?.[0]}
+                <Image
+                  src={s.thumbnail?.[0] || "/hero.png"}
+                  alt={s.name}
+                  width={400}
+                  height={160}
                   className="object-cover w-full h-40"
                 />
 
@@ -72,7 +76,7 @@ export default function FavoritePage() {
                 </p>
 
                 <div className="flex justify-between mt-3">
-                  <Link href={`/stadium/${s.slug}`}>
+                  <Link href={`/stadiums/${s.slug}`}>
                     <button
                       className="text-white  bg-gray-900 hover:bg-gray-700  px-4
                  py-2  text-[11px] font-semibold  uppercase tracking-wider transition-colors"

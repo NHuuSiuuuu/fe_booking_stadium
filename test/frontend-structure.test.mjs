@@ -140,6 +140,22 @@ test("client fetch calls use root api paths instead of page-relative api paths",
   assert.deepEqual(offenders, []);
 });
 
+test("favorite stadium links use the public stadium detail route", () => {
+  const source = readProjectFile("app/(client)/favorite/favorite-page.tsx");
+
+  assert.match(source, /href=\{`\/stadiums\/\$\{s\.slug\}`\}/);
+  assert.doesNotMatch(source, /href=\{`\/stadium\/\$\{s\.slug\}`\}/);
+});
+
+test("favorite stadium cards use optimized images with alt text", () => {
+  const source = readProjectFile("app/(client)/favorite/favorite-page.tsx");
+
+  assert.match(source, /import Image from "next\/image"/);
+  assert.match(source, /<Image/);
+  assert.match(source, /alt=\{s\.name\}/);
+  assert.doesNotMatch(source, /<img/);
+});
+
 test("admin user actions open dialogs instead of stadium routes", () => {
   const source = readProjectFile("app/(protected-admin)/admin/user/users.tsx");
 

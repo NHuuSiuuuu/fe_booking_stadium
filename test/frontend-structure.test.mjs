@@ -397,6 +397,18 @@ test("me messages are rendered inside the account page without a new route", () 
   assert.doesNotMatch(source, /href=\{['"]\/me\/messages['"]\}/);
 });
 
+test("me messages scroll inside the chat panel without moving the account page", () => {
+  const source = readProjectFile("app/(client)/me/me-setting.tsx");
+
+  assert.match(source, /messageScrollRef/);
+  assert.match(source, /ref=\{messageScrollRef\}/);
+  assert.match(source, /scrollElement\.scrollTop = scrollElement\.scrollHeight/);
+  assert.doesNotMatch(
+    source,
+    /messageBottomRef\.current\?\.scrollIntoView/,
+  );
+});
+
 test("admin messages can hide a conversation from the admin inbox", () => {
   const messages = readProjectFile("app/(protected-admin)/admin/messages/messages.tsx");
 

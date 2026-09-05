@@ -59,7 +59,7 @@ export default function MePage({
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [messageError, setMessageError] = useState("");
   const [typingSenderRole, setTypingSenderRole] = useState<SenderRole | null>(null);
-  const messageBottomRef = useRef<HTMLDivElement | null>(null);
+  const messageScrollRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
@@ -364,7 +364,11 @@ export default function MePage({
   }, [selectedConversation?.id]);
 
   useEffect(() => {
-    messageBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const scrollElement = messageScrollRef.current;
+
+    if (!scrollElement) return;
+
+    scrollElement.scrollTop = scrollElement.scrollHeight;
   }, [messages, typingSenderRole]);
 
   return (
@@ -671,7 +675,10 @@ export default function MePage({
                     </p>
                   )}
 
-                  <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+                  <div
+                    ref={messageScrollRef}
+                    className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4"
+                  >
                     {isLoadingMessages ? (
                       <div className="space-y-4 animate-pulse">
                         <div className="h-10 w-48 rounded-2xl bg-white" />
@@ -728,7 +735,6 @@ export default function MePage({
                         </div>
                       </div>
                     )}
-                    <div ref={messageBottomRef} />
                   </div>
 
                   <form

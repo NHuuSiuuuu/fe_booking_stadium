@@ -37,7 +37,7 @@ export default function ForgotPasswordForm() {
     setSendingOtp(true);
 
     try {
-      const res = await fetch("api/user/password/forgot", {
+      const res = await fetch("/api/user/password/forgot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -62,7 +62,7 @@ export default function ForgotPasswordForm() {
     setResetting(true);
 
     try {
-      const res = await fetch("api/user/password/resetPassword", {
+      const res = await fetch("/api/user/password/resetPassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

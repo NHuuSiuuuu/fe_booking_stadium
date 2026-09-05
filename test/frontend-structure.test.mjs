@@ -5,9 +5,25 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const sourceDirs = ["app", "components", "hooks", "lib"];
 
 function readProjectFile(filePath) {
   return fs.readFileSync(path.join(rootDir, filePath), "utf8");
+}
+
+function listSourceFiles(dir) {
+  const absoluteDir = path.join(rootDir, dir);
+  if (!fs.existsSync(absoluteDir)) return [];
+
+  return fs.readdirSync(absoluteDir, { withFileTypes: true }).flatMap((entry) => {
+    const relativePath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      return listSourceFiles(relativePath);
+    }
+
+    return /\.(tsx?|jsx?)$/.test(entry.name) ? [relativePath] : [];
+  });
 }
 
 test("env example documents every required public environment variable", () => {
@@ -104,6 +120,24 @@ test("client layout waits for authenticated header state instead of flashing log
   assert.match(source, /<HeaderServer \/>/);
   assert.doesNotMatch(source, /fallback=\{<Header initialUser=\{null\} \/>/);
   assert.doesNotMatch(source, /import \{ Suspense \} from "react"/);
+});
+
+test("auth forms call root api routes from nested auth pages", () => {
+  const loginSource = readProjectFile("app/(auth)/login/login-form.tsx");
+  const registerSource = readProjectFile("app/(auth)/register/register-form.tsx");
+
+  assert.match(loginSource, /fetch\(`\/api\/login`/);
+  assert.doesNotMatch(loginSource, /fetch\(`api\/login`/);
+  assert.match(registerSource, /fetch\(`\/api\/user\/create`/);
+  assert.doesNotMatch(registerSource, /fetch\(`api\/user\/create`/);
+});
+
+test("client fetch calls use root api paths instead of page-relative api paths", () => {
+  const offenders = sourceDirs
+    .flatMap(listSourceFiles)
+    .filter((filePath) => /fetch\(\s*["'`]api\//.test(readProjectFile(filePath)));
+
+  assert.deepEqual(offenders, []);
 });
 
 test("admin user actions open dialogs instead of stadium routes", () => {

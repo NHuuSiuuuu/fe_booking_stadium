@@ -156,7 +156,7 @@ export default function MapLeaflet() {
   // const totalPage = data?.totalPage || 0;
 
   useEffect(() => {
-    fetch(`api/districts`)
+    fetch(`/api/districts`)
       .then((res) => res.json())
       .then((data) => setDistricts(data.districts ?? []))
       .catch(console.error);

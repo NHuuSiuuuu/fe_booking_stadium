@@ -22,7 +22,12 @@ import useBookingDetail from "@/hooks/useBookingDetail";
 import { BookingData } from "@/app/booking/detail/[id]/types";
 import type { Review } from "@/types/review";
 
-type BookingStatus = "pending" | "confirmed" | "cancelled";
+type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "playing"
+  | "completed"
+  | "cancelled";
 
 const STATUS_MAP: Record<
   BookingStatus,
@@ -44,6 +49,18 @@ const STATUS_MAP: Record<
     icon: <CheckCircle2 size={12} />,
     cls: "bg-black text-white",
     message: "Người bán đã xác nhận đơn hàng",
+  },
+  playing: {
+    label: "Đang sử dụng",
+    icon: <Clock size={12} />,
+    cls: "bg-blue-600 text-white",
+    message: "Sân đang trong thời gian sử dụng",
+  },
+  completed: {
+    label: "Hoàn thành",
+    icon: <CheckCircle2 size={12} />,
+    cls: "bg-emerald-600 text-white",
+    message: "Đơn hàng đã hoàn thành",
   },
   cancelled: {
     label: "Đã huỷ",
@@ -90,6 +107,7 @@ export default function BookingDetail({
 
   const status = STATUS_MAP[booking?.status] ?? STATUS_MAP["pending"];
   const isCancelled = booking?.status === "cancelled";
+  const isReviewAllowed = booking?.status === "completed";
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -263,7 +281,7 @@ export default function BookingDetail({
                 </div>
                 <p className="text-sm text-gray-700">{myReview.comment}</p>
               </div>
-            ) : (
+            ) : isReviewAllowed ? (
               <div className="flex flex-col items-center gap-3 px-5 py-10 text-center bg-white">
                 <Star className="w-8 h-8 text-gray-300" strokeWidth={1.5} />
                 <div>
@@ -287,6 +305,18 @@ export default function BookingDetail({
                   <Star size={14} />
                   Đánh giá ngay
                 </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 px-5 py-10 text-center bg-white">
+                <Star className="w-8 h-8 text-gray-300" strokeWidth={1.5} />
+                <div>
+                  <h2 className="text-sm font-medium tracking-wide text-black uppercase">
+                    Chưa thể đánh giá sân
+                  </h2>
+                  <p className="max-w-sm mt-1 text-sm text-gray-500">
+                    Chỉ có thể đánh giá sau khi sân hoàn thành.
+                  </p>
+                </div>
               </div>
             )}
           </div>

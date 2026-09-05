@@ -514,3 +514,14 @@ test("booking success page reflects actual payment status and keeps stadium imag
   assert.doesNotMatch(source, /grayscale/);
   assert.doesNotMatch(source, /Đã thanh toán/);
 });
+
+test("booking detail only allows reviews after the booking is completed", () => {
+  const detailSource = readProjectFile("app/booking/detail/[id]/booking-detail.tsx");
+  const typesSource = readProjectFile("app/booking/detail/[id]/types.ts");
+
+  assert.match(typesSource, /"completed"/);
+  assert.match(detailSource, /const isReviewAllowed = booking\?\.status === "completed"/);
+  assert.match(detailSource, /isReviewAllowed \?/);
+  assert.match(detailSource, /Đánh giá ngay/);
+  assert.match(detailSource, /Chỉ có thể đánh giá sau khi sân hoàn thành/);
+});

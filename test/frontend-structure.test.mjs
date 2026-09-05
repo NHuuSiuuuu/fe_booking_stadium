@@ -502,3 +502,15 @@ test("admin messages can hide a conversation from the admin inbox", () => {
   assert.match(messages, /Ẩn hội thoại với/);
   assert.match(messages, /aria-label=\{`Ẩn hội thoại/);
 });
+
+test("booking success page reflects actual payment status and keeps stadium image in color", () => {
+  const source = readProjectFile("app/booking/success/[id]/booking-success.tsx");
+
+  assert.match(source, /paymentStatusLabels/);
+  assert.match(source, /paid:\s*"Thanh toán thành công"/);
+  assert.match(source, /unpaid:\s*"Chờ thanh toán"/);
+  assert.match(source, /failed:\s*"Thanh toán đã hủy"/);
+  assert.match(source, /data\?\.result\?\.payment_status/);
+  assert.doesNotMatch(source, /grayscale/);
+  assert.doesNotMatch(source, /Đã thanh toán/);
+});

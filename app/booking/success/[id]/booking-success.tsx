@@ -1,6 +1,8 @@
 "use client";
 import {
   CheckCircle2,
+  XCircle,
+  Hourglass,
   MapPin,
   Calendar,
   Clock,
@@ -9,6 +11,7 @@ import {
   Home,
   FileText,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,9 +29,27 @@ type BookingData = {
 
   result: {
     payment_method: string;
+    payment_status: string;
+    status: string;
     total_price: number;
     booking_date: string;
   };
+};
+
+const paymentStatusLabels: Record<string, string> = {
+  paid: "Thanh toán thành công",
+  unpaid: "Chờ thanh toán",
+  failed: "Thanh toán đã hủy",
+  refund_pending: "Chờ hoàn tiền",
+  refunded: "Đã hoàn tiền",
+};
+
+const paymentStatusClasses: Record<string, string> = {
+  paid: "bg-black text-white",
+  unpaid: "bg-gray-100 text-gray-700",
+  failed: "bg-red-100 text-red-700",
+  refund_pending: "bg-amber-100 text-amber-800",
+  refunded: "bg-emerald-100 text-emerald-800",
 };
 
 export default function BookingSuccess() {
@@ -69,20 +90,39 @@ export default function BookingSuccess() {
     );
   }
 
+  const paymentStatus = data?.result?.payment_status || "unpaid";
+  const isPaymentFailed =
+    paymentStatus === "failed" || data?.result?.status === "cancelled";
+  const title = isPaymentFailed ? "Thanh toán đã hủy" : "Đặt sân thành công";
+  const message = isPaymentFailed
+    ? "Đơn đặt sân đã bị hủy do thanh toán không hoàn tất"
+    : "Đơn đặt sân của bạn đã được ghi nhận";
+  const statusLabel = paymentStatusLabels[paymentStatus] || paymentStatus;
+  const statusClass =
+    paymentStatusClasses[paymentStatus] || "bg-gray-100 text-gray-700";
+  const StatusIcon = isPaymentFailed
+    ? XCircle
+    : paymentStatus === "paid"
+      ? CheckCircle2
+      : Hourglass;
+
   return (
-    // <h1>hehe</h1>
     <div className="min-h-screen bg-[#f5f5f5] ">
       <div className="max-w-2xl px-6 py-12 mx-auto">
         {/* Success header */}
         <div className="flex flex-col items-center mb-10">
-          <div className="flex items-center justify-center w-16 h-16 mb-4 bg-black border rounded-full">
-            <CheckCircle2 className="text-white size-8" />
+          <div
+            className={`flex items-center justify-center w-16 h-16 mb-4 border rounded-full ${
+              isPaymentFailed ? "bg-red-600" : "bg-black"
+            }`}
+          >
+            <StatusIcon className="text-white size-8" />
           </div>
           <h1 className="text-3xl font-medium tracking-tight text-black uppercase">
-            Đặt sân thành công!
+            {title}
           </h1>
           <p className="mt-2 text-xs tracking-widest text-[#1b1b1b] uppercase">
-            Đơn đặt sân của bạn đã được xác nhận
+            {message}
           </p>
         </div>
 
@@ -101,10 +141,12 @@ export default function BookingSuccess() {
           <div className="p-5 space-y-5">
             {/* Stadium info */}
             <div className="flex items-start gap-4">
-              <img
+              <Image
                 src={data?.stadiumBooking?.thumbnail}
-                alt=""
-                className="object-cover w-20 h-20 shrink-0 grayscale"
+                alt={data?.stadiumBooking?.name}
+                width={80}
+                height={80}
+                className="object-cover w-20 h-20 shrink-0"
               />
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
@@ -202,8 +244,10 @@ export default function BookingSuccess() {
                     currency: "VND",
                   }).format(data?.result?.total_price)}
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-2 py-1">
-                  Đã thanh toán
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 ${statusClass}`}
+                >
+                  {statusLabel}
                 </span>
               </div>
             </div>
@@ -211,12 +255,14 @@ export default function BookingSuccess() {
         </div>
 
         {/* Email notice */}
-        <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white border border-gray-300">
-          <Mail size={14} className="text-[#1b1b1b] shrink-0" />
-          <p className="text-xs tracking-widest text-gray-500 uppercase">
-            Email xác nhận đã được gửi đến địa chỉ email của bạn
-          </p>
-        </div>
+        {!isPaymentFailed && (
+          <div className="flex items-center gap-3 px-4 py-3 mt-4 bg-white border border-gray-300">
+            <Mail size={14} className="text-[#1b1b1b] shrink-0" />
+            <p className="text-xs tracking-widest text-gray-500 uppercase">
+              Email xác nhận sẽ được gửi đến địa chỉ email của bạn
+            </p>
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex gap-3 mt-4">
